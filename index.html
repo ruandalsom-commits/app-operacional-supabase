@@ -488,19 +488,6 @@
             if(pr.error) console.error('Erro Promocoes:', pr.error);
             if(pe.error) console.error('Erro Procedimentos:', pe.error);
             
-            let debugHTML = '<div style="position:fixed;bottom:10px;right:10px;background:#111;color:#0f0;padding:15px;border-radius:8px;z-index:99999;font-family:monospace;font-size:12px;box-shadow:0 0 10px rgba(0,0,0,0.5);max-width:300px;">';
-            debugHTML += '<b>🔍 DEBUG DE DADOS:</b><br>';
-            debugHTML += 'Home_Config: ' + (hc.data ? hc.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += 'Elite: ' + (el.data ? el.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += 'Promocoes: ' + (pr.data ? pr.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += 'Mapas: ' + (ma.data ? ma.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += 'Cadastro: ' + (ca.data ? ca.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += 'Procedimentos: ' + (pe.data ? pe.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += 'Dedicado: ' + (de.data ? de.data.length + ' linhas' : 'ERRO') + '<br>';
-            debugHTML += '<hr style="border-color:#333;margin:8px 0;">';
-            if(pr.data && pr.data.length > 0) debugHTML += 'Promo[0] keys: ' + Object.keys(pr.data[0]).join(', ');
-            debugHTML += '</div>';
-            document.body.insertAdjacentHTML('beforeend', debugHTML);
             
             // Função para garantir as chaves no formato esperado (PascalCase) e valores nulos como string vazia para evitar erro de undefined
             const mapKeys = (arr) => {
