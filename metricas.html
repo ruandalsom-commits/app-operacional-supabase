@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copa CR - Métricas da Frota</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            /* Paleta Copa CR */
+            --bg-color: #0b1c15; /* Verde escuro estádio */
+            --primary: #f9c74f;  /* Amarelo Ouro */
+            --primary-hover: #e0b446;
+            --secondary: #2a9d8f; /* Verde esmeralda */
+            --accent: #219ebc;    /* Azul vibrante */
+            --text-main: #f1faee;
+            --text-muted: #8d99ae;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(249, 199, 79, 0.3);
+            
+            /* Status Colors */
+            --status-working: #4ade80; /* Verde */
+            --status-offline: #f87171; /* Vermelho */
+            --status-paused: #fbbf24;  /* Amarelo */
+            --status-blocked: #a78bfa; /* Roxo */
+            --status-available: #60a5fa;/* Azul */
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% -20%, #1e453e, transparent 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent scrolling for the TV screen look */
+        }
+
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .time-display {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .carousel-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            position: absolute;
+            width: 90%;
+            max-width: 1200px;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+        }
+
+        .praca-title {
+            text-align: center;
+            font-size: 3.5rem;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-main);
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-title {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 4rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .metric-pct {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.4);
+        }
+
+        /* Specific colors per metric */
+        .card-working .metric-value { color: var(--status-working); }
+        .card-working .metric-pct { color: var(--status-working); }
+        
+        .card-offline .metric-value { color: var(--status-offline); }
+        .card-offline .metric-pct { color: var(--status-offline); }
+        
+        .card-paused .metric-value { color: var(--status-paused); }
+        .card-paused .metric-pct { color: var(--status-paused); }
+
+        .card-blocked .metric-value { color: var(--status-blocked); }
+        .card-blocked .metric-pct { color: var(--status-blocked); }
+        
+        .card-available .metric-value { color: var(--status-available); }
+        .card-available .metric-pct { color: var(--status-available); }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(249, 199, 79, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏆 Copa CR - Operação em Tempo Real</h1>
+        <div class="time-display" id="clock">00:00:00</div>
+    </header>
+
+    <div class="carousel-container" id="carousel">
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>Carregando métricas táticas...</p>
+        </div>
+    </div>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Importa a config do Supabase. Certifique-se de que supabaseClient.js exporta a constante supabase -->
+    <script src="supabaseClient.js"></script>
+    <script>
+        // Update Clock
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('pt-BR');
+        }, 1000);
+
+        const SLIDE_DURATION = 10000; // 10 segundos por praça
+        let currentSlideIndex = 0;
+        let progressInterval;
+        let slideTimeout;
+
+        async function fetchMetrics() {
+            try {
+                // Pega os dados mais recentes de cada praça (usando o horário mais recente inserido)
+                // Para simplificar, vamos pegar a última leitura feita.
+                    const { data: latestData, error: err1 } = await supabaseClient
+                        .from('frota_metricas')
+                        .select('horario')
+                        .order('created_at', { ascending: false })
+                        .limit(1);
+
+                    if (err1 || !latestData.length) throw new Error("Sem dados");
+
+                    const latestHorario = latestData[0].horario;
+
+                    const { data, error } = await supabaseClient
+                        .from('frota_metricas')
+                        .select('*')
+                        .eq('horario', latestHorario)
+                        .eq('subpraca', 'GERAL'); // Pega apenas o consolidado "GERAL" de cada praça
+
+                if (error) throw error;
+                
+                buildSlides(data);
+                
+            } catch (err) {
+                console.error("Erro ao buscar métricas:", err);
+                document.getElementById('loader').innerHTML = `<p style="color:red">Erro de conexão com a Base de Dados.</p>`;
+            }
+        }
+
+        function buildSlides(data) {
+            const container = document.getElementById('carousel');
+            container.innerHTML = ''; // Limpa loader
+
+            if (data.length === 0) {
+                container.innerHTML = '<h2>Nenhuma operação ativa no momento.</h2>';
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const slide = document.createElement('div');
+                slide.className = `slide ${index === 0 ? 'active' : ''}`;
+                
+                slide.innerHTML = `
+                    <h2 class="praca-title">📍 ${item.praca}</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card card-working">
+                            <div class="metric-title">Trabalhando 🟢</div>
+                            <div class="metric-value">${item.trabalhando}</div>
+                            <div class="metric-pct">${item.pct_trabalhando}</div>
+                        </div>
+                        <div class="metric-card card-offline">
+                            <div class="metric-title">Offline 🔴</div>
+                            <div class="metric-value">${item.offline}</div>
+                            <div class="metric-pct">${item.pct_offline}</div>
+                        </div>
+                        <div class="metric-card card-paused">
+                            <div class="metric-title">Em Pausa 🟡</div>
+                            <div class="metric-value">${item.em_pausa}</div>
+                            <div class="metric-pct">${item.pct_em_pausa}</div>
+                        </div>
+                        <div class="metric-card card-blocked">
+                            <div class="metric-title">Bloqueados 🟣</div>
+                            <div class="metric-value">${item.bloqueados}</div>
+                            <div class="metric-pct">${item.pct_bloqueados}</div>
+                        </div>
+                        <div class="metric-card card-available">
+                            <div class="metric-title">Disponíveis 🔵</div>
+                            <div class="metric-value">${item.disponiveis}</div>
+                            <div class="metric-pct">${item.pct_disponiveis}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(slide);
+            });
+
+            startCarousel(data.length);
+        }
+
+        function startCarousel(totalSlides) {
+            if (totalSlides <= 1) return; // Não precisa girar se só tem 1
+            
+            clearInterval(progressInterval);
+            clearTimeout(slideTimeout);
+            
+            currentSlideIndex = 0;
+            animateProgressAndSwitch(totalSlides);
+        }
+
+        function animateProgressAndSwitch(totalSlides) {
+            const slides = document.querySelectorAll('.slide');
+            const progressBar = document.getElementById('progressBar');
+            let start = Date.now();
+
+            // Progress bar animation
+            progressInterval = setInterval(() => {
+                let passed = Date.now() - start;
+                let percent = (passed / SLIDE_DURATION) * 100;
+                if (percent > 100) percent = 100;
+                progressBar.style.width = percent + '%';
+            }, 50);
+
+            // Slide switch
+            slideTimeout = setTimeout(() => {
+                slides[currentSlideIndex].classList.remove('active');
+                
+                currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+                
+                slides[currentSlideIndex].classList.add('active');
+                
+                clearInterval(progressInterval);
+                progressBar.style.width = '0%';
+                
+                // Fetch novos dados a cada volta completa
+                if (currentSlideIndex === 0) {
+                    fetchMetrics(); // Recarrega dados atualizados
+                } else {
+                    animateProgressAndSwitch(totalSlides);
+                }
+            }, SLIDE_DURATION);
+        }
+
+        // Init
+        fetchMetrics();
+    </script>
+</body>
+</html>
