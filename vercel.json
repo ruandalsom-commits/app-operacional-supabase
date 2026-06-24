@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/sync_frota",
-      "schedule": "*/10 * * * *"
-    }
-  ]
-}
