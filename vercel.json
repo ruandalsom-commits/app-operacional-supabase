@@ -4,15 +4,5 @@
       "path": "/api/sync_frota",
       "schedule": "*/10 * * * *"
     }
-  ],
-  "builds": [
-    {
-      "src": "api/**/*.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    }
   ]
 }
