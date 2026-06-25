@@ -352,7 +352,16 @@ class handler(BaseHTTPRequestHandler):
 
         from datetime import timedelta
         fuso_br = timezone(timedelta(hours=-3))
-        horario = datetime.now(fuso_br).strftime("%Y-%m-%d %H:%M")
+        now_br = datetime.now(fuso_br)
+        
+        # Trava de horario: Nao rodar entre 02:00 e 05:59
+        if 2 <= now_br.hour < 6:
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{"status": "skipped", "message": "Fora do horario comercial (02h as 06h)"}')
+            return
+            
+        horario = now_br.strftime("%Y-%m-%d %H:%M")
         
         todas_contas_ativas = [c for c in CONTAS if c.get("ativo", True)]
         if idx_conta is not None and idx_conta.isdigit():
