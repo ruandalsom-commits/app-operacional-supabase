@@ -12,8 +12,7 @@ from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.server import BaseHTTPRequestHandler
 
-# Import supabase
-from supabase import create_client, Client
+# Sem dependencias externas para Vercel
 
 # ============================================================
 # CONFIGURACOES
@@ -90,9 +89,7 @@ HEADERS_BASE = {
 
 STATUS_LIST = ["BLOCKED", "WORKING", "OFFLINE", "PAUSED", "AVAILABLE"]
 
-supabase: Client = None
-if SUPABASE_URL and SUPABASE_KEY:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Supabase configurado via HTTP nativo (urllib)
 
 class Sessao:
     def __init__(self, conta):
@@ -141,19 +138,28 @@ class Sessao:
         raise Exception("Codigo nao encontrado")
 
     def carregar_jwt(self):
-        if not supabase: return None
+        if not SUPABASE_URL or not SUPABASE_KEY: return None
         try:
-            res = supabase.table('frota_tokens').select('jwt').eq('email', self.email).execute()
-            if res.data and len(res.data) > 0:
-                return res.data[0]['jwt']
+            url = f"{SUPABASE_URL}/rest/v1/frota_tokens?select=jwt&email=eq.{urllib.parse.quote(self.email)}"
+            headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if data and len(data) > 0:
+                    return data[0].get("jwt")
         except Exception as e:
             print("Erro carregar JWT:", e)
         return None
 
     def salvar_jwt(self, jwt):
-        if not supabase: return
+        if not SUPABASE_URL or not SUPABASE_KEY: return
         try:
-            supabase.table('frota_tokens').upsert({'email': self.email, 'jwt': jwt}).execute()
+            url = f"{SUPABASE_URL}/rest/v1/frota_tokens"
+            headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates"}
+            body = json.dumps([{"email": self.email, "jwt": jwt}]).encode("utf-8")
+            req = urllib.request.Request(url, headers=headers, data=body, method="POST")
+            with urllib.request.urlopen(req) as resp:
+                pass
         except Exception as e:
             print("Erro salvar JWT:", e)
 
@@ -308,7 +314,7 @@ def coletar_regiao(sessao, regiao, horario):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if not supabase:
+        if not SUPABASE_URL or not SUPABASE_KEY:
             self.send_response(500)
             self.end_headers()
             self.wfile.write(b"Erro: SUPABASE_URL ou SUPABASE_KEY nao configurados.")
@@ -334,8 +340,15 @@ class handler(BaseHTTPRequestHandler):
         # Limpar registros do mesmo horario ou todos daquela região (depende da regra, aqui inserimos novo lote)
         # O ideal é apenas inserir
         if todos_registros:
-            # Em lote
-            supabase.table('frota_metricas').insert(todos_registros).execute()
+            try:
+                url = f"{SUPABASE_URL}/rest/v1/frota_metricas"
+                headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
+                body = json.dumps(todos_registros).encode("utf-8")
+                req = urllib.request.Request(url, headers=headers, data=body, method="POST")
+                with urllib.request.urlopen(req) as resp:
+                    pass
+            except Exception as e:
+                print("Erro ao inserir metricas:", e)
 
         self.send_response(200)
         self.send_header('Content-type','application/json')
