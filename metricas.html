@@ -586,7 +586,7 @@
                 </div>
                 <div class="chart-container" style="flex:1.2;">
                     <div class="chart-header">
-                        <div class="chart-title">Heatmap (Soma Ativos x Turno)</div>
+                        <div class="chart-title">Heatmap (Média Trabalhando x Turno)</div>
                     </div>
                     <div class="chart-wrapper">
                         <div class="heatmap-container" id="heatmapContainer"></div>
@@ -797,14 +797,26 @@
                 if (!shift) return;
                 
                 if (!matrix[r.subpraca]) {
-                    matrix[r.subpraca] = { manha: 0, almoco: 0, tarde: 0, jantar: 0, j5: 0, madrugada: 0 };
+                    matrix[r.subpraca] = { 
+                        manha: {s:0, c:0}, almoco: {s:0, c:0}, tarde: {s:0, c:0}, 
+                        jantar: {s:0, c:0}, j5: {s:0, c:0}, madrugada: {s:0, c:0} 
+                    };
                 }
                 
-                matrix[r.subpraca][shift] += r.trabalhando;
-                if (matrix[r.subpraca][shift] > maxVal) maxVal = matrix[r.subpraca][shift];
+                matrix[r.subpraca][shift].s += r.trabalhando;
+                matrix[r.subpraca][shift].c += 1;
             });
 
+            // Convert sums to averages
             const sortedSubs = Object.keys(matrix).sort();
+            sortedSubs.forEach(sub => {
+                turnos.forEach(t => {
+                    const obj = matrix[sub][t];
+                    const avg = obj.c > 0 ? Math.round(obj.s / obj.c) : 0;
+                    matrix[sub][t] = avg; // replace object with average value
+                    if (avg > maxVal) maxVal = avg;
+                });
+            });
 
             let html = '<div class="hm-table">';
             
