@@ -457,11 +457,112 @@
         }
         .hm-cell:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
 
+        /* LOGIN CSS */
+        #login-container {
+            min-height: 100vh; display: flex; align-items: center;
+            justify-content: center; padding: 24px;
+            background: #061A0C; position: fixed; inset: 0; z-index: 10000;
+        }
+        .login-box {
+            background: rgba(13,20,65,0.75); backdrop-filter: blur(24px);
+            border: 1px solid var(--border-color); border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28); padding: 44px 40px; width: 100%;
+            max-width: 420px; display: flex; flex-direction: column; gap: 16px;
+        }
+        .login-box img { max-width: 190px; height: auto; object-fit: contain; margin: 0 auto 12px; display: block; }
+        .login-box h2 { font-size: 22px; font-weight: 800; text-align: center; }
+        .login-subtitle { font-size: 13px; color: var(--text-muted); opacity: 0.7; text-align: center; margin-top: -8px; }
+        .login-field { position: relative; }
+        .login-field label {
+            position: absolute; top: 50%; left: 18px; transform: translateY(-50%);
+            color: rgba(180,228,255,0.5); font-size: 14px; font-weight: 500;
+            pointer-events: none; transition: all 0.2s ease; background: transparent;
+        }
+        .login-field input:not(:placeholder-shown) ~ label,
+        .login-field input:focus ~ label {
+            top: -8px; font-size: 11px; font-weight: 700; color: var(--primary);
+            background: #0d1441; padding: 0 6px; border-radius: 4px;
+        }
+        .login-input {
+            width: 100%; padding: 16px 18px 14px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: rgba(255,255,255,0.04);
+            color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px; font-weight: 500; outline: none;
+        }
+        .login-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(255,184,0,0.08); }
+        .login-btn {
+            width: 100%; padding: 15px; background: linear-gradient(135deg,var(--primary),#FFD24D);
+            color: #0A2E0A; border: none; border-radius: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800;
+            cursor: pointer; transition: all 0.3s ease; margin-top: 4px;
+        }
+        .login-btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* LOGIN CSS */
+        #login-container {
+            min-height: 100vh; display: flex; align-items: center;
+            justify-content: center; padding: 24px;
+            background: #061A0C; position: fixed; inset: 0; z-index: 10000;
+        }
+        .login-box {
+            background: rgba(13,20,65,0.75); backdrop-filter: blur(24px);
+            border: 1px solid var(--border-color); border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.28); padding: 44px 40px; width: 100%;
+            max-width: 420px; display: flex; flex-direction: column; gap: 16px;
+        }
+        .login-box img { max-width: 190px; height: auto; object-fit: contain; margin: 0 auto 12px; display: block; }
+        .login-box h2 { font-size: 22px; font-weight: 800; text-align: center; }
+        .login-subtitle { font-size: 13px; color: var(--text-muted); opacity: 0.7; text-align: center; margin-top: -8px; }
+        .login-field { position: relative; }
+        .login-field label {
+            position: absolute; top: 50%; left: 18px; transform: translateY(-50%);
+            color: rgba(180,228,255,0.5); font-size: 14px; font-weight: 500;
+            pointer-events: none; transition: all 0.2s ease; background: transparent;
+        }
+        .login-field input:not(:placeholder-shown) ~ label,
+        .login-field input:focus ~ label {
+            top: -8px; font-size: 11px; font-weight: 700; color: var(--primary);
+            background: #0d1441; padding: 0 6px; border-radius: 4px;
+        }
+        .login-input {
+            width: 100%; padding: 16px 18px 14px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: rgba(255,255,255,0.04);
+            color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px; font-weight: 500; outline: none;
+        }
+        .login-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(255,184,0,0.08); }
+        .login-btn {
+            width: 100%; padding: 15px; background: linear-gradient(135deg,var(--primary),#FFD24D);
+            color: #0A2E0A; border: none; border-radius: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800;
+            cursor: pointer; transition: all 0.3s ease; margin-top: 4px;
+        }
+        .login-btn:hover:not(:disabled) { transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
-    <header>
+    <div id="login-container" style="display:none;">
+        <div class="login-box">
+            <img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo EntreGô">
+            <h2>Bem-vindo de volta</h2>
+            <p class="login-subtitle">Acesso restrito ao painel de métricas</p>
+            <div class="login-field">
+                <input type="text" id="loginUser" class="login-input" placeholder=" ">
+                <label for="loginUser">Usuário</label>
+            </div>
+            <div class="login-field">
+                <input type="password" id="loginPass" class="login-input" placeholder=" ">
+                <label for="loginPass">Senha</label>
+            </div>
+            <button id="btnEntrar" class="login-btn" onclick="fazerLogin()">
+                <span id="txtBtn">Entrar</span>
+            </button>
+        </div>
+    </div>
+
+    <header id="main-ui-header" style="display:none;">
         <div class="logo">
             <div class="title">🏆 Acompanhamento de Praças</div>
             <div class="subtitle">EntreGô Sumarezinho, Recreio, Aldeota</div>
@@ -480,7 +581,7 @@
         </div>
     </header>
 
-    <div class="progress-bar-container">
+    <div class="progress-bar-container" id="main-ui-progress" style="display:none;">
         <div class="progress-bar" id="progressBar"></div>
     </div>
 
@@ -489,7 +590,7 @@
         <p id="loaderText" style="color: var(--text-muted); font-size: 1.1rem; font-weight:600;">Sincronizando banco de dados...</p>
     </div>
 
-    <main id="dashboard">
+    <main id="dashboard" style="display:none;">
         <div class="left-panel">
             <div class="praca-header">
                 <div class="praca-subtitle">Praça em Exibição</div>
@@ -1048,9 +1149,45 @@
             initDashboard(dateStr);
         }
 
-        // Start
-        initDashboard();
+        // ================= AUTHENTICATION =================
+        window.addEventListener('load', async function() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('main-ui-header').style.display = 'flex';
+                document.getElementById('main-ui-progress').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'grid';
+                initDashboard();
+            } else {
+                document.getElementById('login-container').style.display = 'flex';
+                document.getElementById('loader').style.display = 'none';
+            }
+        });
 
+        async function fazerLogin() {
+            var usr = document.getElementById('loginUser').value;
+            var pwd = document.getElementById('loginPass').value;
+            if (!usr || !pwd) { alert('Preencha usuário e senha!'); return; }
+            document.getElementById('btnEntrar').disabled = true;
+            document.getElementById('txtBtn').innerText = 'Sincronizando...';
+            
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: usr,
+                password: pwd,
+            });
+
+            if (error) {
+                document.getElementById('btnEntrar').disabled = false;
+                document.getElementById('txtBtn').innerText = 'Entrar';
+                alert('Erro: ' + error.message);
+            } else {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('main-ui-header').style.display = 'flex';
+                document.getElementById('main-ui-progress').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'grid';
+                initDashboard();
+            }
+        }
     </script>
 </body>
 </html>
