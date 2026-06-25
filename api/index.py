@@ -353,26 +353,39 @@ class handler(BaseHTTPRequestHandler):
         logs_finais = {}
         todos_registros = []
         erros = []
-        for sessao in sessoes:
+        def processar_sessao(sessao):
+            registros_sessao = []
+            sessao_erros = []
             for regiao in sessao.regioes:
                 try:
                     registros = coletar_regiao(sessao, regiao, horario)
-                    todos_registros.extend(registros)
+                    registros_sessao.extend(registros)
                 except Exception as e:
-                    erros.append(f"Erro coletar {regiao['nome']}: {str(e)}")
+                    sessao_erros.append(f"Erro coletar {regiao['nome']}: {str(e)}")
                     try:
                         sucesso_renovacao = sessao.renovar_jwt()
                         if sucesso_renovacao:
                             try:
                                 registros = coletar_regiao(sessao, regiao, horario)
-                                todos_registros.extend(registros)
+                                registros_sessao.extend(registros)
                             except Exception as e2:
-                                erros.append(f"Erro pos-renovacao {regiao['nome']}: {str(e2)}")
+                                sessao_erros.append(f"Erro pos-renovacao {regiao['nome']}: {str(e2)}")
                         else:
-                            erros.append(f"Falha renovar JWT para {sessao.email}")
+                            sessao_erros.append(f"Falha renovar JWT para {sessao.email}")
                     except Exception as e3:
-                        erros.append(f"Erro no renovar_jwt: {str(e3)}")
-            logs_finais[sessao.email] = sessao.logs
+                        sessao_erros.append(f"Erro no renovar_jwt: {str(e3)}")
+            return registros_sessao, sessao_erros, sessao.logs, sessao.email
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futuros = [executor.submit(processar_sessao, s) for s in sessoes]
+            for f in as_completed(futuros):
+                try:
+                    regs, errs, logs, email = f.result()
+                    todos_registros.extend(regs)
+                    erros.extend(errs)
+                    logs_finais[email] = logs
+                except Exception as e:
+                    erros.append(f"Erro Thread: {str(e)}")
                             
         # Limpar registros do mesmo horario ou todos daquela região (depende da regra, aqui inserimos novo lote)
         # O ideal é apenas inserir
