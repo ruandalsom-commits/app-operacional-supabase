@@ -399,13 +399,25 @@ class handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     erros.append(f"Erro Thread: {str(e)}")
                             
-        # Limpar registros do mesmo horario ou todos daquela região (depende da regra, aqui inserimos novo lote)
-        # O ideal é apenas inserir
         if todos_registros:
             try:
                 supa_url = SUPABASE_URL.rstrip('/') if SUPABASE_URL else ""
                 url = f"{supa_url}/rest/v1/frota_metricas"
                 headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
+                
+                # Deletar registros do mesmo horario e regiao para evitar duplicatas (caso a cron-job de retry)
+                regioes_nomes = list(set([r["regiao"] for r in todos_registros]))
+                if regioes_nomes:
+                    import urllib.parse
+                    regioes_param = ",".join([urllib.parse.quote(f'"{n}"') for n in regioes_nomes])
+                    del_url = f"{supa_url}/rest/v1/frota_metricas?horario=eq.{urllib.parse.quote(horario)}&regiao=in.({regioes_param})"
+                    del_req = urllib.request.Request(del_url, headers=headers, method="DELETE")
+                    try:
+                        with urllib.request.urlopen(del_req) as resp:
+                            pass
+                    except Exception as edel:
+                        erros.append(f"Erro limpar duplicatas: {str(edel)}")
+
                 body = json.dumps(todos_registros).encode("utf-8")
                 req = urllib.request.Request(url, headers=headers, data=body, method="POST")
                 with urllib.request.urlopen(req) as resp:
