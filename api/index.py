@@ -324,18 +324,26 @@ class handler(BaseHTTPRequestHandler):
         sessoes = [Sessao(c) for c in CONTAS if c.get("ativo", True)]
         
         todos_registros = []
+        erros = []
         for sessao in sessoes:
             for regiao in sessao.regioes:
                 try:
                     registros = coletar_regiao(sessao, regiao, horario)
                     todos_registros.extend(registros)
                 except Exception as e:
-                    if sessao.renovar_jwt():
-                        try:
-                            registros = coletar_regiao(sessao, regiao, horario)
-                            todos_registros.extend(registros)
-                        except:
-                            pass
+                    erros.append(f"Erro coletar {regiao['nome']}: {str(e)}")
+                    try:
+                        sucesso_renovacao = sessao.renovar_jwt()
+                        if sucesso_renovacao:
+                            try:
+                                registros = coletar_regiao(sessao, regiao, horario)
+                                todos_registros.extend(registros)
+                            except Exception as e2:
+                                erros.append(f"Erro pos-renovacao {regiao['nome']}: {str(e2)}")
+                        else:
+                            erros.append(f"Falha renovar JWT para {sessao.email}")
+                    except Exception as e3:
+                        erros.append(f"Erro no renovar_jwt: {str(e3)}")
                             
         # Limpar registros do mesmo horario ou todos daquela região (depende da regra, aqui inserimos novo lote)
         # O ideal é apenas inserir
@@ -348,11 +356,11 @@ class handler(BaseHTTPRequestHandler):
                 with urllib.request.urlopen(req) as resp:
                     pass
             except Exception as e:
-                print("Erro ao inserir metricas:", e)
+                erros.append(f"Erro ao inserir no Supabase: {str(e)}")
 
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        res = {"status": "ok", "inserted": len(todos_registros)}
+        res = {"status": "ok", "inserted": len(todos_registros), "erros": erros}
         self.wfile.write(json.dumps(res).encode('utf-8'))
         return
