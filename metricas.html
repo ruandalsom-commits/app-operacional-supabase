@@ -3,37 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Operacional - Entregô</title>
+    <title>Acompanhamento de Praças - EntreGô</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Poppins:wght@500;700;900&display=swap" rel="stylesheet">
     <!-- Supabase e Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            /* Cores padrão mais modernas (Estilo Entrego/Delivery) */
-            --bg-dark: #0f1115;
-            --bg-card: #181b21;
-            --primary: #f03e3e; /* Vermelho Entrego */
-            --primary-glow: rgba(240, 62, 62, 0.3);
-            --text-main: #f8f9fa;
-            --text-muted: #868e96;
-            --border-color: rgba(255,255,255,0.05);
+            /* Cores padrão EntreGô / Copa CR (Baseado no index.html) */
+            --bg-dark: #031709;
+            --bg-card: rgba(0, 30, 80, 0.62);
+            --primary: #FFB800; /* Menta Viva / Yellow */
+            --primary-glow: rgba(255, 184, 0, 0.3);
+            --secondary: #1DB954; /* Green */
+            --text-main: #ffffff;
+            --text-muted: rgba(245, 245, 240, 0.85); /* Azul gelo */
+            --border-color: rgba(255, 184, 0, 0.13);
 
             /* Status */
-            --st-working: #20c997;
-            --st-offline: #fa5252;
-            --st-paused: #fcc419;
-            --st-blocked: #b197fc;
-            --st-available: #339af0;
+            --st-working: #1DB954; /* Green */
+            --st-offline: #FF5050; /* Red */
+            --st-paused: #FFB800; /* Yellow */
+            --st-blocked: #009B7F;
+            --st-available: #2C67EA; /* Blue */
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
@@ -43,6 +44,15 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(255,184,0,0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse 60% 50% at 80% 110%, rgba(0,48,135,0.2) 0%, transparent 55%);
+            pointer-events: none;
         }
 
         /* HEADER */
@@ -50,205 +60,272 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            padding: 15px 40px;
+            background: rgba(0, 15, 45, 0.92);
+            border-bottom: 1px solid rgba(255, 184, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
 
         header .logo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        header .logo .title {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 1.4rem;
+            font-weight: 800;
             color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        header .logo span {
+        header .logo .title span {
             color: var(--primary);
+        }
+
+        header .logo .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controls select {
+            padding: 8px 16px;
+            background: rgba(0, 25, 70, 0.55);
+            border: 1px solid var(--border-color);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .controls select:hover {
+            border-color: var(--primary);
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            background: rgba(255, 184, 0, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            background: var(--primary);
+            color: #000;
         }
 
         .clock-container {
             text-align: right;
+            border-left: 1px solid var(--border-color);
+            padding-left: 20px;
         }
 
         .clock {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-family: 'Poppins', sans-serif;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--text-main);
         }
 
         .date {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            font-size: 0.75rem;
+            color: var(--primary);
         }
 
         /* MAIN CONTENT */
         main {
             flex: 1;
-            padding: 30px 40px;
+            padding: 20px 40px;
             display: grid;
             grid-template-columns: 350px 1fr;
-            gap: 30px;
-            opacity: 0; /* Começa invisivel para transição */
+            gap: 25px;
+            opacity: 0;
             transition: opacity 0.5s ease;
+            z-index: 1;
         }
 
         main.active {
             opacity: 1;
         }
 
-        /* LEFT PANEL - Current Stats */
+        /* LEFT PANEL */
         .left-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         .praca-header {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(240, 62, 62, 0.05) 100%);
+            background: linear-gradient(135deg, rgba(0,30,80,0.8) 0%, rgba(0,15,45,0.9) 100%);
             border: 1px solid var(--border-color);
-            padding: 30px;
+            padding: 25px;
             border-radius: 16px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
         
         .praca-header::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
+            top: 0; left: 0; width: 100%; height: 3px;
             background: var(--primary);
         }
 
         .praca-title {
             font-family: 'Poppins', sans-serif;
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             margin-bottom: 5px;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(255,184,0,0.2);
         }
 
         .praca-subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
+            color: var(--primary);
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-weight: 700;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
         }
 
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
         .stat-card.full-width {
             grid-column: span 2;
+            background: linear-gradient(135deg, rgba(29,185,84,0.1) 0%, rgba(0,30,80,0.6) 100%);
+            border-color: rgba(29,185,84,0.3);
         }
 
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
-            font-weight: 600;
+            margin-bottom: 5px;
+            font-weight: 700;
         }
 
         .stat-value {
             font-family: 'Poppins', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.2rem;
+            font-weight: 800;
             line-height: 1;
         }
 
         .stat-pct {
             display: inline-block;
-            margin-top: 8px;
-            font-size: 0.8rem;
-            padding: 3px 10px;
+            margin-top: 5px;
+            font-size: 0.75rem;
+            padding: 2px 8px;
             border-radius: 20px;
             background: rgba(255,255,255,0.05);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         /* Specific colors */
-        .c-working .stat-value { color: var(--st-working); text-shadow: 0 0 15px rgba(32,201,151,0.3); }
+        .c-working .stat-value { color: var(--st-working); text-shadow: 0 0 15px rgba(29,185,84,0.4); }
         .c-offline .stat-value { color: var(--st-offline); }
         .c-paused .stat-value { color: var(--st-paused); }
         .c-blocked .stat-value { color: var(--st-blocked); }
         .c-available .stat-value { color: var(--st-available); }
 
-        /* RIGHT PANEL - Charts & Analytics */
+        /* RIGHT PANEL */
         .right-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         .chart-container {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
             flex: 1;
             display: flex;
             flex-direction: column;
             position: relative;
+            backdrop-filter: blur(10px);
         }
 
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .chart-title {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
-            color: var(--text-main);
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 700;
         }
 
         .chart-wrapper {
             flex: 1;
             position: relative;
-            min-height: 0; /* Important for Chart.js inside flex */
+            min-height: 0;
         }
 
-        /* SHIFTS / TURNOS */
+        /* SHIFTS */
         .shifts-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 15px;
         }
 
         .shift-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            backdrop-filter: blur(10px);
         }
 
         .shift-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.05);
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: rgba(255,184,0,0.1);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -261,30 +338,35 @@
 
         .shift-name {
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
+            font-weight: 700;
         }
 
         .shift-peak {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.3rem;
+            font-weight: 800;
             color: var(--text-main);
         }
 
         .shift-time {
-            font-size: 0.75rem;
-            color: var(--primary);
-            font-weight: 600;
+            font-size: 0.7rem;
+            color: var(--secondary);
+            font-weight: 700;
         }
 
         /* PROGRESS BAR */
         .progress-bar-container {
             height: 4px;
-            background: var(--bg-card);
+            background: rgba(0,0,0,0.5);
             width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
         }
 
         .progress-bar {
@@ -295,7 +377,7 @@
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
-        /* LOADER / ERRORS */
+        /* LOADER */
         .loader-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -311,7 +393,7 @@
         .spinner {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(240, 62, 62, 0.2);
+            border: 4px solid rgba(255, 184, 0, 0.2);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -326,15 +408,19 @@
 
     <header>
         <div class="logo">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            Entregô <span>Analytics</span>
+            <div class="title">🏆 Acompanhamento de Praças</div>
+            <div class="subtitle">EntreGô Sumarezinho, Recreio, Aldeota</div>
         </div>
-        <div class="clock-container">
-            <div class="clock" id="clock">00:00:00</div>
-            <div class="date" id="date">Carregando...</div>
+        
+        <div class="controls">
+            <select id="pracaSelect" onchange="manualSelectPraca(this.value)">
+                <option value="">Carregando...</option>
+            </select>
+            <button id="playPauseBtn" onclick="togglePlayPause()">⏸ Pausar</button>
+            <div class="clock-container">
+                <div class="clock" id="clock">00:00:00</div>
+                <div class="date" id="date">Carregando...</div>
+            </div>
         </div>
     </header>
 
@@ -344,13 +430,13 @@
 
     <div class="loader-overlay" id="loader">
         <div class="spinner"></div>
-        <p id="loaderText" style="color: var(--text-muted); font-size: 1.1rem;">Sincronizando banco de dados...</p>
+        <p id="loaderText" style="color: var(--text-muted); font-size: 1.1rem; font-weight:600;">Sincronizando banco de dados...</p>
     </div>
 
     <main id="dashboard">
         <div class="left-panel">
             <div class="praca-header">
-                <div class="praca-subtitle">Praça Atual</div>
+                <div class="praca-subtitle">Praça em Exibição</div>
                 <div class="praca-title" id="ui-praca-name">--</div>
             </div>
 
@@ -413,7 +499,7 @@
 
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Evolução de Motoristas no Dia</div>
+                    <div class="chart-title">Evolução de Motoristas Ativos no Dia</div>
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="mainChart"></canvas>
@@ -438,11 +524,13 @@
         let currentIndex = 0;
         let slideTimeout;
         let progressInterval;
+        let isPlaying = true;
+        let currentProgress = 0; // ms passed
         const SLIDE_DURATION = 15000; // 15s per praca
         
         // Chart.js Default Config for Dark Theme
-        Chart.defaults.color = '#868e96';
-        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.color = 'rgba(245, 245, 240, 0.6)';
+        Chart.defaults.font.family = 'Plus Jakarta Sans';
 
         async function initDashboard() {
             try {
@@ -472,6 +560,13 @@
                 
                 if (pracaNames.length === 0) throw new Error("Sem praças ativas.");
 
+                // Populate Dropdown
+                const selectEl = document.getElementById('pracaSelect');
+                selectEl.innerHTML = '';
+                pracaNames.forEach((p, idx) => {
+                    selectEl.innerHTML += `<option value="${idx}">${p}</option>`;
+                });
+
                 // Hide loader
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
@@ -481,12 +576,12 @@
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('loaderText').innerHTML = `<span style="color:#fa5252">Erro: ${err.message || err}</span>`;
+                document.getElementById('loaderText').innerHTML = `<span style="color:#FF5050">Erro: ${err.message || err}</span>`;
                 document.querySelector('.spinner').style.display = 'none';
             }
         }
 
-        function getShift(timeStr) { // HH:MM
+        function getShift(timeStr) {
             const hour = parseInt(timeStr.split(':')[0]);
             if (hour >= 6 && hour < 12) return 'manha';
             if (hour >= 12 && hour < 18) return 'tarde';
@@ -525,9 +620,9 @@
             }
 
             // Gradient for Working line
-            const gradWorking = ctx.createLinearGradient(0, 0, 0, 400);
-            gradWorking.addColorStop(0, 'rgba(32, 201, 151, 0.5)');
-            gradWorking.addColorStop(1, 'rgba(32, 201, 151, 0.0)');
+            const gradWorking = ctx.createLinearGradient(0, 0, 0, 300);
+            gradWorking.addColorStop(0, 'rgba(29, 185, 84, 0.4)');
+            gradWorking.addColorStop(1, 'rgba(29, 185, 84, 0.0)');
 
             chartInstance = new Chart(ctx, {
                 type: 'line',
@@ -537,7 +632,7 @@
                         {
                             label: 'Trabalhando (Ativos)',
                             data: dataWorking,
-                            borderColor: '#20c997',
+                            borderColor: '#1DB954',
                             backgroundColor: gradWorking,
                             borderWidth: 3,
                             fill: true,
@@ -548,7 +643,7 @@
                         {
                             label: 'Total Cadastrados',
                             data: dataTotal,
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(255, 184, 0, 0.3)',
                             borderWidth: 2,
                             borderDash: [5, 5],
                             fill: false,
@@ -565,13 +660,15 @@
                         intersect: false,
                     },
                     plugins: {
-                        legend: { position: 'top', align: 'end' },
+                        legend: { position: 'top', align: 'end', labels: { font: { family: 'Poppins' } } },
                         tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            backgroundColor: 'rgba(0,15,45,0.9)',
                             titleFont: { size: 14, family: 'Poppins' },
-                            bodyFont: { size: 13, family: 'Inter' },
+                            bodyFont: { size: 13, family: 'Plus Jakarta Sans' },
                             padding: 12,
-                            cornerRadius: 8
+                            cornerRadius: 8,
+                            borderColor: 'rgba(255, 184, 0, 0.3)',
+                            borderWidth: 1
                         }
                     },
                     scales: {
@@ -589,6 +686,9 @@
         }
 
         function showPraca(index) {
+            currentIndex = index;
+            document.getElementById('pracaSelect').value = index;
+
             const dashboard = document.getElementById('dashboard');
             dashboard.classList.remove('active'); // fade out
 
@@ -632,34 +732,70 @@
                 // Fade In
                 dashboard.classList.add('active');
 
-                // Progress Bar animation
-                startProgress(index);
+                // Reset progress and start
+                currentProgress = 0;
+                manageProgress();
 
-            }, 500); // Wait for fade out
+            }, 400); // Wait for fade out
         }
 
-        function startProgress(index) {
-            const progressBar = document.getElementById('progressBar');
-            let start = Date.now();
-            
+        function manageProgress() {
             clearInterval(progressInterval);
-            progressInterval = setInterval(() => {
-                let passed = Date.now() - start;
-                let percent = (passed / SLIDE_DURATION) * 100;
-                if (percent > 100) percent = 100;
-                progressBar.style.width = percent + '%';
-            }, 50);
-
             clearTimeout(slideTimeout);
-            slideTimeout = setTimeout(() => {
-                let nextIndex = (index + 1) % pracaNames.length;
-                if (nextIndex === 0) {
-                    // Refetch data from DB when loop completes
-                    initDashboard(); 
-                } else {
-                    showPraca(nextIndex);
+            
+            if (!isPlaying) {
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressBar').style.backgroundColor = 'var(--text-muted)';
+                return;
+            }
+
+            document.getElementById('progressBar').style.backgroundColor = 'var(--primary)';
+
+            progressInterval = setInterval(() => {
+                currentProgress += 50;
+                let percent = (currentProgress / SLIDE_DURATION) * 100;
+                if (percent > 100) percent = 100;
+                document.getElementById('progressBar').style.width = percent + '%';
+
+                if (currentProgress >= SLIDE_DURATION) {
+                    clearInterval(progressInterval);
+                    let nextIndex = (currentIndex + 1) % pracaNames.length;
+                    if (nextIndex === 0) {
+                        // Refetch data from DB when loop completes
+                        initDashboard(); 
+                    } else {
+                        showPraca(nextIndex);
+                    }
                 }
-            }, SLIDE_DURATION);
+            }, 50);
+        }
+
+        function togglePlayPause() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            if (isPlaying) {
+                btn.innerText = '⏸ Pausar';
+                btn.style.background = 'rgba(255, 184, 0, 0.1)';
+                btn.style.color = 'var(--primary)';
+                manageProgress();
+            } else {
+                btn.innerText = '▶️ Retomar';
+                btn.style.background = 'var(--primary)';
+                btn.style.color = '#000';
+                manageProgress();
+            }
+        }
+
+        function manualSelectPraca(indexStr) {
+            if(indexStr === '') return;
+            // Force pause when manually selecting
+            isPlaying = false;
+            const btn = document.getElementById('playPauseBtn');
+            btn.innerText = '▶️ Retomar';
+            btn.style.background = 'var(--primary)';
+            btn.style.color = '#000';
+            
+            showPraca(parseInt(indexStr));
         }
 
         // Start
