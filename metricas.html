@@ -830,8 +830,8 @@
             history.forEach(row => {
                 const time = row.horario.split(' ')[1]; // Extract HH:MM
                 const shift = getShift(time);
-                if (shift && peaks[shift] && row.trabalhando > peaks[shift].val) {
-                    peaks[shift].val = row.trabalhando;
+                if (shift && peaks[shift] && row.total > peaks[shift].val) {
+                    peaks[shift].val = row.total;
                     peaks[shift].time = time;
                 }
             });
@@ -847,6 +847,10 @@
             
             const labels = history.map(row => row.horario.split(' ')[1]);
             const dataWorking = history.map(row => row.trabalhando);
+            const dataOffline = history.map(row => row.offline);
+            const dataPaused = history.map(row => row.em_pausa);
+            const dataBlocked = history.map(row => row.bloqueados);
+            const dataAvailable = history.map(row => row.disponiveis);
             const dataTotal = history.map(row => row.total);
 
             if (chartInstance) {
@@ -874,6 +878,42 @@
                             tension: 0.45,
                             pointRadius: 0,
                             pointHitRadius: 20
+                        },
+                        {
+                            label: 'Offline',
+                            data: dataOffline,
+                            borderColor: '#FF5050',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Em Pausa',
+                            data: dataPaused,
+                            borderColor: '#FFB800',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Inativos',
+                            data: dataBlocked,
+                            borderColor: '#009B7F',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Disponíveis',
+                            data: dataAvailable,
+                            borderColor: '#2C67EA',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
                         },
                         {
                             label: 'Total Drivers',
