@@ -403,9 +403,26 @@
 
         /* HEATMAP MATRIX */
         .heatmap-container {
-            width: 100%; height: 100%;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto; overflow-x: auto;
             padding-right: 5px;
+        }
+        
+        .heatmap-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .heatmap-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        .heatmap-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 184, 0, 0.5);
+            border-radius: 4px;
+        }
+        .heatmap-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
         
         .hm-table {
@@ -559,7 +576,7 @@
             </div>
 
             <div class="charts-row" style="display:flex; gap:15px; flex:1; min-height: 0;">
-                <div class="chart-container" style="flex:2.5;">
+                <div class="chart-container" style="flex:2;">
                     <div class="chart-header">
                         <div class="chart-title">Drivers ativos e trabalhando no dia</div>
                     </div>
@@ -567,7 +584,7 @@
                         <canvas id="mainChart"></canvas>
                     </div>
                 </div>
-                <div class="chart-container" style="flex:1;">
+                <div class="chart-container" style="flex:1.2;">
                     <div class="chart-header">
                         <div class="chart-title">Heatmap (Soma Ativos x Turno)</div>
                     </div>
