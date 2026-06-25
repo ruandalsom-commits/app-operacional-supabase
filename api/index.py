@@ -156,7 +156,7 @@ class Sessao:
             with urllib.request.urlopen(req) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 if data and len(data) > 0:
-                    self.jwt_local = data[0].get("jwt")
+                    self.jwt_local = data[-1].get("jwt")
                     return self.jwt_local
                 self.log("JWT nao encontrado no banco para este email")
         except urllib.error.HTTPError as he:
@@ -170,13 +170,13 @@ class Sessao:
         supa_url = SUPABASE_URL.rstrip('/') if SUPABASE_URL else ""
         if not supa_url or not SUPABASE_KEY: return
         try:
-            url = f"{supa_url}/rest/v1/frota_tokens"
-            headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates"}
-            body = json.dumps([{"email": self.email, "jwt": jwt}]).encode("utf-8")
-            req = urllib.request.Request(url, headers=headers, data=body, method="POST")
+            url = f"{supa_url}/rest/v1/frota_tokens?email=eq.{urllib.parse.quote(self.email)}"
+            headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
+            body = json.dumps({"jwt": jwt}).encode("utf-8")
+            req = urllib.request.Request(url, headers=headers, data=body, method="PATCH")
             with urllib.request.urlopen(req) as resp:
                 pass
-            self.log("JWT salvo no banco")
+            self.log("JWT salvo no banco (PATCH)")
         except urllib.error.HTTPError as he:
             self.log(f"Erro salvar JWT HTTPError: {he.code} {he.reason}")
         except Exception as e:
