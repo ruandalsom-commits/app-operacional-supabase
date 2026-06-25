@@ -103,7 +103,7 @@
             gap: 20px;
         }
 
-        .controls select {
+        .controls select, .controls input[type="date"] {
             padding: 8px 16px;
             background: rgba(0, 25, 70, 0.55);
             border: 1px solid var(--border-color);
@@ -112,9 +112,10 @@
             font-weight: 700;
             outline: none;
             cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
         
-        .controls select:hover {
+        .controls select:hover, .controls input[type="date"]:hover {
             border-color: var(--primary);
         }
 
@@ -467,6 +468,7 @@
         </div>
         
         <div class="controls">
+            <input type="date" id="dateSelect" onchange="manualSelectDate(this.value)">
             <select id="pracaSelect" onchange="manualSelectPraca(this.value)">
                 <option value="">Carregando...</option>
             </select>
@@ -620,21 +622,35 @@
         Chart.defaults.color = 'rgba(245, 245, 240, 0.6)';
         Chart.defaults.font.family = 'Plus Jakarta Sans';
 
-        async function initDashboard() {
-            try {
-                // Get today's date in YYYY-MM-DD
-                const today = new Date();
-                const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        // Initialization
+        const today = new Date();
+        let selectedDateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        document.getElementById('dateSelect').value = selectedDateStr;
 
-                // Fetch all 'GERAL' records for TODAY to build the charts
+        async function initDashboard(targetDate = null) {
+            try {
+                if (targetDate) {
+                    selectedDateStr = targetDate;
+                }
+                
+                // Show loader for changes
+                document.getElementById('loader').style.display = 'flex';
+                document.getElementById('loader').style.opacity = '1';
+                document.querySelector('.spinner').style.display = 'block';
+                document.getElementById('loaderText').innerHTML = "Sincronizando banco de dados...";
+
+                // Fetch all records for the selected date
                 const { data, error } = await supabaseClient
                     .from('frota_metricas')
                     .select('*')
-                    .like('horario', `${todayStr}%`)
+                    .like('horario', `${selectedDateStr}%`)
                     .order('horario', { ascending: true });
 
                 if (error) throw error;
-                if (!data || data.length === 0) throw new Error("Nenhum dado registrado hoje ainda.");
+                if (!data || data.length === 0) {
+                    const brDate = selectedDateStr.split('-').reverse().join('/');
+                    throw new Error(`Nenhum dado registrado para o dia ${brDate}.`);
+                }
 
                 // Group by Praca
                 dataByPraca = {};
@@ -663,7 +679,10 @@
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('loaderText').innerHTML = `<span style="color:#FF5050">Erro: ${err.message || err}</span>`;
+                document.getElementById('loaderText').innerHTML = `
+                    <span style="color:#FF5050; margin-bottom: 15px; display:block;">${err.message || err}</span>
+                    <button onclick="location.reload()" style="padding: 10px 20px; background: var(--primary); color: #000; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; font-family: 'Plus Jakarta Sans', sans-serif;">Voltar para Hoje</button>
+                `;
                 document.querySelector('.spinner').style.display = 'none';
             }
         }
@@ -978,6 +997,13 @@
             btn.style.color = '#000';
             
             showPraca(parseInt(indexStr));
+        }
+
+        function manualSelectDate(dateStr) {
+            if(!dateStr) return;
+            clearInterval(progressInterval);
+            clearTimeout(slideTimeout);
+            initDashboard(dateStr);
         }
 
         // Start
