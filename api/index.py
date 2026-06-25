@@ -345,7 +345,9 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(b"Erro: SUPABASE_URL ou SUPABASE_KEY nao configurados.")
             return
 
-        horario = time.strftime("%Y-%m-%d %H:%M")
+        from datetime import timedelta
+        fuso_br = timezone(timedelta(hours=-3))
+        horario = datetime.now(fuso_br).strftime("%Y-%m-%d %H:%M")
         sessoes = [Sessao(c) for c in CONTAS if c.get("ativo", True)]
         
         logs_finais = {}
