@@ -9,6 +9,7 @@
     <!-- Supabase e Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         :root {
@@ -457,7 +458,7 @@
                     <div class="stat-pct" id="ui-pct-paused">0%</div>
                 </div>
                 <div class="stat-card c-blocked">
-                    <div class="stat-label">Bloqueados</div>
+                    <div class="stat-label">Inativos</div>
                     <div class="stat-value" id="ui-val-blocked">0</div>
                     <div class="stat-pct" id="ui-pct-blocked">0%</div>
                 </div>
@@ -472,27 +473,51 @@
         <div class="right-panel">
             <div class="shifts-container">
                 <div class="shift-card">
-                    <div class="shift-icon">🌅</div>
+                    <div class="shift-icon"><i data-lucide="coffee"></i></div>
                     <div class="shift-info">
-                        <div class="shift-name">Pico - Manhã (06h-12h)</div>
+                        <div class="shift-name">Pico - Manhã (06h-11h)</div>
                         <div class="shift-peak" id="ui-peak-manha">0</div>
                         <div class="shift-time" id="ui-time-manha">--:--</div>
                     </div>
                 </div>
                 <div class="shift-card">
-                    <div class="shift-icon">☀️</div>
+                    <div class="shift-icon"><i data-lucide="utensils"></i></div>
                     <div class="shift-info">
-                        <div class="shift-name">Pico - Tarde (12h-18h)</div>
+                        <div class="shift-name">Pico - Almoço (11h-15h)</div>
+                        <div class="shift-peak" id="ui-peak-almoco">0</div>
+                        <div class="shift-time" id="ui-time-almoco">--:--</div>
+                    </div>
+                </div>
+                <div class="shift-card">
+                    <div class="shift-icon"><i data-lucide="sun"></i></div>
+                    <div class="shift-info">
+                        <div class="shift-name">Pico - Tarde (15h-18h)</div>
                         <div class="shift-peak" id="ui-peak-tarde">0</div>
                         <div class="shift-time" id="ui-time-tarde">--:--</div>
                     </div>
                 </div>
                 <div class="shift-card">
-                    <div class="shift-icon">🌙</div>
+                    <div class="shift-icon"><i data-lucide="pizza"></i></div>
                     <div class="shift-info">
-                        <div class="shift-name">Pico - Noite (18h-24h)</div>
-                        <div class="shift-peak" id="ui-peak-noite">0</div>
-                        <div class="shift-time" id="ui-time-noite">--:--</div>
+                        <div class="shift-name">Pico - Jantar (18h-22h)</div>
+                        <div class="shift-peak" id="ui-peak-jantar">0</div>
+                        <div class="shift-time" id="ui-time-jantar">--:--</div>
+                    </div>
+                </div>
+                <div class="shift-card">
+                    <div class="shift-icon"><i data-lucide="moon"></i></div>
+                    <div class="shift-info">
+                        <div class="shift-name">Pico - J5 (22h-00h)</div>
+                        <div class="shift-peak" id="ui-peak-j5">0</div>
+                        <div class="shift-time" id="ui-time-j5">--:--</div>
+                    </div>
+                </div>
+                <div class="shift-card">
+                    <div class="shift-icon"><i data-lucide="stars"></i></div>
+                    <div class="shift-info">
+                        <div class="shift-name">Pico - Madruga (00h-02h)</div>
+                        <div class="shift-peak" id="ui-peak-madrugada">0</div>
+                        <div class="shift-time" id="ui-time-madrugada">--:--</div>
                     </div>
                 </div>
             </div>
@@ -583,23 +608,29 @@
 
         function getShift(timeStr) {
             const hour = parseInt(timeStr.split(':')[0]);
-            if (hour >= 6 && hour < 12) return 'manha';
-            if (hour >= 12 && hour < 18) return 'tarde';
-            if (hour >= 18) return 'noite';
-            return 'madrugada';
+            if (hour >= 6 && hour < 11) return 'manha';
+            if (hour >= 11 && hour < 15) return 'almoco';
+            if (hour >= 15 && hour < 18) return 'tarde';
+            if (hour >= 18 && hour < 22) return 'jantar';
+            if (hour >= 22) return 'j5';
+            if (hour < 6) return 'madrugada';
+            return null;
         }
 
         function calculatePeaks(history) {
             let peaks = {
                 manha: { val: 0, time: '--:--' },
+                almoco: { val: 0, time: '--:--' },
                 tarde: { val: 0, time: '--:--' },
-                noite: { val: 0, time: '--:--' }
+                jantar: { val: 0, time: '--:--' },
+                j5: { val: 0, time: '--:--' },
+                madrugada: { val: 0, time: '--:--' }
             };
 
             history.forEach(row => {
                 const time = row.horario.split(' ')[1]; // Extract HH:MM
                 const shift = getShift(time);
-                if (peaks[shift] && row.trabalhando > peaks[shift].val) {
+                if (shift && peaks[shift] && row.trabalhando > peaks[shift].val) {
                     peaks[shift].val = row.trabalhando;
                     peaks[shift].time = time;
                 }
@@ -609,6 +640,9 @@
         }
 
         function updateChart(history) {
+            // Inicia icones Lucide
+            lucide.createIcons();
+
             const ctx = document.getElementById('mainChart').getContext('2d');
             
             const labels = history.map(row => row.horario.split(' ')[1]);
@@ -620,8 +654,9 @@
             }
 
             // Gradient for Working line
-            const gradWorking = ctx.createLinearGradient(0, 0, 0, 300);
-            gradWorking.addColorStop(0, 'rgba(29, 185, 84, 0.4)');
+            const gradWorking = ctx.createLinearGradient(0, 0, 0, 400);
+            gradWorking.addColorStop(0, 'rgba(29, 185, 84, 0.6)');
+            gradWorking.addColorStop(0.5, 'rgba(29, 185, 84, 0.2)');
             gradWorking.addColorStop(1, 'rgba(29, 185, 84, 0.0)');
 
             chartInstance = new Chart(ctx, {
@@ -634,9 +669,9 @@
                             data: dataWorking,
                             borderColor: '#1DB954',
                             backgroundColor: gradWorking,
-                            borderWidth: 3,
+                            borderWidth: 4,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.45,
                             pointRadius: 0,
                             pointHitRadius: 20
                         },
@@ -717,14 +752,24 @@
 
                 // Calculate Peaks
                 const peaks = calculatePeaks(history);
+                
                 document.getElementById('ui-peak-manha').innerText = peaks.manha.val;
                 document.getElementById('ui-time-manha').innerText = peaks.manha.val > 0 ? peaks.manha.time : '--:--';
+                
+                document.getElementById('ui-peak-almoco').innerText = peaks.almoco.val;
+                document.getElementById('ui-time-almoco').innerText = peaks.almoco.val > 0 ? peaks.almoco.time : '--:--';
                 
                 document.getElementById('ui-peak-tarde').innerText = peaks.tarde.val;
                 document.getElementById('ui-time-tarde').innerText = peaks.tarde.val > 0 ? peaks.tarde.time : '--:--';
                 
-                document.getElementById('ui-peak-noite').innerText = peaks.noite.val;
-                document.getElementById('ui-time-noite').innerText = peaks.noite.val > 0 ? peaks.noite.time : '--:--';
+                document.getElementById('ui-peak-jantar').innerText = peaks.jantar.val;
+                document.getElementById('ui-time-jantar').innerText = peaks.jantar.val > 0 ? peaks.jantar.time : '--:--';
+                
+                document.getElementById('ui-peak-j5').innerText = peaks.j5.val;
+                document.getElementById('ui-time-j5').innerText = peaks.j5.val > 0 ? peaks.j5.time : '--:--';
+                
+                document.getElementById('ui-peak-madrugada').innerText = peaks.madrugada.val;
+                document.getElementById('ui-time-madrugada').innerText = peaks.madrugada.val > 0 ? peaks.madrugada.time : '--:--';
 
                 // Draw Chart
                 updateChart(history);
