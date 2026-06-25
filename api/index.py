@@ -144,15 +144,20 @@ class Sessao:
         raise Exception("Codigo nao encontrado")
 
     def carregar_jwt(self):
-        if not SUPABASE_URL or not SUPABASE_KEY: return None
+        if hasattr(self, 'jwt_local') and self.jwt_local:
+            return self.jwt_local
+            
+        supa_url = SUPABASE_URL.rstrip('/') if SUPABASE_URL else ""
+        if not supa_url or not SUPABASE_KEY: return None
         try:
-            url = f"{SUPABASE_URL}/rest/v1/frota_tokens?select=jwt&email=eq.{urllib.parse.quote(self.email)}"
+            url = f"{supa_url}/rest/v1/frota_tokens?select=jwt&email=eq.{urllib.parse.quote(self.email)}"
             headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
             req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 if data and len(data) > 0:
-                    return data[0].get("jwt")
+                    self.jwt_local = data[0].get("jwt")
+                    return self.jwt_local
                 self.log("JWT nao encontrado no banco para este email")
         except urllib.error.HTTPError as he:
             self.log(f"Erro carregar JWT HTTPError: {he.code} {he.reason}")
@@ -161,9 +166,11 @@ class Sessao:
         return None
 
     def salvar_jwt(self, jwt):
-        if not SUPABASE_URL or not SUPABASE_KEY: return
+        self.jwt_local = jwt
+        supa_url = SUPABASE_URL.rstrip('/') if SUPABASE_URL else ""
+        if not supa_url or not SUPABASE_KEY: return
         try:
-            url = f"{SUPABASE_URL}/rest/v1/frota_tokens"
+            url = f"{supa_url}/rest/v1/frota_tokens"
             headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates"}
             body = json.dumps([{"email": self.email, "jwt": jwt}]).encode("utf-8")
             req = urllib.request.Request(url, headers=headers, data=body, method="POST")
@@ -369,7 +376,8 @@ class handler(BaseHTTPRequestHandler):
         # O ideal é apenas inserir
         if todos_registros:
             try:
-                url = f"{SUPABASE_URL}/rest/v1/frota_metricas"
+                supa_url = SUPABASE_URL.rstrip('/') if SUPABASE_URL else ""
+                url = f"{supa_url}/rest/v1/frota_metricas"
                 headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
                 body = json.dumps(todos_registros).encode("utf-8")
                 req = urllib.request.Request(url, headers=headers, data=body, method="POST")
