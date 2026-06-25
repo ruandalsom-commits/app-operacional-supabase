@@ -271,7 +271,8 @@
                 
             } catch (err) {
                 console.error("Erro ao buscar métricas:", err);
-                document.getElementById('loader').innerHTML = `<p style="color:red">Erro de conexão com a Base de Dados.</p>`;
+                let msgErro = err.message || JSON.stringify(err);
+                document.getElementById('loader').innerHTML = `<p style="color:red; font-size:1rem;">Erro: ${msgErro}</p><p style="color:white; font-size:0.8rem; margin-top:10px;">Verifique se o RLS da tabela frota_metricas está ativado bloqueando leitura, ou se a tabela está vazia.</p>`;
             }
         }
 
