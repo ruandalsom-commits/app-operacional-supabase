@@ -644,7 +644,8 @@
                     .from('frota_metricas')
                     .select('*')
                     .like('horario', `${selectedDateStr}%`)
-                    .order('horario', { ascending: true });
+                    .order('horario', { ascending: true })
+                    .limit(10000);
 
                 if (error) throw error;
                 if (!data || data.length === 0) {
