@@ -401,7 +401,43 @@
             margin-bottom: 20px;
         }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* HEATMAP MATRIX */
+        .heatmap-container {
+            width: 100%; height: 100%;
+            overflow-y: auto; overflow-x: auto;
+            padding-right: 5px;
+        }
+        
+        .hm-table {
+            display: grid;
+            grid-template-columns: 120px repeat(6, 1fr);
+            gap: 2px;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .hm-header {
+            font-weight: 700; color: var(--primary);
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .hm-row-label {
+            font-weight: 700; color: var(--text-muted);
+            text-align: left; padding-left: 5px;
+            display: flex; align-items: center;
+            border-right: 1px solid var(--border-color);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .hm-cell {
+            padding: 8px 4px;
+            color: #fff; font-weight: 700;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .hm-cell:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
 
     </style>
 </head>
@@ -533,10 +569,10 @@
                 </div>
                 <div class="chart-container" style="flex:1;">
                     <div class="chart-header">
-                        <div class="chart-title">Heatmap Subpraças (Soma)</div>
+                        <div class="chart-title">Heatmap (Soma Ativos x Turno)</div>
                     </div>
                     <div class="chart-wrapper">
-                        <canvas id="heatmapChart"></canvas>
+                        <div class="heatmap-container" id="heatmapContainer"></div>
                     </div>
                 </div>
             </div>
@@ -729,53 +765,59 @@
             });
         }
 
-        let heatmapInstance = null;
-        function updateHeatmap(sortedSubs) {
-            const ctx = document.getElementById('heatmapChart').getContext('2d');
+        function updateHeatmap(subHistory) {
+            const container = document.getElementById('heatmapContainer');
             
-            const labels = sortedSubs.map(s => s.name);
-            const dataValues = sortedSubs.map(s => s.total);
+            // Turnos padrao
+            const turnos = ['manha', 'almoco', 'tarde', 'jantar', 'j5', 'madrugada'];
+            const turnosLabels = ['Manhã', 'Almoço', 'Tarde', 'Jantar', 'J5', 'Madruga'];
 
-            if (heatmapInstance) {
-                heatmapInstance.destroy();
-            }
+            let matrix = {};
+            let maxVal = 0;
 
-            heatmapInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Soma de Trabalhando',
-                        data: dataValues,
-                        backgroundColor: 'rgba(255, 184, 0, 0.8)',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y', // Horizontal bar chart
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(0,15,45,0.9)',
-                            titleFont: { family: 'Poppins' },
-                            bodyFont: { family: 'Plus Jakarta Sans' },
-                            padding: 10,
-                            cornerRadius: 8,
-                            borderColor: 'rgba(255, 184, 0, 0.3)',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: { display: false },
-                        y: {
-                            grid: { display: false },
-                            ticks: { font: { size: 10 }, color: 'rgba(245, 245, 240, 0.8)' }
-                        }
-                    }
+            subHistory.forEach(r => {
+                const shift = getShift(r.horario.split(' ')[1]);
+                if (!shift) return;
+                
+                if (!matrix[r.subpraca]) {
+                    matrix[r.subpraca] = { manha: 0, almoco: 0, tarde: 0, jantar: 0, j5: 0, madrugada: 0 };
                 }
+                
+                matrix[r.subpraca][shift] += r.trabalhando;
+                if (matrix[r.subpraca][shift] > maxVal) maxVal = matrix[r.subpraca][shift];
             });
+
+            const sortedSubs = Object.keys(matrix).sort();
+
+            let html = '<div class="hm-table">';
+            
+            // Header
+            html += '<div class="hm-header" style="justify-content: flex-start; padding-left:5px;">Subpraça</div>';
+            turnosLabels.forEach(t => {
+                html += `<div class="hm-header">${t}</div>`;
+            });
+
+            // Rows
+            sortedSubs.forEach(sub => {
+                html += `<div class="hm-row-label" title="${sub}">${sub}</div>`;
+                turnos.forEach(t => {
+                    const val = matrix[sub][t];
+                    // Calcula a intensidade da cor (minimo 0.1 de alpha para ver o fundo se for 0)
+                    let alpha = 0.05;
+                    if (val > 0 && maxVal > 0) {
+                        alpha = 0.2 + (val / maxVal) * 0.8;
+                    }
+                    
+                    // Se o valor for muito alto, mudar cor do texto pra preto para contraste
+                    const textColor = alpha > 0.6 ? '#000' : '#fff';
+                    const bgColor = `rgba(29, 185, 84, ${alpha})`;
+                    
+                    html += `<div class="hm-cell" style="background-color: ${bgColor}; color: ${textColor};">${val}</div>`;
+                });
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
         }
 
         function showPraca(index) {
@@ -836,16 +878,9 @@
                 // Draw Main Chart
                 updateChart(mainHist);
 
-                // Build Heatmap Data
+                // Build Heatmap Matrix Data
                 const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== 'LIVRE' && r.subpraca !== praca);
-                let subSums = {};
-                subHistory.forEach(r => {
-                    if (!subSums[r.subpraca]) subSums[r.subpraca] = 0;
-                    subSums[r.subpraca] += r.trabalhando;
-                });
-                
-                const sortedSubs = Object.keys(subSums).map(k => ({ name: k, total: subSums[k] })).sort((a,b) => b.total - a.total);
-                updateHeatmap(sortedSubs);
+                updateHeatmap(subHistory);
 
                 // Fade In
                 dashboard.classList.add('active');
