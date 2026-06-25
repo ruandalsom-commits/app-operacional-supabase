@@ -639,15 +639,32 @@
                 document.querySelector('.spinner').style.display = 'block';
                 document.getElementById('loaderText').innerHTML = "Sincronizando banco de dados...";
 
-                // Fetch all records for the selected date
-                const { data, error } = await supabaseClient
-                    .from('frota_metricas')
-                    .select('*')
-                    .like('horario', `${selectedDateStr}%`)
-                    .order('horario', { ascending: true })
-                    .limit(10000);
+                // Paginacao para buscar mais de 1000 linhas (limite da API do Supabase)
+                let allData = [];
+                let hasMore = true;
+                let rangeStart = 0;
+                const step = 999;
+                
+                while(hasMore) {
+                    const { data: chunk, error } = await supabaseClient
+                        .from('frota_metricas')
+                        .select('*')
+                        .like('horario', `${selectedDateStr}%`)
+                        .order('horario', { ascending: true })
+                        .range(rangeStart, rangeStart + step);
+                        
+                    if (error) throw error;
+                    if (chunk && chunk.length > 0) {
+                        allData = allData.concat(chunk);
+                        rangeStart += step + 1;
+                        if (chunk.length <= step) hasMore = false;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+                
+                const data = allData;
 
-                if (error) throw error;
                 if (!data || data.length === 0) {
                     const brDate = selectedDateStr.split('-').reverse().join('/');
                     throw new Error(`Nenhum dado registrado para o dia ${brDate}.`);
@@ -881,7 +898,31 @@
                 const history = dataByPraca[praca];
                 
                 let mainHist = history.filter(r => r.subpraca === 'GERAL');
-                if (mainHist.length === 0) mainHist = history; // fallback caso nao tenha GERAL
+                if (mainHist.length === 0) {
+                    // Caso nao tenha GERAL (ex: Fortaleza com varias subpracas mas sem root), somar tudo
+                    let grouped = {};
+                    history.forEach(r => {
+                        if (r.subpraca === 'LIVRE') return; // Ignora livres do total geral
+                        if (!grouped[r.horario]) {
+                            grouped[r.horario] = { 
+                                horario: r.horario, 
+                                trabalhando: 0, total: 0, offline: 0, em_pausa: 0, 
+                                bloqueados: 0, disponiveis: 0 
+                            };
+                        }
+                        grouped[r.horario].trabalhando += r.trabalhando || 0;
+                        grouped[r.horario].total += r.total || 0;
+                        grouped[r.horario].offline += r.offline || 0;
+                        grouped[r.horario].em_pausa += r.em_pausa || 0;
+                        grouped[r.horario].bloqueados += r.bloqueados || 0;
+                        grouped[r.horario].disponiveis += r.disponiveis || 0;
+                    });
+                    
+                    mainHist = Object.values(grouped).sort((a, b) => a.horario.localeCompare(b.horario));
+                    
+                    // Se ainda assim for vazio (ex: so tinha Livre), usa o history puro
+                    if (mainHist.length === 0) mainHist = history;
+                }
                 
                 const latest = mainHist[mainHist.length - 1]; // Current state
 
