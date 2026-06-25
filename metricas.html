@@ -522,12 +522,22 @@
                 </div>
             </div>
 
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">Evolução de Motoristas Ativos no Dia</div>
+            <div class="charts-row" style="display:flex; gap:15px; flex:1; min-height: 0;">
+                <div class="chart-container" style="flex:2.5;">
+                    <div class="chart-header">
+                        <div class="chart-title">Drivers ativos e trabalhando no dia</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="mainChart"></canvas>
+                    </div>
                 </div>
-                <div class="chart-wrapper">
-                    <canvas id="mainChart"></canvas>
+                <div class="chart-container" style="flex:1;">
+                    <div class="chart-header">
+                        <div class="chart-title">Heatmap Subpraças (Soma)</div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="heatmapChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -568,7 +578,6 @@
                     .from('frota_metricas')
                     .select('*')
                     .like('horario', `${todayStr}%`)
-                    .eq('subpraca', 'GERAL')
                     .order('horario', { ascending: true });
 
                 if (error) throw error;
@@ -665,7 +674,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Trabalhando (Ativos)',
+                            label: 'Trabalhando',
                             data: dataWorking,
                             borderColor: '#1DB954',
                             backgroundColor: gradWorking,
@@ -676,7 +685,7 @@
                             pointHitRadius: 20
                         },
                         {
-                            label: 'Total Cadastrados',
+                            label: 'Total Drivers',
                             data: dataTotal,
                             borderColor: 'rgba(255, 184, 0, 0.3)',
                             borderWidth: 2,
@@ -720,6 +729,55 @@
             });
         }
 
+        let heatmapInstance = null;
+        function updateHeatmap(sortedSubs) {
+            const ctx = document.getElementById('heatmapChart').getContext('2d');
+            
+            const labels = sortedSubs.map(s => s.name);
+            const dataValues = sortedSubs.map(s => s.total);
+
+            if (heatmapInstance) {
+                heatmapInstance.destroy();
+            }
+
+            heatmapInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Soma de Trabalhando',
+                        data: dataValues,
+                        backgroundColor: 'rgba(255, 184, 0, 0.8)',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', // Horizontal bar chart
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,15,45,0.9)',
+                            titleFont: { family: 'Poppins' },
+                            bodyFont: { family: 'Plus Jakarta Sans' },
+                            padding: 10,
+                            cornerRadius: 8,
+                            borderColor: 'rgba(255, 184, 0, 0.3)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, color: 'rgba(245, 245, 240, 0.8)' }
+                        }
+                    }
+                }
+            });
+        }
+
         function showPraca(index) {
             currentIndex = index;
             document.getElementById('pracaSelect').value = index;
@@ -730,7 +788,11 @@
             setTimeout(() => {
                 const praca = pracaNames[index];
                 const history = dataByPraca[praca];
-                const latest = history[history.length - 1]; // Current state
+                
+                let mainHist = history.filter(r => r.subpraca === 'GERAL');
+                if (mainHist.length === 0) mainHist = history; // fallback caso nao tenha GERAL
+                
+                const latest = mainHist[mainHist.length - 1]; // Current state
 
                 // Update UI Text
                 document.getElementById('ui-praca-name').innerText = praca;
@@ -750,8 +812,8 @@
                 document.getElementById('ui-val-available').innerText = latest.disponiveis;
                 document.getElementById('ui-pct-available').innerText = latest.pct_disponiveis;
 
-                // Calculate Peaks
-                const peaks = calculatePeaks(history);
+                // Calculate Peaks for GERAL
+                const peaks = calculatePeaks(mainHist);
                 
                 document.getElementById('ui-peak-manha').innerText = peaks.manha.val;
                 document.getElementById('ui-time-manha').innerText = peaks.manha.val > 0 ? peaks.manha.time : '--:--';
@@ -771,8 +833,19 @@
                 document.getElementById('ui-peak-madrugada').innerText = peaks.madrugada.val;
                 document.getElementById('ui-time-madrugada').innerText = peaks.madrugada.val > 0 ? peaks.madrugada.time : '--:--';
 
-                // Draw Chart
-                updateChart(history);
+                // Draw Main Chart
+                updateChart(mainHist);
+
+                // Build Heatmap Data
+                const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== 'LIVRE' && r.subpraca !== praca);
+                let subSums = {};
+                subHistory.forEach(r => {
+                    if (!subSums[r.subpraca]) subSums[r.subpraca] = 0;
+                    subSums[r.subpraca] += r.trabalhando;
+                });
+                
+                const sortedSubs = Object.keys(subSums).map(k => ({ name: k, total: subSums[k] })).sort((a,b) => b.total - a.total);
+                updateHeatmap(sortedSubs);
 
                 // Fade In
                 dashboard.classList.add('active');
