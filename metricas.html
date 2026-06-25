@@ -727,6 +727,8 @@
         const today = new Date();
         let selectedDateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
         document.getElementById('dateSelect').value = selectedDateStr;
+        
+        let currentSubpraca = null;
 
         async function initDashboard(targetDate = null) {
             try {
@@ -1006,7 +1008,7 @@
 
             // Rows
             sortedSubs.forEach(sub => {
-                html += `<div class="hm-row-label" title="${sub}">${sub}</div>`;
+                html += `<div class="hm-row-label" title="${sub}" onclick="selectSubpraca('${sub}')" style="cursor:pointer; text-decoration:underline; color:var(--primary);">${sub}</div>`;
                 turnos.forEach(t => {
                     const val = matrix[sub][t];
                     // Calcula a intensidade da cor (minimo 0.1 de alpha para ver o fundo se for 0)
@@ -1038,37 +1040,51 @@
                 const praca = pracaNames[index];
                 const history = dataByPraca[praca];
                 
-                let mainHist = history.filter(r => r.subpraca === 'GERAL');
-                if (mainHist.length === 0) {
-                    // Caso nao tenha GERAL (ex: Fortaleza com varias subpracas mas sem root), somar tudo
-                    let grouped = {};
-                    history.forEach(r => {
-                        if (r.subpraca === 'LIVRE') return; // Ignora livres do total geral
-                        if (!grouped[r.horario]) {
-                            grouped[r.horario] = { 
-                                horario: r.horario, 
-                                trabalhando: 0, total: 0, offline: 0, em_pausa: 0, 
-                                bloqueados: 0, disponiveis: 0 
-                            };
-                        }
-                        grouped[r.horario].trabalhando += r.trabalhando || 0;
-                        grouped[r.horario].total += r.total || 0;
-                        grouped[r.horario].offline += r.offline || 0;
-                        grouped[r.horario].em_pausa += r.em_pausa || 0;
-                        grouped[r.horario].bloqueados += r.bloqueados || 0;
-                        grouped[r.horario].disponiveis += r.disponiveis || 0;
-                    });
-                    
-                    mainHist = Object.values(grouped).sort((a, b) => a.horario.localeCompare(b.horario));
-                    
-                    // Se ainda assim for vazio (ex: so tinha Livre), usa o history puro
-                    if (mainHist.length === 0) mainHist = history;
+                let mainHist = [];
+                if (currentSubpraca) {
+                    mainHist = history.filter(r => r.subpraca === currentSubpraca);
+                    if (mainHist.length === 0) {
+                        currentSubpraca = null; // Fallback se der erro
+                    }
+                }
+                
+                if (!currentSubpraca) {
+                    mainHist = history.filter(r => r.subpraca === 'GERAL');
+                    if (mainHist.length === 0) {
+                        // Caso nao tenha GERAL (ex: Fortaleza com varias subpracas mas sem root), somar tudo
+                        let grouped = {};
+                        history.forEach(r => {
+                            if (r.subpraca === 'LIVRE') return; // Ignora livres do total geral
+                            if (!grouped[r.horario]) {
+                                grouped[r.horario] = { 
+                                    horario: r.horario, 
+                                    trabalhando: 0, total: 0, offline: 0, em_pausa: 0, 
+                                    bloqueados: 0, disponiveis: 0 
+                                };
+                            }
+                            grouped[r.horario].trabalhando += r.trabalhando || 0;
+                            grouped[r.horario].total += r.total || 0;
+                            grouped[r.horario].offline += r.offline || 0;
+                            grouped[r.horario].em_pausa += r.em_pausa || 0;
+                            grouped[r.horario].bloqueados += r.bloqueados || 0;
+                            grouped[r.horario].disponiveis += r.disponiveis || 0;
+                        });
+                        
+                        mainHist = Object.values(grouped).sort((a, b) => a.horario.localeCompare(b.horario));
+                        
+                        // Se ainda assim for vazio (ex: so tinha Livre), usa o history puro
+                        if (mainHist.length === 0) mainHist = history;
+                    }
                 }
                 
                 const latest = mainHist[mainHist.length - 1]; // Current state
 
                 // Update UI Text
-                document.getElementById('ui-praca-name').innerText = praca;
+                if (currentSubpraca) {
+                    document.getElementById('ui-praca-name').innerText = praca + ' - ' + currentSubpraca;
+                } else {
+                    document.getElementById('ui-praca-name').innerText = praca;
+                }
                 
                 document.getElementById('ui-val-working').innerText = latest.trabalhando;
                 document.getElementById('ui-pct-working').innerText = latest.pct_trabalhando;
@@ -1143,6 +1159,7 @@
 
                 if (currentProgress >= SLIDE_DURATION) {
                     clearInterval(progressInterval);
+                    currentSubpraca = null; // Clear when auto-advancing
                     let nextIndex = (currentIndex + 1) % pracaNames.length;
                     if (nextIndex === 0) {
                         // Refetch data from DB when loop completes
@@ -1174,12 +1191,23 @@
             if(indexStr === '') return;
             // Force pause when manually selecting
             isPlaying = false;
+            currentSubpraca = null; // Clear subpraca selection
             const btn = document.getElementById('playPauseBtn');
             btn.innerText = '▶️ Retomar';
             btn.style.background = 'var(--primary)';
             btn.style.color = '#000';
             
             showPraca(parseInt(indexStr));
+        }
+
+        function selectSubpraca(subName) {
+            currentSubpraca = subName;
+            isPlaying = false;
+            const btn = document.getElementById('playPauseBtn');
+            btn.innerText = '▶️ Retomar';
+            btn.style.background = 'var(--primary)';
+            btn.style.color = '#000';
+            showPraca(currentIndex);
         }
 
         function manualSelectDate(dateStr) {
