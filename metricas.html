@@ -908,7 +908,7 @@
                 updateChart(mainHist);
 
                 // Build Heatmap Matrix Data
-                const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== 'LIVRE' && r.subpraca !== praca);
+                const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== praca);
                 updateHeatmap(subHistory);
 
                 // Fade In
