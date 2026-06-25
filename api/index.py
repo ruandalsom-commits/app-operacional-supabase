@@ -101,6 +101,10 @@ class Sessao:
         self.opener       = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self.cookie_jar)
         )
+        self.logs         = []
+
+    def log(self, msg):
+        self.logs.append(msg)
 
     def buscar_codigo_email(self, tentativas=6, intervalo=2):
         import email.utils
@@ -130,11 +134,13 @@ class Sessao:
                             codigo = match.group(1)
                             imap.store(uid, '+FLAGS', '\\Seen')
                             imap.logout()
+                            self.log("Codigo encontrado no IMAP")
                             return codigo
                 imap.logout()
             except Exception as e:
-                print(f"Erro IMAP: {e}")
+                self.log(f"Erro IMAP na tentativa {tentativa}: {str(e)}")
             time.sleep(intervalo)
+        self.log("Codigo nao encontrado apos todas as tentativas")
         raise Exception("Codigo nao encontrado")
 
     def carregar_jwt(self):
@@ -147,8 +153,11 @@ class Sessao:
                 data = json.loads(resp.read().decode("utf-8"))
                 if data and len(data) > 0:
                     return data[0].get("jwt")
+                self.log("JWT nao encontrado no banco para este email")
+        except urllib.error.HTTPError as he:
+            self.log(f"Erro carregar JWT HTTPError: {he.code} {he.reason}")
         except Exception as e:
-            print("Erro carregar JWT:", e)
+            self.log(f"Erro carregar JWT: {str(e)}")
         return None
 
     def salvar_jwt(self, jwt):
@@ -160,8 +169,11 @@ class Sessao:
             req = urllib.request.Request(url, headers=headers, data=body, method="POST")
             with urllib.request.urlopen(req) as resp:
                 pass
+            self.log("JWT salvo no banco")
+        except urllib.error.HTTPError as he:
+            self.log(f"Erro salvar JWT HTTPError: {he.code} {he.reason}")
         except Exception as e:
-            print("Erro salvar JWT:", e)
+            self.log(f"Erro salvar JWT: {str(e)}")
 
     def get_cookie(self, nome):
         for c in self.cookie_jar:
@@ -198,6 +210,7 @@ class Sessao:
         req = urllib.request.Request(URL_VALIDATE, headers=h, data=body)
         with self.opener.open(req) as resp:
             resp.read()
+        self.log("Solicitado novo codigo de auth")
 
     def autenticar(self, codigo, jwt_antigo):
         self.cookie_jar.clear()
@@ -210,6 +223,7 @@ class Sessao:
         if jwt_novo:
             self.salvar_jwt(jwt_novo)
             return jwt_novo
+        self.log("Novo JWT nao retornado pela API")
         return None
 
     def renovar_jwt(self):
@@ -219,8 +233,12 @@ class Sessao:
             time.sleep(2)
             codigo = self.buscar_codigo_email()
             jwt_novo = self.autenticar(codigo, jwt_antigo)
-            return bool(jwt_novo)
+            if bool(jwt_novo):
+                self.log("JWT renovado com sucesso")
+                return True
+            return False
         except Exception as e:
+            self.log(f"Erro em renovar_jwt: {str(e)}")
             return False
 
     def buscar_subpracas(self, region_uuid):
@@ -323,6 +341,7 @@ class handler(BaseHTTPRequestHandler):
         horario = time.strftime("%Y-%m-%d %H:%M")
         sessoes = [Sessao(c) for c in CONTAS if c.get("ativo", True)]
         
+        logs_finais = {}
         todos_registros = []
         erros = []
         for sessao in sessoes:
@@ -344,6 +363,7 @@ class handler(BaseHTTPRequestHandler):
                             erros.append(f"Falha renovar JWT para {sessao.email}")
                     except Exception as e3:
                         erros.append(f"Erro no renovar_jwt: {str(e3)}")
+            logs_finais[sessao.email] = sessao.logs
                             
         # Limpar registros do mesmo horario ou todos daquela região (depende da regra, aqui inserimos novo lote)
         # O ideal é apenas inserir
@@ -361,6 +381,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        res = {"status": "ok", "inserted": len(todos_registros), "erros": erros}
+        res = {"status": "ok", "inserted": len(todos_registros), "erros": erros, "logs": logs_finais}
         self.wfile.write(json.dumps(res).encode('utf-8'))
         return
