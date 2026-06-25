@@ -345,10 +345,22 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(b"Erro: SUPABASE_URL ou SUPABASE_KEY nao configurados.")
             return
 
+        from urllib.parse import urlparse, parse_qs
+        parsed_path = urlparse(self.path)
+        query = parse_qs(parsed_path.query)
+        idx_conta = query.get('conta', [None])[0]
+
         from datetime import timedelta
         fuso_br = timezone(timedelta(hours=-3))
         horario = datetime.now(fuso_br).strftime("%Y-%m-%d %H:%M")
-        sessoes = [Sessao(c) for c in CONTAS if c.get("ativo", True)]
+        
+        todas_contas_ativas = [c for c in CONTAS if c.get("ativo", True)]
+        if idx_conta is not None and idx_conta.isdigit():
+            idx = int(idx_conta)
+            if 0 <= idx < len(todas_contas_ativas):
+                todas_contas_ativas = [todas_contas_ativas[idx]]
+
+        sessoes = [Sessao(c) for c in todas_contas_ativas]
         
         logs_finais = {}
         todos_registros = []
