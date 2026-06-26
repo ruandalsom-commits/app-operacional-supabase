@@ -877,7 +877,6 @@
                             backgroundColor: gradWorking,
                             borderWidth: 2,
                             fill: true,
-                            stack: 'Stack 0',
                             tension: 0.45,
                             pointRadius: 0,
                             pointHitRadius: 20
@@ -888,8 +887,7 @@
                             borderColor: '#2C67EA',
                             backgroundColor: 'rgba(44, 103, 234, 0.4)',
                             borderWidth: 2,
-                            fill: true,
-                            stack: 'Stack 0',
+                            fill: false,
                             tension: 0.4,
                             pointRadius: 0
                         },
@@ -899,8 +897,7 @@
                             borderColor: '#FFB800',
                             backgroundColor: 'rgba(255, 184, 0, 0.4)',
                             borderWidth: 2,
-                            fill: true,
-                            stack: 'Stack 0',
+                            fill: false,
                             tension: 0.4,
                             pointRadius: 0
                         },
@@ -910,8 +907,7 @@
                             borderColor: '#FF5050',
                             backgroundColor: 'rgba(255, 80, 80, 0.4)',
                             borderWidth: 2,
-                            fill: true,
-                            stack: 'Stack 0',
+                            fill: false,
                             tension: 0.4,
                             pointRadius: 0
                         },
@@ -921,8 +917,7 @@
                             borderColor: '#009B7F',
                             backgroundColor: 'rgba(0, 155, 127, 0.4)',
                             borderWidth: 2,
-                            fill: true,
-                            stack: 'Stack 0',
+                            fill: false,
                             tension: 0.4,
                             pointRadius: 0
                         },
@@ -933,7 +928,6 @@
                             borderWidth: 2,
                             borderDash: [5, 5],
                             fill: false,
-                            stack: 'Stack 1',
                             tension: 0.4,
                             pointRadius: 0
                         }
@@ -960,12 +954,12 @@
                     },
                     scales: {
                         x: {
-                            stacked: true,
+                            stacked: false,
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { maxTicksLimit: 12 }
                         },
                         y: {
-                            stacked: true,
+                            stacked: false,
                             beginAtZero: true,
                             grid: { color: 'rgba(255,255,255,0.05)' }
                         }
