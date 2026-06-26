@@ -599,27 +599,27 @@
 
             <div class="stats-grid">
                 <div class="stat-card full-width c-working">
-                    <div class="stat-label">Trabalhando (Rotas Ativas)</div>
+                    <div class="stat-label"><span style="color:var(--st-working);">■</span> Trabalhando (Rotas Ativas)</div>
                     <div class="stat-value" id="ui-val-working">0</div>
                     <div class="stat-pct" id="ui-pct-working">0%</div>
                 </div>
                 <div class="stat-card c-offline">
-                    <div class="stat-label">Offline</div>
+                    <div class="stat-label"><span style="color:var(--st-offline);">■</span> Offline</div>
                     <div class="stat-value" id="ui-val-offline">0</div>
                     <div class="stat-pct" id="ui-pct-offline">0%</div>
                 </div>
                 <div class="stat-card c-paused">
-                    <div class="stat-label">Em Pausa</div>
+                    <div class="stat-label"><span style="color:var(--st-paused);">■</span> Em Pausa</div>
                     <div class="stat-value" id="ui-val-paused">0</div>
                     <div class="stat-pct" id="ui-pct-paused">0%</div>
                 </div>
                 <div class="stat-card c-blocked">
-                    <div class="stat-label">Inativos</div>
+                    <div class="stat-label"><span style="color:var(--st-blocked);">■</span> Inativos</div>
                     <div class="stat-value" id="ui-val-blocked">0</div>
                     <div class="stat-pct" id="ui-pct-blocked">0%</div>
                 </div>
                 <div class="stat-card c-available">
-                    <div class="stat-label">Disponíveis</div>
+                    <div class="stat-label"><span style="color:var(--st-available);">■</span> Disponíveis</div>
                     <div class="stat-value" id="ui-val-available">0</div>
                     <div class="stat-pct" id="ui-pct-available">0%</div>
                 </div>
@@ -875,18 +875,21 @@
                             data: dataWorking,
                             borderColor: '#1DB954',
                             backgroundColor: gradWorking,
-                            borderWidth: 4,
+                            borderWidth: 2,
                             fill: true,
+                            stack: 'Stack 0',
                             tension: 0.45,
                             pointRadius: 0,
                             pointHitRadius: 20
                         },
                         {
-                            label: 'Offline',
-                            data: dataOffline,
-                            borderColor: '#FF5050',
+                            label: 'Disponíveis',
+                            data: dataAvailable,
+                            borderColor: '#2C67EA',
+                            backgroundColor: 'rgba(44, 103, 234, 0.4)',
                             borderWidth: 2,
-                            fill: false,
+                            fill: true,
+                            stack: 'Stack 0',
                             tension: 0.4,
                             pointRadius: 0
                         },
@@ -894,8 +897,21 @@
                             label: 'Em Pausa',
                             data: dataPaused,
                             borderColor: '#FFB800',
+                            backgroundColor: 'rgba(255, 184, 0, 0.4)',
                             borderWidth: 2,
-                            fill: false,
+                            fill: true,
+                            stack: 'Stack 0',
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Offline',
+                            data: dataOffline,
+                            borderColor: '#FF5050',
+                            backgroundColor: 'rgba(255, 80, 80, 0.4)',
+                            borderWidth: 2,
+                            fill: true,
+                            stack: 'Stack 0',
                             tension: 0.4,
                             pointRadius: 0
                         },
@@ -903,27 +919,21 @@
                             label: 'Inativos',
                             data: dataBlocked,
                             borderColor: '#009B7F',
+                            backgroundColor: 'rgba(0, 155, 127, 0.4)',
                             borderWidth: 2,
-                            fill: false,
-                            tension: 0.4,
-                            pointRadius: 0
-                        },
-                        {
-                            label: 'Disponíveis',
-                            data: dataAvailable,
-                            borderColor: '#2C67EA',
-                            borderWidth: 2,
-                            fill: false,
+                            fill: true,
+                            stack: 'Stack 0',
                             tension: 0.4,
                             pointRadius: 0
                         },
                         {
                             label: 'Total Drivers',
                             data: dataTotal,
-                            borderColor: 'rgba(255, 184, 0, 0.3)',
+                            borderColor: 'rgba(255, 184, 0, 0.6)',
                             borderWidth: 2,
                             borderDash: [5, 5],
                             fill: false,
+                            stack: 'Stack 1',
                             tension: 0.4,
                             pointRadius: 0
                         }
@@ -950,10 +960,12 @@
                     },
                     scales: {
                         x: {
+                            stacked: true,
                             grid: { color: 'rgba(255,255,255,0.05)' },
                             ticks: { maxTicksLimit: 12 }
                         },
                         y: {
+                            stacked: true,
                             beginAtZero: true,
                             grid: { color: 'rgba(255,255,255,0.05)' }
                         }
