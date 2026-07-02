@@ -712,6 +712,7 @@
         let chartInstance = null;
         let dataByPraca = {};
         let pracaNames = [];
+        let escalasDataByPraca = {};
         let currentIndex = 0;
         let slideTimeout;
         let progressInterval;
@@ -768,16 +769,43 @@
                 
                 const data = allData;
 
+                let allDataEscalas = [];
+                try {
+                    let hasMoreEscalas = true;
+                    let rangeStartEscalas = 0;
+                    while(hasMoreEscalas) {
+                        const { data: chunkEsc, error: errEsc } = await supabaseClient
+                            .from('frota_escalas')
+                            .select('*')
+                            .eq('data', selectedDateStr)
+                            .range(rangeStartEscalas, rangeStartEscalas + step);
+                            
+                        if (errEsc) throw errEsc;
+                        if (chunkEsc && chunkEsc.length > 0) {
+                            allDataEscalas = allDataEscalas.concat(chunkEsc);
+                            rangeStartEscalas += step + 1;
+                            if (chunkEsc.length <= step) hasMoreEscalas = false;
+                        } else {
+                            hasMoreEscalas = false;
+                        }
+                    }
+                } catch(e) { console.warn("Erro ao buscar escalas:", e); }
+
                 if (!data || data.length === 0) {
                     const brDate = selectedDateStr.split('-').reverse().join('/');
                     throw new Error(`Nenhum dado registrado para o dia ${brDate}.`);
                 }
 
-                // Group by Praca
                 dataByPraca = {};
                 data.forEach(row => {
                     if (!dataByPraca[row.praca]) dataByPraca[row.praca] = [];
                     dataByPraca[row.praca].push(row);
+                });
+
+                escalasDataByPraca = {};
+                allDataEscalas.forEach(row => {
+                    if (!escalasDataByPraca[row.praca]) escalasDataByPraca[row.praca] = [];
+                    escalasDataByPraca[row.praca].push(row);
                 });
 
                 pracaNames = Object.keys(dataByPraca).sort();
@@ -968,7 +996,7 @@
             });
         }
 
-        function updateHeatmap(subHistory) {
+        function updateHeatmap(subHistory, pracaEscalas) {
             const container = document.getElementById('heatmapContainer');
             
             // Turnos padrao
@@ -984,8 +1012,8 @@
                 
                 if (!matrix[r.subpraca]) {
                     matrix[r.subpraca] = { 
-                        manha: {s:0, c:0}, almoco: {s:0, c:0}, tarde: {s:0, c:0}, 
-                        jantar: {s:0, c:0}, j5: {s:0, c:0}, madrugada: {s:0, c:0} 
+                        manha: {s:0, c:0, esc:null}, almoco: {s:0, c:0, esc:null}, tarde: {s:0, c:0, esc:null}, 
+                        jantar: {s:0, c:0, esc:null}, j5: {s:0, c:0, esc:null}, madrugada: {s:0, c:0, esc:null} 
                     };
                 }
                 
@@ -993,13 +1021,33 @@
                 matrix[r.subpraca][shift].c += 1;
             });
 
+            // Popula Escalas
+            if (pracaEscalas) {
+                // Map API shifts to our shifts
+                const shiftMap = {
+                    "PICO - MANHÃ": "manha",
+                    "PICO - ALMOÇO": "almoco",
+                    "PICO - TARDE": "tarde",
+                    "PICO - JANTAR": "jantar",
+                    "PICO - J5": "j5",
+                    "PICO - MADRUGA": "madrugada"
+                };
+                pracaEscalas.forEach(e => {
+                    if (e.subpraca === 'GERAL' || e.subpraca === 'LIVRE') return;
+                    const shift = shiftMap[e.turno?.toUpperCase()];
+                    if (shift && matrix[e.subpraca] && matrix[e.subpraca][shift] !== undefined) {
+                        matrix[e.subpraca][shift].esc = { logados: e.logados, slots: e.slots, pct: e.pct_logados };
+                    }
+                });
+            }
+
             // Convert sums to averages
             const sortedSubs = Object.keys(matrix).sort();
             sortedSubs.forEach(sub => {
                 turnos.forEach(t => {
                     const obj = matrix[sub][t];
                     const avg = obj.c > 0 ? Math.round(obj.s / obj.c) : 0;
-                    matrix[sub][t] = avg; // replace object with average value
+                    matrix[sub][t] = { avg: avg, esc: obj.esc }; // replace object
                     if (avg > maxVal) maxVal = avg;
                 });
             });
@@ -1016,7 +1064,8 @@
             sortedSubs.forEach(sub => {
                 html += `<div class="hm-row-label" title="${sub}" onclick="selectSubpraca('${sub}')" style="cursor:pointer; text-decoration:underline; color:var(--primary);">${sub}</div>`;
                 turnos.forEach(t => {
-                    const val = matrix[sub][t];
+                    const cellData = matrix[sub][t];
+                    const val = cellData.avg;
                     // Calcula a intensidade da cor (minimo 0.1 de alpha para ver o fundo se for 0)
                     let alpha = 0.05;
                     if (val > 0 && maxVal > 0) {
@@ -1027,7 +1076,15 @@
                     const textColor = alpha > 0.6 ? '#000' : '#fff';
                     const bgColor = `rgba(29, 185, 84, ${alpha})`;
                     
-                    html += `<div class="hm-cell" style="background-color: ${bgColor}; color: ${textColor};">${val}</div>`;
+                    let escHtml = '';
+                    if (cellData.esc) {
+                        escHtml = `<div style="font-size:0.65rem; color:${alpha > 0.6 ? '#111' : '#FFD24D'}; line-height:1;">L:${cellData.esc.logados} S:${cellData.esc.slots}<br/>${cellData.esc.pct}</div>`;
+                    }
+                    
+                    html += `<div class="hm-cell" style="background-color: ${bgColor}; color: ${textColor}; display:flex; flex-direction:column; justify-content:center; gap:2px;">
+                                <div style="font-size:0.9rem;">${val}</div>
+                                ${escHtml}
+                             </div>`;
                 });
             });
 
@@ -1045,6 +1102,7 @@
             setTimeout(() => {
                 const praca = pracaNames[index];
                 const history = dataByPraca[praca];
+                const escalas = escalasDataByPraca[praca] || [];
                 
                 let mainHist = [];
                 if (currentSubpraca) {
@@ -1133,7 +1191,7 @@
 
                 // Build Heatmap Matrix Data
                 const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== praca);
-                updateHeatmap(subHistory);
+                updateHeatmap(subHistory, escalas);
 
                 // Fade In
                 dashboard.classList.add('active');
