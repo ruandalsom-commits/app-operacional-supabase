@@ -400,62 +400,56 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
+               /* MODERN ESCALAS TABLE */
+        .modern-table-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
-
-        /* HEATMAP MATRIX */
-        .heatmap-container {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            overflow-y: auto; overflow-x: auto;
-            padding-right: 5px;
-        }
+        .modern-table-container::-webkit-scrollbar { width: 6px; }
+        .modern-table-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+        .modern-table-container::-webkit-scrollbar-thumb { background: rgba(255, 184, 0, 0.5); border-radius: 4px; }
         
-        .heatmap-container::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .heatmap-container::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-            border-radius: 4px;
-        }
-        .heatmap-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 184, 0, 0.5);
-            border-radius: 4px;
-        }
-        .heatmap-container::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
-        }
-        
-        .hm-table {
-            display: grid;
-            grid-template-columns: 120px repeat(6, 1fr);
-            gap: 2px;
+        .modern-table th {
+            background-color: rgba(0, 15, 45, 0.95);
+            color: #fff;
+            padding: 12px;
             font-size: 0.75rem;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            border-bottom: 2px solid var(--primary);
+        }
+        .modern-table td {
+            padding: 12px;
             text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #eee;
         }
-
-        .hm-header {
-            font-weight: 700; color: var(--primary);
-            padding: 8px 4px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: center;
+        .modern-table tr:nth-child(even) td { background-color: rgba(255,255,255,0.02); }
+        .modern-table tr:hover td { background-color: rgba(255, 184, 0, 0.05); }
+        
+        .badge-modern {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: #000;
         }
-
-        .hm-row-label {
-            font-weight: 700; color: var(--text-muted);
-            text-align: left; padding-left: 5px;
-            display: flex; align-items: center;
-            border-right: 1px solid var(--border-color);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        .hm-cell {
-            padding: 8px 4px;
-            color: #fff; font-weight: 700;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .hm-cell:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .badge-green { background-color: #A5D6A7; }
+        .badge-yellow { background-color: #FFF59D; }
+        .badge-red { background-color: #EF9A9A; }
+); }
 
         /* LOGIN CSS */
         #login-container {
@@ -689,10 +683,10 @@
                 </div>
                 <div class="chart-container" style="flex:1.2;">
                     <div class="chart-header">
-                        <div class="chart-title">Heatmap (Média Trabalhando x Turno)</div>
+                        <div class="chart-title" id="escalasTitle">Escalas (Turno Atual)</div>
                     </div>
                     <div class="chart-wrapper">
-                        <div class="heatmap-container" id="heatmapContainer"></div>
+                        <div class="modern-table-container" id="escalasContainer"></div>
                     </div>
                 </div>
             </div>
@@ -996,34 +990,35 @@
             });
         }
 
-        function updateHeatmap(subHistory, pracaEscalas) {
-            const container = document.getElementById('heatmapContainer');
+        function updateEscalasTable(praca, subHistory, pracaEscalas) {
+            const container = document.getElementById('escalasContainer');
+            const title = document.getElementById('escalasTitle');
             
-            // Turnos padrao
-            const turnos = ['manha', 'almoco', 'tarde', 'jantar', 'j5', 'madrugada'];
-            const turnosLabels = ['Manhã', 'Almoço', 'Tarde', 'Jantar', 'J5', 'Madruga'];
+            const nowHour = new Date().getHours();
+            let currentShiftKey = 'madrugada';
+            let shiftLabel = 'Madruga (00h-06h)';
+            if (nowHour >= 6 && nowHour < 11) { currentShiftKey = 'manha'; shiftLabel = 'Manhã (06h-11h)'; }
+            else if (nowHour >= 11 && nowHour < 15) { currentShiftKey = 'almoco'; shiftLabel = 'Almoço (11h-15h)'; }
+            else if (nowHour >= 15 && nowHour < 18) { currentShiftKey = 'tarde'; shiftLabel = 'Tarde (15h-18h)'; }
+            else if (nowHour >= 18 && nowHour < 22) { currentShiftKey = 'jantar'; shiftLabel = 'Jantar (18h-22h)'; }
+            else if (nowHour >= 22) { currentShiftKey = 'j5'; shiftLabel = 'J5 (22h-00h)'; }
+            
+            title.innerText = `Escalas - ${praca.toUpperCase()} | ${shiftLabel}`;
 
             let matrix = {};
-            let maxVal = 0;
-
             subHistory.forEach(r => {
                 const shift = getShift(r.horario.split(' ')[1]);
-                if (!shift) return;
+                if (shift !== currentShiftKey) return;
                 
                 if (!matrix[r.subpraca]) {
-                    matrix[r.subpraca] = { 
-                        manha: {s:0, c:0, esc:null}, almoco: {s:0, c:0, esc:null}, tarde: {s:0, c:0, esc:null}, 
-                        jantar: {s:0, c:0, esc:null}, j5: {s:0, c:0, esc:null}, madrugada: {s:0, c:0, esc:null} 
-                    };
+                    matrix[r.subpraca] = { s:0, c:0, esc:null };
                 }
                 
-                matrix[r.subpraca][shift].s += r.trabalhando;
-                matrix[r.subpraca][shift].c += 1;
+                matrix[r.subpraca].s += r.trabalhando;
+                matrix[r.subpraca].c += 1;
             });
 
-            // Popula Escalas
             if (pracaEscalas) {
-                // Map API shifts to our shifts
                 const shiftMap = {
                     "PICO - MANHÃ": "manha",
                     "PICO - ALMOÇO": "almoco",
@@ -1035,60 +1030,49 @@
                 pracaEscalas.forEach(e => {
                     if (e.subpraca === 'GERAL' || e.subpraca === 'LIVRE') return;
                     const shift = shiftMap[e.turno?.toUpperCase()];
-                    if (shift && matrix[e.subpraca] && matrix[e.subpraca][shift] !== undefined) {
-                        matrix[e.subpraca][shift].esc = { logados: e.logados, slots: e.slots, pct: e.pct_logados };
+                    if (shift === currentShiftKey && matrix[e.subpraca] !== undefined) {
+                        matrix[e.subpraca].esc = { logados: e.logados, slots: e.slots, pct: e.pct_logados };
                     }
                 });
             }
 
-            // Convert sums to averages
             const sortedSubs = Object.keys(matrix).sort();
-            sortedSubs.forEach(sub => {
-                turnos.forEach(t => {
-                    const obj = matrix[sub][t];
-                    const avg = obj.c > 0 ? Math.round(obj.s / obj.c) : 0;
-                    matrix[sub][t] = { avg: avg, esc: obj.esc }; // replace object
-                    if (avg > maxVal) maxVal = avg;
-                });
-            });
-
-            let html = '<div class="hm-table">';
             
-            // Header
-            html += '<div class="hm-header" style="justify-content: flex-start; padding-left:5px;">Subpraça</div>';
-            turnosLabels.forEach(t => {
-                html += `<div class="hm-header">${t}</div>`;
-            });
-
-            // Rows
-            sortedSubs.forEach(sub => {
-                html += `<div class="hm-row-label" title="${sub}" onclick="selectSubpraca('${sub}')" style="cursor:pointer; text-decoration:underline; color:var(--primary);">${sub}</div>`;
-                turnos.forEach(t => {
-                    const cellData = matrix[sub][t];
-                    const val = cellData.avg;
-                    // Calcula a intensidade da cor (minimo 0.1 de alpha para ver o fundo se for 0)
-                    let alpha = 0.05;
-                    if (val > 0 && maxVal > 0) {
-                        alpha = 0.2 + (val / maxVal) * 0.8;
+            let html = '<table class="modern-table"><thead><tr><th style="text-align:left;">Sub-Praça</th><th>Trabalhando (Média)</th><th>Escala (Log/Slots)</th><th>% Preenchimento</th></tr></thead><tbody>';
+            
+            if (sortedSubs.length === 0) {
+                html += '<tr><td colspan="4" style="color:var(--text-muted); padding:20px;">Nenhum dado para o turno atual.</td></tr>';
+            } else {
+                sortedSubs.forEach(sub => {
+                    const obj = matrix[sub];
+                    const avg = obj.c > 0 ? Math.round(obj.s / obj.c) : 0;
+                    
+                    let escStr = '-- / --';
+                    let pctStr = '--%';
+                    let badgeClass = 'badge-modern';
+                    
+                    if (obj.esc) {
+                        escStr = `${obj.esc.logados} / ${obj.esc.slots}`;
+                        pctStr = obj.esc.pct;
+                        
+                        const pctVal = parseFloat(pctStr.replace('%', ''));
+                        if (!isNaN(pctVal)) {
+                            if (pctVal >= 90) badgeClass += ' badge-green';
+                            else if (pctVal >= 70) badgeClass += ' badge-yellow';
+                            else badgeClass += ' badge-red';
+                        }
                     }
                     
-                    // Se o valor for muito alto, mudar cor do texto pra preto para contraste
-                    const textColor = alpha > 0.6 ? '#000' : '#fff';
-                    const bgColor = `rgba(29, 185, 84, ${alpha})`;
-                    
-                    let escHtml = '';
-                    if (cellData.esc) {
-                        escHtml = `<div style="font-size:0.65rem; color:${alpha > 0.6 ? '#111' : '#FFD24D'}; line-height:1;">L:${cellData.esc.logados} S:${cellData.esc.slots}<br/>${cellData.esc.pct}</div>`;
-                    }
-                    
-                    html += `<div class="hm-cell" style="background-color: ${bgColor}; color: ${textColor}; display:flex; flex-direction:column; justify-content:center; gap:2px;">
-                                <div style="font-size:0.9rem;">${val}</div>
-                                ${escHtml}
-                             </div>`;
+                    html += `<tr>
+                                <td style="text-align:left; color:var(--primary); cursor:pointer; text-decoration:underline;" onclick="selectSubpraca('${sub}')" title="${sub}">${sub}</td>
+                                <td>${avg}</td>
+                                <td>${escStr}</td>
+                                <td><span class="${badgeClass}">${pctStr}</span></td>
+                             </tr>`;
                 });
-            });
-
-            html += '</div>';
+            }
+            html += '</tbody></table>';
+            
             container.innerHTML = html;
         }
 
@@ -1189,9 +1173,9 @@
                 // Draw Main Chart
                 updateChart(mainHist);
 
-                // Build Heatmap Matrix Data
+                // Build Escalas Table Data
                 const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== praca);
-                updateHeatmap(subHistory, escalas);
+                updateEscalasTable(praca, subHistory, escalas);
 
                 // Fade In
                 dashboard.classList.add('active');
