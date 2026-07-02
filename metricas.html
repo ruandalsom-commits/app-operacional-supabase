@@ -400,16 +400,78 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 20px;
-               /* MODERN ESCALAS TABLE */
+        }
+
+        /* HEATMAP MATRIX */
+        .heatmap-container {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto; overflow-x: auto;
+            padding-right: 5px;
+        }
+        
+        .heatmap-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .heatmap-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        .heatmap-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 184, 0, 0.5);
+            border-radius: 4px;
+        }
+        .heatmap-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        
+        .hm-table {
+            display: grid;
+            grid-template-columns: 120px repeat(6, 1fr);
+            gap: 2px;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .hm-header {
+            font-weight: 700; color: var(--primary);
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .hm-row-label {
+            font-weight: 700; color: var(--text-muted);
+            text-align: left; padding-left: 5px;
+            display: flex; align-items: center;
+            border-right: 1px solid var(--border-color);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .hm-cell {
+            padding: 8px 4px;
+            color: #fff; font-weight: 700;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .hm-cell:hover { transform: scale(1.05); z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
+        /* MODERN ESCALAS TABLE (LEFT PANEL) */
         .modern-table-container {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            margin-top: 15px;
         }
         .modern-table-container::-webkit-scrollbar { width: 6px; }
-        .modern-table-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+        .modern-table-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         .modern-table-container::-webkit-scrollbar-thumb { background: rgba(255, 184, 0, 0.5); border-radius: 4px; }
         
         .modern-table {
@@ -418,20 +480,21 @@
         }
         .modern-table th {
             background-color: rgba(0, 15, 45, 0.95);
-            color: #fff;
-            padding: 12px;
-            font-size: 0.75rem;
+            color: var(--primary);
+            padding: 10px;
+            font-size: 0.7rem;
             text-transform: uppercase;
             position: sticky;
             top: 0;
             z-index: 2;
             border-bottom: 2px solid var(--primary);
+            text-align: center;
         }
         .modern-table td {
-            padding: 12px;
+            padding: 8px 10px;
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: #eee;
         }
@@ -440,18 +503,16 @@
         
         .badge-modern {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             font-weight: 800;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #000;
         }
         .badge-green { background-color: #A5D6A7; }
         .badge-yellow { background-color: #FFF59D; }
         .badge-red { background-color: #EF9A9A; }
-); }
 
-        /* LOGIN CSS */
         #login-container {
             min-height: 100vh; display: flex; align-items: center;
             justify-content: center; padding: 24px;
@@ -493,46 +554,7 @@
         .login-btn:hover:not(:disabled) { transform: translateY(-2px); }
         .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* LOGIN CSS */
-        #login-container {
-            min-height: 100vh; display: flex; align-items: center;
-            justify-content: center; padding: 24px;
-            background: #061A0C; position: fixed; inset: 0; z-index: 10000;
-        }
-        .login-box {
-            background: rgba(13,20,65,0.75); backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color); border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.28); padding: 44px 40px; width: 100%;
-            max-width: 420px; display: flex; flex-direction: column; gap: 16px;
-        }
-        .login-box img { max-width: 190px; height: auto; object-fit: contain; margin: 0 auto 12px; display: block; }
-        .login-box h2 { font-size: 22px; font-weight: 800; text-align: center; }
-        .login-subtitle { font-size: 13px; color: var(--text-muted); opacity: 0.7; text-align: center; margin-top: -8px; }
-        .login-field { position: relative; }
-        .login-field label {
-            position: absolute; top: 50%; left: 18px; transform: translateY(-50%);
-            color: rgba(180,228,255,0.5); font-size: 14px; font-weight: 500;
-            pointer-events: none; transition: all 0.2s ease; background: transparent;
-        }
-        .login-field input:not(:placeholder-shown) ~ label,
-        .login-field input:focus ~ label {
-            top: -8px; font-size: 11px; font-weight: 700; color: var(--primary);
-            background: #0d1441; padding: 0 6px; border-radius: 4px;
-        }
-        .login-input {
-            width: 100%; padding: 16px 18px 14px; border-radius: 10px;
-            border: 1px solid var(--border-color); background: rgba(255,255,255,0.04);
-            color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 15px; font-weight: 500; outline: none;
-        }
-        .login-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(255,184,0,0.08); }
-        .login-btn {
-            width: 100%; padding: 15px; background: linear-gradient(135deg,var(--primary),#FFD24D);
-            color: #0A2E0A; border: none; border-radius: 10px;
-            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800;
-            cursor: pointer; transition: all 0.3s ease; margin-top: 4px;
-        }
-        .login-btn:hover:not(:disabled) { transform: translateY(-2px); }
+
     </style>
 </head>
 <body>
@@ -618,6 +640,11 @@
                     <div class="stat-pct" id="ui-pct-available">0%</div>
                 </div>
             </div>
+            
+            <!-- ESCALAS (LEFT PANEL) -->
+            <div class="modern-table-container" id="leftEscalasContainer" style="margin-top: 15px; flex: 1;">
+                <!-- Preenchido via JS -->
+            </div>
         </div>
 
         <div class="right-panel">
@@ -683,10 +710,10 @@
                 </div>
                 <div class="chart-container" style="flex:1.2;">
                     <div class="chart-header">
-                        <div class="chart-title" id="escalasTitle">Escalas (Turno Atual)</div>
+                        <div class="chart-title">Heatmap (Média Trabalhando x Turno)</div>
                     </div>
                     <div class="chart-wrapper">
-                        <div class="modern-table-container" id="escalasContainer"></div>
+                        <div class="heatmap-container" id="heatmapContainer"></div>
                     </div>
                 </div>
             </div>
@@ -990,9 +1017,85 @@
             });
         }
 
-        function updateEscalasTable(praca, subHistory, pracaEscalas) {
-            const container = document.getElementById('escalasContainer');
-            const title = document.getElementById('escalasTitle');
+        function mapTurnoToShift(turnoStr) {
+            if (!turnoStr) return null;
+            turnoStr = turnoStr.toUpperCase();
+            if (turnoStr.includes('MANHA') || turnoStr.includes('MANHÃ')) return 'manha';
+            if (turnoStr.includes('ALMOÇO') || turnoStr.includes('ALMOCO')) return 'almoco';
+            if (turnoStr.includes('TARDE')) return 'tarde';
+            if (turnoStr.includes('J5')) return 'j5';
+            if (turnoStr.includes('JANTAR')) return 'jantar';
+            if (turnoStr.includes('MADRUGADA') || turnoStr.includes('MADRUGA')) return 'madrugada';
+            return null;
+        }
+
+        function updateHeatmap(subHistory) {
+            const container = document.getElementById('heatmapContainer');
+            
+            // Turnos padrao
+            const turnos = ['manha', 'almoco', 'tarde', 'jantar', 'j5', 'madrugada'];
+            const turnosLabels = ['Manhã', 'Almoço', 'Tarde', 'Jantar', 'J5', 'Madruga'];
+
+            let matrix = {};
+            let maxVal = 0;
+
+            subHistory.forEach(r => {
+                const shift = getShift(r.horario.split(' ')[1]);
+                if (!shift) return;
+                
+                if (!matrix[r.subpraca]) {
+                    matrix[r.subpraca] = { manha: 0, almoco: 0, tarde: 0, jantar: 0, j5: 0, madrugada: 0 };
+                    // Extra properties for average calc
+                    matrix[r.subpraca]._s = { manha: 0, almoco: 0, tarde: 0, jantar: 0, j5: 0, madrugada: 0 };
+                    matrix[r.subpraca]._c = { manha: 0, almoco: 0, tarde: 0, jantar: 0, j5: 0, madrugada: 0 };
+                }
+                
+                matrix[r.subpraca]._s[shift] += r.trabalhando;
+                matrix[r.subpraca]._c[shift] += 1;
+            });
+
+            // Convert sums to averages
+            const sortedSubs = Object.keys(matrix).sort();
+            sortedSubs.forEach(sub => {
+                turnos.forEach(t => {
+                    const s = matrix[sub]._s[t];
+                    const c = matrix[sub]._c[t];
+                    const avg = c > 0 ? Math.round(s / c) : 0;
+                    matrix[sub][t] = avg;
+                    if (avg > maxVal) maxVal = avg;
+                });
+            });
+
+            let html = '<div class="hm-table">';
+            
+            // Header
+            html += '<div class="hm-header" style="justify-content: flex-start; padding-left:5px;">Subpraça</div>';
+            turnosLabels.forEach(t => {
+                html += `<div class="hm-header">${t}</div>`;
+            });
+
+            // Rows
+            sortedSubs.forEach(sub => {
+                html += `<div class="hm-row-label" title="${sub}" onclick="selectSubpraca('${sub}')" style="cursor:pointer; text-decoration:underline; color:var(--primary);">${sub}</div>`;
+                turnos.forEach(t => {
+                    const val = matrix[sub][t];
+                    let alpha = 0.05;
+                    if (val > 0 && maxVal > 0) {
+                        alpha = 0.2 + (val / maxVal) * 0.8;
+                    }
+                    const textColor = alpha > 0.6 ? '#000' : '#fff';
+                    const bgColor = `rgba(29, 185, 84, ${alpha})`;
+                    
+                    html += `<div class="hm-cell" style="background-color: ${bgColor}; color: ${textColor};">${val}</div>`;
+                });
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function updateEscalasTable(praca, pracaEscalas) {
+            const container = document.getElementById('leftEscalasContainer');
             
             const nowHour = new Date().getHours();
             let currentShiftKey = 'madrugada';
@@ -1003,71 +1106,42 @@
             else if (nowHour >= 18 && nowHour < 22) { currentShiftKey = 'jantar'; shiftLabel = 'Jantar (18h-22h)'; }
             else if (nowHour >= 22) { currentShiftKey = 'j5'; shiftLabel = 'J5 (22h-00h)'; }
             
-            title.innerText = `Escalas - ${praca.toUpperCase()} | ${shiftLabel}`;
-
             let matrix = {};
-            subHistory.forEach(r => {
-                const shift = getShift(r.horario.split(' ')[1]);
-                if (shift !== currentShiftKey) return;
-                
-                if (!matrix[r.subpraca]) {
-                    matrix[r.subpraca] = { s:0, c:0, esc:null };
-                }
-                
-                matrix[r.subpraca].s += r.trabalhando;
-                matrix[r.subpraca].c += 1;
-            });
-
             if (pracaEscalas) {
-                const shiftMap = {
-                    "PICO - MANHÃ": "manha",
-                    "PICO - ALMOÇO": "almoco",
-                    "PICO - TARDE": "tarde",
-                    "PICO - JANTAR": "jantar",
-                    "PICO - J5": "j5",
-                    "PICO - MADRUGA": "madrugada"
-                };
                 pracaEscalas.forEach(e => {
                     if (e.subpraca === 'GERAL' || e.subpraca === 'LIVRE') return;
-                    const shift = shiftMap[e.turno?.toUpperCase()];
-                    if (shift === currentShiftKey && matrix[e.subpraca] !== undefined) {
-                        matrix[e.subpraca].esc = { logados: e.logados, slots: e.slots, pct: e.pct_logados };
+                    const shift = mapTurnoToShift(e.turno);
+                    if (shift === currentShiftKey) {
+                        matrix[e.subpraca] = { logados: e.logados, slots: e.slots, pct: e.pct_logados };
                     }
                 });
             }
 
             const sortedSubs = Object.keys(matrix).sort();
             
-            let html = '<table class="modern-table"><thead><tr><th style="text-align:left;">Sub-Praça</th><th>Trabalhando (Média)</th><th>Escala (Log/Slots)</th><th>% Preenchimento</th></tr></thead><tbody>';
+            let html = `<div style="background-color: rgba(0, 15, 45, 0.95); padding: 12px; text-align: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 2;">
+                            <div style="font-size: 0.85rem; font-weight: 800; color: #fff; text-transform: uppercase;">Escalas - ${shiftLabel}</div>
+                        </div>`;
+            
+            html += '<table class="modern-table"><thead><tr><th style="text-align:left;">Sub-Praça</th><th>L/S</th><th>%</th></tr></thead><tbody>';
             
             if (sortedSubs.length === 0) {
-                html += '<tr><td colspan="4" style="color:var(--text-muted); padding:20px;">Nenhum dado para o turno atual.</td></tr>';
+                html += '<tr><td colspan="3" style="color:var(--text-muted); padding:20px;">Nenhum dado...</td></tr>';
             } else {
                 sortedSubs.forEach(sub => {
-                    const obj = matrix[sub];
-                    const avg = obj.c > 0 ? Math.round(obj.s / obj.c) : 0;
-                    
-                    let escStr = '-- / --';
-                    let pctStr = '--%';
+                    const esc = matrix[sub];
                     let badgeClass = 'badge-modern';
-                    
-                    if (obj.esc) {
-                        escStr = `${obj.esc.logados} / ${obj.esc.slots}`;
-                        pctStr = obj.esc.pct;
-                        
-                        const pctVal = parseFloat(pctStr.replace('%', ''));
-                        if (!isNaN(pctVal)) {
-                            if (pctVal >= 90) badgeClass += ' badge-green';
-                            else if (pctVal >= 70) badgeClass += ' badge-yellow';
-                            else badgeClass += ' badge-red';
-                        }
+                    const pctVal = parseFloat(esc.pct.replace('%', ''));
+                    if (!isNaN(pctVal)) {
+                        if (pctVal >= 90) badgeClass += ' badge-green';
+                        else if (pctVal >= 70) badgeClass += ' badge-yellow';
+                        else badgeClass += ' badge-red';
                     }
                     
                     html += `<tr>
-                                <td style="text-align:left; color:var(--primary); cursor:pointer; text-decoration:underline;" onclick="selectSubpraca('${sub}')" title="${sub}">${sub}</td>
-                                <td>${avg}</td>
-                                <td>${escStr}</td>
-                                <td><span class="${badgeClass}">${pctStr}</span></td>
+                                <td style="text-align:left; color:var(--primary); cursor:pointer; text-decoration:underline; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 100px;" onclick="selectSubpraca('${sub}')" title="${sub}">${sub}</td>
+                                <td>${esc.logados}/${esc.slots}</td>
+                                <td><span class="${badgeClass}">${esc.pct}</span></td>
                              </tr>`;
                 });
             }
@@ -1173,9 +1247,12 @@
                 // Draw Main Chart
                 updateChart(mainHist);
 
-                // Build Escalas Table Data
+                // Build Heatmap Matrix Data
                 const subHistory = history.filter(r => r.subpraca !== 'GERAL' && r.subpraca !== praca);
-                updateEscalasTable(praca, subHistory, escalas);
+                updateHeatmap(subHistory);
+
+                // Build Escalas Table Data (Left Panel)
+                updateEscalasTable(praca, escalas);
 
                 // Fade In
                 dashboard.classList.add('active');
