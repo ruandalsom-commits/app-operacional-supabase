@@ -825,8 +825,9 @@
 
                 escalasDataByPraca = {};
                 allDataEscalas.forEach(row => {
-                    if (!escalasDataByPraca[row.praca]) escalasDataByPraca[row.praca] = [];
-                    escalasDataByPraca[row.praca].push(row);
+                    const pracaKey = (row.praca || "").toUpperCase();
+                    if (!escalasDataByPraca[pracaKey]) escalasDataByPraca[pracaKey] = [];
+                    escalasDataByPraca[pracaKey].push(row);
                 });
 
                 pracaNames = Object.keys(dataByPraca).sort();
@@ -1111,8 +1112,21 @@
                 pracaEscalas.forEach(e => {
                     if (e.subpraca === 'GERAL' || e.subpraca === 'LIVRE') return;
                     const shift = mapTurnoToShift(e.turno);
+                    
+                    // Procuramos se existe a subpraca na matrix de forma case-insensitive, senao usamos o nome direto
+                    let subKey = e.subpraca;
+                    for (let existingSub of Object.keys(matrix)) {
+                        if (existingSub.toUpperCase() === e.subpraca.toUpperCase()) {
+                            subKey = existingSub;
+                            break;
+                        }
+                    }
+                    
                     if (shift === currentShiftKey) {
-                        matrix[e.subpraca] = { logados: e.logados, slots: e.slots, pct: e.pct_logados };
+                        if (!matrix[subKey]) matrix[subKey] = { logados: 0, slots: 0, pct: '0%' }; // Garante que a subpraca existe
+                        matrix[subKey].logados = e.logados;
+                        matrix[subKey].slots = e.slots;
+                        matrix[subKey].pct = e.pct_logados;
                     }
                 });
             }
@@ -1159,8 +1173,9 @@
 
             setTimeout(() => {
                 const praca = pracaNames[index];
+                const pracaKey = (praca || "").toUpperCase();
                 const history = dataByPraca[praca];
-                const escalas = escalasDataByPraca[praca] || [];
+                const escalas = escalasDataByPraca[pracaKey] || [];
                 
                 let mainHist = [];
                 if (currentSubpraca) {
