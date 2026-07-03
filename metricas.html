@@ -316,18 +316,30 @@
         .ticker-wrap {
             background: rgba(0, 15, 45, 0.95);
             border-bottom: 1px solid var(--border-color);
-            padding: 12px 40px;
+            padding: 12px 0;
             overflow: hidden;
             display: flex;
-            align-items: center;
+            white-space: nowrap;
         }
         
         .ticker {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            width: 100%;
+            width: max-content;
+            gap: 40px;
+            padding-right: 40px;
             font-family: 'Poppins', sans-serif;
+            animation: tickerScroll 20s linear infinite;
+        }
+
+        @keyframes tickerScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .ticker:hover {
+            animation-play-state: paused;
+        }
         }
         
         .ticker-item {
@@ -636,17 +648,31 @@
 
     <div class="ticker-wrap" id="main-ui-ticker" style="display:none;">
         <div class="ticker">
-            <div class="ticker-item"><span class="t-label">Manhã</span> <span class="t-val" id="ui-peak-manha">0</span> <span class="t-time" id="ui-time-manha">--:--</span></div>
+            <!-- First Set -->
+            <div class="ticker-item"><span class="t-label">Manhã</span> <span class="t-val t-val-manha" id="ui-peak-manha">0</span> <span class="t-time t-time-manha" id="ui-time-manha">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Almoço</span> <span class="t-val" id="ui-peak-almoco">0</span> <span class="t-time" id="ui-time-almoco">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Almoço</span> <span class="t-val t-val-almoco" id="ui-peak-almoco">0</span> <span class="t-time t-time-almoco" id="ui-time-almoco">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Tarde</span> <span class="t-val" id="ui-peak-tarde">0</span> <span class="t-time" id="ui-time-tarde">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Tarde</span> <span class="t-val t-val-tarde" id="ui-peak-tarde">0</span> <span class="t-time t-time-tarde" id="ui-time-tarde">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Jantar</span> <span class="t-val" id="ui-peak-jantar">0</span> <span class="t-time" id="ui-time-jantar">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Jantar</span> <span class="t-val t-val-jantar" id="ui-peak-jantar">0</span> <span class="t-time t-time-jantar" id="ui-time-jantar">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">J5</span> <span class="t-val" id="ui-peak-j5">0</span> <span class="t-time" id="ui-time-j5">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">J5</span> <span class="t-val t-val-j5" id="ui-peak-j5">0</span> <span class="t-time t-time-j5" id="ui-time-j5">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Madruga</span> <span class="t-val" id="ui-peak-madrugada">0</span> <span class="t-time" id="ui-time-madrugada">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Madruga</span> <span class="t-val t-val-madrugada" id="ui-peak-madrugada">0</span> <span class="t-time t-time-madrugada" id="ui-time-madrugada">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <!-- Second Set -->
+            <div class="ticker-item"><span class="t-label">Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
         </div>
     </div>
 
@@ -996,6 +1022,29 @@
                         mode: 'index',
                         intersect: false,
                     },
+                    onClick: (e, elements) => {
+                        if (!elements.length) return;
+                        const idx = elements[0].index;
+                        const timeStr = history[idx].horario.split(' ')[1]; // Extracts HH:MM
+                        
+                        const praca = pracaNames[currentPracaIndex];
+                        const pracaKey = (praca || "").toUpperCase();
+                        let escalas = escalasDataByPraca[pracaKey] || [];
+                        if (currentSubpraca) {
+                            escalas = escalas.filter(esc => esc.subpraca === currentSubpraca);
+                        }
+                        
+                        const shiftKey = getShift(timeStr);
+                        let shiftLabel = timeStr + 'h';
+                        if (shiftKey === 'manha') shiftLabel = 'Manhã (' + timeStr + 'h)';
+                        if (shiftKey === 'almoco') shiftLabel = 'Almoço (' + timeStr + 'h)';
+                        if (shiftKey === 'tarde') shiftLabel = 'Tarde (' + timeStr + 'h)';
+                        if (shiftKey === 'jantar') shiftLabel = 'Jantar (' + timeStr + 'h)';
+                        if (shiftKey === 'j5') shiftLabel = 'J5 (' + timeStr + 'h)';
+                        if (shiftKey === 'madrugada') shiftLabel = 'Madruga (' + timeStr + 'h)';
+                        
+                        updateEscalasTable(praca, escalas, shiftKey, shiftLabel);
+                    },
                     plugins: {
                         legend: { position: 'top', align: 'end', labels: { font: { family: 'Poppins' } } },
                         tooltip: {
@@ -1101,17 +1150,23 @@
             container.innerHTML = html;
         }
 
-        function updateEscalasTable(praca, pracaEscalas) {
+        function updateEscalasTable(praca, pracaEscalas, forceShiftKey = null, forceShiftLabel = null) {
             const container = document.getElementById('leftEscalasContainer');
             
-            const nowHour = new Date().getHours();
             let currentShiftKey = 'madrugada';
             let shiftLabel = 'Madruga (00h-06h)';
-            if (nowHour >= 6 && nowHour < 11) { currentShiftKey = 'manha'; shiftLabel = 'Manhã (06h-11h)'; }
-            else if (nowHour >= 11 && nowHour < 15) { currentShiftKey = 'almoco'; shiftLabel = 'Almoço (11h-15h)'; }
-            else if (nowHour >= 15 && nowHour < 18) { currentShiftKey = 'tarde'; shiftLabel = 'Tarde (15h-18h)'; }
-            else if (nowHour >= 18 && nowHour < 22) { currentShiftKey = 'jantar'; shiftLabel = 'Jantar (18h-22h)'; }
-            else if (nowHour >= 22) { currentShiftKey = 'j5'; shiftLabel = 'J5 (22h-00h)'; }
+            
+            if (forceShiftKey) {
+                currentShiftKey = forceShiftKey;
+                shiftLabel = forceShiftLabel || currentShiftKey;
+            } else {
+                const nowHour = new Date().getHours();
+                if (nowHour >= 6 && nowHour < 11) { currentShiftKey = 'manha'; shiftLabel = 'Manhã (06h-11h)'; }
+                else if (nowHour >= 11 && nowHour < 15) { currentShiftKey = 'almoco'; shiftLabel = 'Almoço (11h-15h)'; }
+                else if (nowHour >= 15 && nowHour < 18) { currentShiftKey = 'tarde'; shiftLabel = 'Tarde (15h-18h)'; }
+                else if (nowHour >= 18 && nowHour < 22) { currentShiftKey = 'jantar'; shiftLabel = 'Jantar (18h-22h)'; }
+                else if (nowHour >= 22) { currentShiftKey = 'j5'; shiftLabel = 'J5 (22h-00h)'; }
+            }
             
             let matrix = {};
             if (pracaEscalas) {
@@ -1259,13 +1314,13 @@
                 const prev = window.prevAverages[praca] || {};
 
                 const updateTicker = (shiftKey, val) => {
-                    const elVal = document.getElementById(`ui-peak-${shiftKey}`);
-                    const elTime = document.getElementById(`ui-time-${shiftKey}`);
-                    if (!elVal || !elTime) return;
+                    const elVals = document.querySelectorAll(`.t-val-${shiftKey}`);
+                    const elTimes = document.querySelectorAll(`.t-time-${shiftKey}`);
+                    if (!elVals.length || !elTimes.length) return;
                     
-                    elVal.innerText = val;
+                    elVals.forEach(el => el.innerText = val);
                     if (val === 0) {
-                        elTime.innerText = '--:--';
+                        elTimes.forEach(el => el.innerText = '--:--');
                         return;
                     }
                     
@@ -1280,7 +1335,7 @@
                         icon = '=';
                     }
                     
-                    elTime.innerHTML = `<span style="color:${color}; font-size:1.1em; font-weight:900;">${icon}</span>`;
+                    elTimes.forEach(el => el.innerHTML = `<span style="color:${color}; font-size:1.1em; font-weight:900;">${icon}</span>`);
                 };
 
                 updateTicker('manha', averages.manha);
@@ -1340,22 +1395,8 @@
                     }
                 }
 
-                // Ticker horizontal scroll
-                const tickerWrap = document.getElementById('main-ui-ticker');
-                const tickerInner = tickerWrap ? tickerWrap.querySelector('.ticker') : null;
-                if (tickerWrap && tickerInner) {
-                    const wrapWidth = tickerWrap.clientWidth;
-                    const innerWidth = tickerInner.scrollWidth;
-                    if (innerWidth > wrapWidth) {
-                        const maxScroll = innerWidth - wrapWidth + 40; // 40px extra for padding
-                        let scrollPercent = currentProgress / SLIDE_DURATION;
-                        if (scrollPercent > 0.95) scrollPercent = 1;
-                        tickerInner.style.transform = `translateX(-${scrollPercent * maxScroll}px)`;
-                    } else {
-                        tickerInner.style.transform = 'none';
-                    }
-                }
-
+                // Removing manual ticker JS since we use CSS infinite scroll
+                
                 if (currentProgress >= SLIDE_DURATION) {
                     clearInterval(progressInterval);
                     currentSubpraca = null; // Clear when auto-advancing
