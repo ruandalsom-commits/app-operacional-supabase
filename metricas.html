@@ -156,13 +156,15 @@
         /* MAIN CONTENT */
         main {
             flex: 1;
-            padding: 20px 40px;
+            padding: 15px 40px;
             display: grid;
             grid-template-columns: 350px 1fr;
-            gap: 25px;
+            gap: 20px;
             opacity: 0;
             transition: opacity 0.5s ease;
             z-index: 1;
+            min-height: 0;
+            max-height: calc(100vh - 75px);
         }
 
         main.active {
@@ -174,6 +176,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            min-height: 0;
         }
 
         .praca-header {
@@ -270,6 +273,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            min-height: 0;
         }
 
         .chart-container {
@@ -308,30 +312,30 @@
         .shifts-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 10px;
         }
 
         .shift-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 15px;
+            padding: 10px 15px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             backdrop-filter: blur(10px);
         }
 
         .shift-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
             background: rgba(255,184,0,0.1);
             color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .shift-info {
@@ -340,7 +344,7 @@
 
         .shift-name {
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 2px;
@@ -349,13 +353,13 @@
 
         .shift-peak {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             font-weight: 800;
             color: var(--text-main);
         }
 
         .shift-time {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--secondary);
             font-weight: 700;
         }
@@ -1110,7 +1114,7 @@
             let matrix = {};
             if (pracaEscalas) {
                 pracaEscalas.forEach(e => {
-                    if (e.subpraca === 'GERAL' || e.subpraca === 'LIVRE') return;
+                    if (e.subpraca === 'GERAL') return;
                     const shift = mapTurnoToShift(e.turno);
                     
                     // Procuramos se existe a subpraca na matrix de forma case-insensitive, senao usamos o nome direto
@@ -1296,6 +1300,17 @@
                 let percent = (currentProgress / SLIDE_DURATION) * 100;
                 if (percent > 100) percent = 100;
                 document.getElementById('progressBar').style.width = percent + '%';
+                
+                const container = document.getElementById('leftEscalasContainer');
+                if (container) {
+                    const maxScroll = container.scrollHeight - container.clientHeight;
+                    if (maxScroll > 0) {
+                        let scrollPercent = currentProgress / SLIDE_DURATION;
+                        // Opcional: acelerar um pouco para terminar de rolar antes do fim
+                        if (scrollPercent > 0.9) scrollPercent = 1;
+                        container.scrollTop = scrollPercent * maxScroll;
+                    }
+                }
 
                 if (currentProgress >= SLIDE_DURATION) {
                     clearInterval(progressInterval);

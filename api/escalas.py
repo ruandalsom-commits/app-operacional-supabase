@@ -250,12 +250,22 @@ class Sessao:
             registros.extend(resp.get("values", []))
         return registros
 
-def calcular_praca_subpraca(r):
+PREFIXO_DEDICADO = {
+    "Sao Paulo":          "SP",
+    "Rio - Madureira":    "RJ",
+    "Rio - Barra":        "RJ",
+    "Rio - Zona Sul":     "RJ",
+    "Rio - Campo Grande": "RJ",
+    "Niteroi":            "RJ"
+}
+
+def calcular_praca_subpraca(r, nome_regiao):
     regiao = r.get("region", {}).get("name") or ""
     sub    = r.get("subRegion", {}).get("name") or ""
     origem = r.get("origin", {}).get("name") or ""
     if origem:
-        return "SP DEDICADO", origem
+        prefixo = PREFIXO_DEDICADO.get(nome_regiao, "DEDICADO")
+        return f"{prefixo} DEDICADO", origem
     return regiao.upper(), sub if sub else "LIVRE"
 
 def processar_escalas(sessao, data_alvo, horario_coleta, nome_regiao):
@@ -263,7 +273,7 @@ def processar_escalas(sessao, data_alvo, horario_coleta, nome_regiao):
     try:
         registros = sessao.extrair_todas_escalas(data_alvo, data_alvo)
         for r in registros:
-            praca, subpraca = calcular_praca_subpraca(r)
+            praca, subpraca = calcular_praca_subpraca(r, nome_regiao)
             slots = r.get("maxRegularDrivers", 0)
             logados = r.get("reservedRegularDrivers", 0)
             pct = f"{round(logados / slots * 100, 1)}%" if slots > 0 else "0%"
