@@ -930,6 +930,70 @@
     }
 
     /* ============================================================
+       API DE CLIMA (WEATHER)
+    ============================================================ */
+    const KML_COORDS = {
+        "BROOKLIN - (mini BTU)": { lat: -23.6004, lng: -46.6885 },
+        "PINHEIROS - (mini BTU)": { lat: -23.5665, lng: -46.6888 },
+        "PARAISO - (mini BTU)": { lat: -23.5690, lng: -46.6489 },
+        "JARDINS - (mini BTU)": { lat: -23.5599, lng: -46.6688 },
+        "ITAIM E BROOKLIN E INDIANAPOLIS": { lat: -23.6118, lng: -46.6763 },
+        "CIDADE DAS FLORES": { lat: -23.5700, lng: -46.7658 },
+        "PANAMBY E VILA SONIA": { lat: -23.6101, lng: -46.7344 },
+        "JABAQUARA E SANTO AMARO": { lat: -23.6488, lng: -46.6776 },
+        "ACLIMACAO": { lat: -23.5918, lng: -46.6260 },
+        "VILA JAGUARA E JARAGUÁ": { lat: -23.4968, lng: -46.7220 },
+        "CACHOEIRINHA": { lat: -23.4644, lng: -46.6593 },
+        "TATUAPÉ (green zone)": { lat: -23.5500, lng: -46.5626 },
+        "PERDIZES": { lat: -23.5438, lng: -46.6592 },
+        "MOOCA": { lat: -23.5540, lng: -46.5784 },
+        "PINHEIROS": { lat: -23.5400, lng: -46.7066 },
+        "MANDAQUI": { lat: -23.4822, lng: -46.6159 },
+        "ARICANDUVA": { lat: -23.5866, lng: -46.5540 },
+        "VILA GUILHERMINA": { lat: -23.5171, lng: -46.4856 },
+        "INTERLAGOS": { lat: -23.7226, lng: -46.7125 }
+    };
+
+    let weatherCache = {};
+
+    async function getWeatherForSubpraca(subName) {
+        if (!subName) subName = '';
+        let target = null;
+        let upSub = subName.toUpperCase();
+        for(let k in KML_COORDS) {
+            if (k.toUpperCase().includes(upSub) || upSub.includes(k.toUpperCase())) {
+                target = KML_COORDS[k]; break;
+            }
+        }
+        if (!target) target = { lat: -23.5505, lng: -46.6333 }; // Default SP
+        
+        let key = target.lat.toFixed(2) + "," + target.lng.toFixed(2);
+        if (weatherCache[key]) return weatherCache[key];
+        
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude='+target.lat+'&longitude='+target.lng+'&current_weather=true');
+            const data = await res.json();
+            const code = data.current_weather.weathercode;
+            const temp = data.current_weather.temperature;
+            
+            let icon = '☀️';
+            if (code >= 1 && code <= 3) icon = '⛅';
+            else if (code == 45 || code == 48) icon = '🌫️';
+            else if (code >= 51 && code <= 57) icon = '🌦️';
+            else if (code >= 61 && code <= 67) icon = '🌧️';
+            else if (code >= 71 && code <= 77) icon = '🌨️';
+            else if (code >= 80 && code <= 82) icon = '⛈️';
+            else if (code >= 95 && code <= 99) icon = '🌩️';
+            
+            const result = icon + ' ' + Math.round(temp) + '°C';
+            weatherCache[key] = result;
+            return result;
+        } catch(e) {
+            return "☀️ --°C";
+        }
+    }
+
+    /* ============================================================
        HELPERS DE BUILD
     ============================================================ */
     function _buildProcedimentosHTML(dados) {
@@ -1000,13 +1064,22 @@
                 var borderColor = isOpen ? 'rgba(255,184,0,0.38)' : 'rgba(234,44,85,0.38)';
                 var textColor = isOpen ? 'var(--menta-viva)' : '#FFA7A7';
                 var statusText = isOpen ? 'ABERTO' : 'FECHADO';
+                var subName = item.Subpraca||'-';
+                var sId = 'wth-cad-' + (Math.random().toString(36).substr(2, 9));
+                getWeatherForSubpraca(subName).then(function(w){
+                    var el = document.getElementById(sId);
+                    if(el) el.innerText = w;
+                });
                 
                 return `
                     <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
-                        <span style="font-weight:600; font-size:14px;">${item.Subpraca||'-'}</span>
-                        <span style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:10px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; letter-spacing:0.5px;">
-                            ${statusText}
-                        </span>
+                        <span style="font-weight:600; font-size:14px;">${subName}</span>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span id="${sId}" style="font-size:12px; color:var(--text-main); font-weight:700;">--</span>
+                            <span style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:10px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; letter-spacing:0.5px;">
+                                ${statusText}
+                            </span>
+                        </div>
                     </div>`;
             }).join('');
             
@@ -1165,7 +1238,18 @@
         itens.filter(function(m){ return (m.Subpraca||'').toUpperCase()==='GERAL'; }).forEach(function(m){ gTrab+=Number(m.Trabalhando)||0;gDisp+=Number(m.Disponiveis)||0;gOff+=Number(m.Offline)||0;gPausa+=Number(m['Em Pausa'])||0;gBloq+=Number(m.Bloqueados)||0;gTotal+=Number(m.Total)||0; });
         var CORES={trab:'#2CEABC',disp:'#2C67EA',off:'#B4E4FF',pausa:'#B4FFED',bloq:'#009B7F'};
         var html='';
-        html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;"><span style="font-size:11px;font-weight:700;color:var(--azul-gelo);opacity:0.5;letter-spacing:0.5px;">📡 Snapshot: '+hrDisplay+'</span><div style="display:flex;gap:16px;flex-wrap:wrap;">';
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">';
+        html+='<div style="display:flex; flex-direction:column; gap:4px;">';
+        html+='<span style="font-size:11px;font-weight:700;color:var(--azul-gelo);opacity:0.5;letter-spacing:0.5px;">📡 Snapshot: '+hrDisplay+'</span>';
+        html+='<span id="idx-wth-global" style="font-size:12px;font-weight:700;color:var(--menta-viva);">Carregando clima...</span>';
+        html+='</div>';
+        
+        getWeatherForSubpraca(pracaSel).then(function(w){
+            var el = document.getElementById('idx-wth-global');
+            if(el) el.innerText = w;
+        });
+        
+        html+='<div style="display:flex;gap:16px;flex-wrap:wrap;">';
         [{c:CORES.trab,l:'Trabalhando'},{c:CORES.disp,l:'Disponível'},{c:CORES.off,l:'Offline'},{c:CORES.pausa,l:'Em Pausa'},{c:CORES.bloq,l:'Bloqueado'}].forEach(function(d){ html+='<span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--azul-gelo);opacity:0.65;"><span style="width:8px;height:8px;border-radius:50%;background:'+d.c+'"></span>'+d.l+'</span>'; });
         html+='</div></div>';
         var kpiG=[{l:'Total Frota',v:gTotal,c:'var(--azul-gelo)',sub:'entregadores'},{l:'Trabalhando',v:gTrab,c:CORES.trab,sub:pctStr(gTrab,gTotal)+' do total'},{l:'Disponíveis',v:gDisp,c:CORES.disp,sub:pctStr(gDisp,gTotal)+' do total'},{l:'Offline',v:gOff,c:CORES.off,sub:pctStr(gOff,gTotal)+' do total'},{l:'Em Pausa',v:gPausa,c:CORES.pausa,sub:pctStr(gPausa,gTotal)+' do total'},{l:'Bloqueados',v:gBloq,c:CORES.bloq,sub:pctStr(gBloq,gTotal)+' do total'}];
@@ -1206,7 +1290,15 @@
                 html+='</div>';
                 subs.forEach(function(s){
                     var sT=Number(s.Trabalhando)||0,sD=Number(s.Disponiveis)||0,sO=Number(s.Offline)||0,sP=Number(s['Em Pausa'])||0,sB=Number(s.Bloqueados)||0,sTo=Number(s.Total)||0;
-                    html+='<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;"><span style="font-size:11px;font-weight:600;color:var(--azul-gelo);opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68%;display:block;" title="'+(s.Subpraca||'-')+'">'+(s.Subpraca||'-')+'</span><span style="font-size:10px;font-weight:700;color:var(--azul-gelo);opacity:0.45;flex-shrink:0;">'+sTo+'</span></div>';
+                    var swId='wth-met-'+(Math.random().toString(36).substr(2, 9));
+                    getWeatherForSubpraca(s.Subpraca).then(function(w){
+                        var el = document.getElementById(swId);
+                        if(el) el.innerText = w;
+                    });
+                    
+                    html+='<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">';
+                    html+='<span style="font-size:11px;font-weight:600;color:var(--azul-gelo);opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50%;display:block;" title="'+(s.Subpraca||'-')+'">'+(s.Subpraca||'-')+'</span>';
+                    html+='<div style="display:flex;align-items:center;gap:12px;"><span id="'+swId+'" style="font-size:10px;font-weight:700;color:var(--text-main);">--</span><span style="font-size:10px;font-weight:700;color:var(--azul-gelo);opacity:0.45;flex-shrink:0;">'+sTo+'</span></div></div>';
                     html+='<div style="height:18px;display:flex;border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.04);">';
                     if(sTo>0){ [{v:sT,c:CORES.trab},{v:sD,c:CORES.disp},{v:sO,c:CORES.off},{v:sP,c:CORES.pausa},{v:sB,c:CORES.bloq}].forEach(function(sg){ if(sg.v>0){ var sp2=pctNum(sg.v,sTo); var lb=sp2>=8?sp2+'%':''; html+='<div style="width:'+sp2+'%;background:'+sg.c+';transition:width 0.6s ease;display:flex;align-items:center;justify-content:center;overflow:hidden;" title="'+sg.v+'"><span style="font-size:8px;font-weight:800;color:rgba(0,15,45,0.85);white-space:nowrap;">'+lb+'</span></div>'; } }); }
                     html+='</div><div style="display:flex;gap:8px;margin-top:3px;">';

@@ -642,6 +642,7 @@
             <div class="clock-container">
                 <div class="clock" id="clock">00:00:00</div>
                 <div class="date" id="date">Carregando...</div>
+                <div id="weather-global" style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-top: 4px; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">☀️ --°C</div>
             </div>
         </div>
     </header>
@@ -649,59 +650,59 @@
     <div class="ticker-wrap" id="main-ui-ticker" style="display:none;">
         <div class="ticker">
             <!-- Set 1 -->
-            <div class="ticker-item"><span class="t-label">Méd. Manhã</span> <span class="t-val t-val-manha" id="ui-peak-manha">0</span> <span class="t-time t-time-manha" id="ui-time-manha">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Manhã</span> <span class="t-val t-val-manha" id="ui-peak-manha">0</span> <span class="t-time t-time-manha" id="ui-time-manha">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Almoço</span> <span class="t-val t-val-almoco" id="ui-peak-almoco">0</span> <span class="t-time t-time-almoco" id="ui-time-almoco">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Almoço</span> <span class="t-val t-val-almoco" id="ui-peak-almoco">0</span> <span class="t-time t-time-almoco" id="ui-time-almoco">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Tarde</span> <span class="t-val t-val-tarde" id="ui-peak-tarde">0</span> <span class="t-time t-time-tarde" id="ui-time-tarde">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Tarde</span> <span class="t-val t-val-tarde" id="ui-peak-tarde">0</span> <span class="t-time t-time-tarde" id="ui-time-tarde">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Jantar</span> <span class="t-val t-val-jantar" id="ui-peak-jantar">0</span> <span class="t-time t-time-jantar" id="ui-time-jantar">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Jantar</span> <span class="t-val t-val-jantar" id="ui-peak-jantar">0</span> <span class="t-time t-time-jantar" id="ui-time-jantar">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. J5</span> <span class="t-val t-val-j5" id="ui-peak-j5">0</span> <span class="t-time t-time-j5" id="ui-time-j5">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. J5</span> <span class="t-val t-val-j5" id="ui-peak-j5">0</span> <span class="t-time t-time-j5" id="ui-time-j5">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Madruga</span> <span class="t-val t-val-madrugada" id="ui-peak-madrugada">0</span> <span class="t-time t-time-madrugada" id="ui-time-madrugada">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Madruga</span> <span class="t-val t-val-madrugada" id="ui-peak-madrugada">0</span> <span class="t-time t-time-madrugada" id="ui-time-madrugada">--:--</span></div>
             <div class="ticker-divider"></div>
             
             <!-- Set 2 -->
-            <div class="ticker-item"><span class="t-label">Méd. Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
             <div class="ticker-divider"></div>
             
             <!-- Set 3 -->
-            <div class="ticker-item"><span class="t-label">Méd. Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
             <div class="ticker-divider"></div>
             
             <!-- Set 4 -->
-            <div class="ticker-item"><span class="t-label">Méd. Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Manhã</span> <span class="t-val t-val-manha">0</span> <span class="t-time t-time-manha">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Almoço</span> <span class="t-val t-val-almoco">0</span> <span class="t-time t-time-almoco">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Tarde</span> <span class="t-val t-val-tarde">0</span> <span class="t-time t-time-tarde">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Jantar</span> <span class="t-val t-val-jantar">0</span> <span class="t-time t-time-jantar">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. J5</span> <span class="t-val t-val-j5">0</span> <span class="t-time t-time-j5">--:--</span></div>
             <div class="ticker-divider"></div>
-            <div class="ticker-item"><span class="t-label">Méd. Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
+            <div class="ticker-item"><span class="t-label">Máx. Madruga</span> <span class="t-val t-val-madrugada">0</span> <span class="t-time t-time-madrugada">--:--</span></div>
         </div>
     </div>
 
@@ -785,6 +786,67 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR');
             document.getElementById('date').innerText = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }, 1000);
+
+        // Initial Weather setup
+        const KML_COORDS = {
+            "BROOKLIN - (mini BTU)": { lat: -23.6004, lng: -46.6885 },
+            "PINHEIROS - (mini BTU)": { lat: -23.5665, lng: -46.6888 },
+            "PARAISO - (mini BTU)": { lat: -23.5690, lng: -46.6489 },
+            "JARDINS - (mini BTU)": { lat: -23.5599, lng: -46.6688 },
+            "ITAIM E BROOKLIN E INDIANAPOLIS": { lat: -23.6118, lng: -46.6763 },
+            "CIDADE DAS FLORES": { lat: -23.5700, lng: -46.7658 },
+            "PANAMBY E VILA SONIA": { lat: -23.6101, lng: -46.7344 },
+            "JABAQUARA E SANTO AMARO": { lat: -23.6488, lng: -46.6776 },
+            "ACLIMACAO": { lat: -23.5918, lng: -46.6260 },
+            "VILA JAGUARA E JARAGUÁ": { lat: -23.4968, lng: -46.7220 },
+            "CACHOEIRINHA": { lat: -23.4644, lng: -46.6593 },
+            "TATUAPÉ (green zone)": { lat: -23.5500, lng: -46.5626 },
+            "PERDIZES": { lat: -23.5438, lng: -46.6592 },
+            "MOOCA": { lat: -23.5540, lng: -46.5784 },
+            "PINHEIROS": { lat: -23.5400, lng: -46.7066 },
+            "MANDAQUI": { lat: -23.4822, lng: -46.6159 },
+            "ARICANDUVA": { lat: -23.5866, lng: -46.5540 },
+            "VILA GUILHERMINA": { lat: -23.5171, lng: -46.4856 },
+            "INTERLAGOS": { lat: -23.7226, lng: -46.7125 }
+        };
+
+        let weatherCache = {};
+
+        async function getWeatherForSubpraca(subName) {
+            let target = null;
+            let upSub = subName.toUpperCase();
+            for(let k in KML_COORDS) {
+                if (k.toUpperCase().includes(upSub) || upSub.includes(k.toUpperCase())) {
+                    target = KML_COORDS[k]; break;
+                }
+            }
+            if (!target) target = { lat: -23.5505, lng: -46.6333 }; // Default SP
+            
+            let key = target.lat.toFixed(2) + "," + target.lng.toFixed(2);
+            if (weatherCache[key]) return weatherCache[key];
+            
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lng}&current_weather=true`);
+                const data = await res.json();
+                const code = data.current_weather.weathercode;
+                const temp = data.current_weather.temperature;
+                
+                let icon = '☀️';
+                if (code >= 1 && code <= 3) icon = '⛅';
+                else if (code == 45 || code == 48) icon = '🌫️';
+                else if (code >= 51 && code <= 57) icon = '🌦️';
+                else if (code >= 61 && code <= 67) icon = '🌧️';
+                else if (code >= 71 && code <= 77) icon = '🌨️';
+                else if (code >= 80 && code <= 82) icon = '⛈️';
+                else if (code >= 95 && code <= 99) icon = '🌩️';
+                
+                const result = `${icon} ${Math.round(temp)}°C`;
+                weatherCache[key] = result;
+                return result;
+            } catch(e) {
+                return "☀️ --°C";
+            }
+        }
 
         // Variables
         let chartInstance = null;
@@ -926,30 +988,28 @@
             return null;
         }
 
-        function calculateAverages(history) {
-            let sums = {
-                manha: { sum: 0, count: 0 },
-                almoco: { sum: 0, count: 0 },
-                tarde: { sum: 0, count: 0 },
-                jantar: { sum: 0, count: 0 },
-                j5: { sum: 0, count: 0 },
-                madrugada: { sum: 0, count: 0 }
+        function calculatePeaks(history) {
+            let peaks = {
+                manha: 0,
+                almoco: 0,
+                tarde: 0,
+                jantar: 0,
+                j5: 0,
+                madrugada: 0
             };
 
             history.forEach(row => {
                 const time = row.horario.split(' ')[1];
                 const shift = getShift(time);
-                if (shift && sums[shift]) {
-                    sums[shift].sum += (row.trabalhando || 0);
-                    sums[shift].count++;
+                if (shift) {
+                    const activeTotal = row.total || 0;
+                    if (activeTotal > peaks[shift]) {
+                        peaks[shift] = activeTotal;
+                    }
                 }
             });
 
-            let averages = {};
-            for (let k in sums) {
-                averages[k] = sums[k].count > 0 ? Math.round(sums[k].sum / sums[k].count) : 0;
-            }
-            return averages;
+            return peaks;
         }
 
         function updateChart(history) {
@@ -1263,12 +1323,13 @@
             let html = `<table class="modern-table">
                             <thead>
                                 <tr>
-                                    <th colspan="3" style="position: sticky; top: 0; z-index: 3; background-color: rgba(0, 15, 45, 1); padding: 12px; border-bottom: 2px solid var(--primary); color: #fff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">
+                                    <th colspan="4" style="position: sticky; top: 0; z-index: 3; background-color: rgba(0, 15, 45, 1); padding: 12px; border-bottom: 2px solid var(--primary); color: #fff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">
                                         Escalas - ${shiftLabel}
                                     </th>
                                 </tr>
                                 <tr>
                                     <th style="text-align:left;">Sub-Praça</th>
+                                    <th>Clima</th>
                                     <th>L/S</th>
                                     <th>%</th>
                                 </tr>
@@ -1276,7 +1337,7 @@
                             <tbody>`;
             
             if (sortedSubs.length === 0) {
-                html += '<tr><td colspan="3" style="color:var(--text-muted); padding:20px;">Nenhum dado...</td></tr>';
+                html += '<tr><td colspan="4" style="color:var(--text-muted); padding:20px;">Nenhum dado...</td></tr>';
             } else {
                 sortedSubs.forEach(sub => {
                     const esc = matrix[sub];
@@ -1288,11 +1349,19 @@
                         else badgeClass += ' badge-red';
                     }
                     
+                    const subId = "wth-" + sub.replace(/\s+/g, '-').toLowerCase();
                     html += `<tr>
                                 <td style="text-align:left; color:var(--primary); cursor:pointer; text-decoration:underline; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 100px;" onclick="selectSubpraca('${sub}')" title="${sub}">${sub}</td>
+                                <td id="${subId}" style="font-size: 0.75rem; color: #fff;">--</td>
                                 <td>${esc.logados}/${esc.slots}</td>
                                 <td><span class="${badgeClass}">${esc.pct}</span></td>
                              </tr>`;
+                    
+                    // Trigger async fetch
+                    getWeatherForSubpraca(sub).then(w => {
+                        const el = document.getElementById(subId);
+                        if (el) el.innerText = w;
+                    });
                 });
             }
             html += '</tbody></table>';
@@ -1374,10 +1443,16 @@
                 document.getElementById('ui-val-available').innerText = latest.disponiveis;
                 document.getElementById('ui-pct-available').innerText = latest.pct_disponiveis;
 
-                // Calculate Averages for GERAL
-                const averages = calculateAverages(mainHist);
-                if (!window.prevAverages) window.prevAverages = {};
-                const prev = window.prevAverages[praca] || {};
+                // Fetch global weather for chart
+                getWeatherForSubpraca(praca).then(w => {
+                    const wEl = document.getElementById('weather-global');
+                    if (wEl) wEl.innerText = w;
+                });
+
+                // Calculate Peaks for GERAL
+                const peaks = calculatePeaks(mainHist);
+                if (!window.prevPeaks) window.prevPeaks = {};
+                const prev = window.prevPeaks[praca] || {};
 
                 const updateTicker = (shiftKey, val) => {
                     const elVals = document.querySelectorAll(`.t-val-${shiftKey}`);
@@ -1404,14 +1479,14 @@
                     elTimes.forEach(el => el.innerHTML = `<span style="color:${color}; font-size:1.1em; font-weight:900;">${icon}</span>`);
                 };
 
-                updateTicker('manha', averages.manha);
-                updateTicker('almoco', averages.almoco);
-                updateTicker('tarde', averages.tarde);
-                updateTicker('jantar', averages.jantar);
-                updateTicker('j5', averages.j5);
-                updateTicker('madrugada', averages.madrugada);
+                updateTicker('manha', peaks.manha);
+                updateTicker('almoco', peaks.almoco);
+                updateTicker('tarde', peaks.tarde);
+                updateTicker('jantar', peaks.jantar);
+                updateTicker('j5', peaks.j5);
+                updateTicker('madrugada', peaks.madrugada);
 
-                window.prevAverages[praca] = averages;
+                window.prevPeaks[praca] = peaks;
 
                 // Draw Main Chart
                 updateChart(mainHist);
