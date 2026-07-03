@@ -281,6 +281,21 @@ def processar_escalas(sessao, data_alvo, horario_coleta, nome_regiao):
             shift_name = r.get("shift", {}).get("name", "")
             data_reg = r.get("date", data_alvo)
             
+            # Extrai o modal da lista 'modals' vinda do JSON
+            modals_list = r.get("modals", [])
+            if len(modals_list) == 1:
+                modal = modals_list[0].get("name", "Todos")
+            elif len(modals_list) > 1:
+                names = [m.get("name", "").upper() for m in modals_list]
+                if all("MOTO" in n for n in names):
+                    modal = "MOTORCYCLE"
+                elif all("BIKE" in n or "BICYCLE" in n or "PEDAL" in n for n in names):
+                    modal = "BICYCLE"
+                else:
+                    modal = "Todos"
+            else:
+                modal = "Todos"
+            
             registros_prontos.append({
                 "regiao": nome_regiao,
                 "data": data_reg,
@@ -290,7 +305,8 @@ def processar_escalas(sessao, data_alvo, horario_coleta, nome_regiao):
                 "logados": logados,
                 "slots": slots,
                 "pct_logados": pct,
-                "horario_coleta": horario_coleta
+                "horario_coleta": horario_coleta,
+                "modal": modal
             })
     except Exception as e:
         sessao.log(f"Erro em extrair_todas_escalas: {str(e)}")
