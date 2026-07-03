@@ -787,67 +787,82 @@
             document.getElementById('date').innerText = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }, 1000);
 
-        // Initial Weather setup
         const KML_COORDS = {
-            "BROOKLIN - (mini BTU)": { lat: -23.6004, lng: -46.6885 },
-            "PINHEIROS - (mini BTU)": { lat: -23.5665, lng: -46.6888 },
-            "PARAISO - (mini BTU)": { lat: -23.5690, lng: -46.6489 },
-            "JARDINS - (mini BTU)": { lat: -23.5599, lng: -46.6688 },
-            "ITAIM E BROOKLIN E INDIANAPOLIS": { lat: -23.6118, lng: -46.6763 },
-            "RIO DE JANEIRO (UNIFICADO) - MASTER": { "lng": -43.2833, "lat": -22.9409 },
-            "CENTRO": { "lng": -43.1761, "lat": -22.9051 },
-            "MONTEIRO": { "lng": -43.5674, "lat": -22.9238 },
-            "RIO CAMPO GRANDE UNIFICADO": { "lng": -43.5837, "lat": -22.9122 },
-            "SANTA CRUZ": { "lng": -43.6681, "lat": -22.9116 },
-            "AEROPORTO": { "lng": -38.5471, "lat": -3.7884 },
-            "BARRA_DO_CEARA": { "lng": -38.5393, "lat": -3.7456 },
-            "IRACEMA": { "lng": -38.4845, "lat": -3.7407 },
-            "LAGOA_REDONDA": { "lng": -38.4856, "lat": -3.795 },
-            "PORTUGAL": { "lng": -38.5947, "lat": -3.7559 },
-            "UNIFICADA_GERAL": { "lng": -38.5108, "lat": -3.7641 },
-            "IRAJA": { "lng": -43.3138, "lat": -22.8359 },
-            "PENHA": { "lng": -43.2883, "lat": -22.8727 },
-            "REALENGO": { "lng": -43.4355, "lat": -22.8907 },
-            "RIO MADUREIRA UNIFICADO": { "lng": -43.3784, "lat": -22.8736 },
-            "ROCHA_MIRANDA": { "lng": -43.351, "lat": -22.876 },
-            "GRAGOATÁ": { "lng": -43.127, "lat": -22.8948 },
-            "ICARAÍ": { "lng": -43.0991, "lat": -22.9132 },
-            "LIVRE": { "lng": -46.6535, "lat": -23.5758 },
-            "RIO - NITERÓI UNIFICADO": { "lng": -43.0855, "lat": -22.9059 },
-            "FREGUESIA": { "lng": -43.3487, "lat": -22.9409 },
-            "JACAREPAGUA": { "lng": -43.4005, "lat": -22.9711 },
-            "RECREIO": { "lng": -43.4498, "lat": -23.0132 },
-            "RIO BARRA UNIFICADO": { "lng": -43.3855, "lat": -22.9815 },
-            "TAQUARA": { "lng": -43.371, "lat": -22.9304 },
-            "CACHAMBI": { "lng": -43.2827, "lat": -22.8867 },
-            "COPACABANA E BOTAFOGO": { "lng": -43.1839, "lat": -22.9508 },
-            "IPANEMA": { "lng": -43.2198, "lat": -22.9873 },
-            "RIO ZONA SUL UNIFICADO": { "lng": -43.2264, "lat": -22.9199 },
-            "VILA ISABEL E SAO CRISTOVAO": { "lng": -43.2415, "lat": -22.9241 },
-            "ACLIMAÇÃO": { "lng": -46.626, "lat": -23.5918 },
-            "ARICANDUVA": { "lng": -46.554, "lat": -23.5866 },
-            "CACHOEIRINHA": { "lng": -46.6593, "lat": -23.4644 },
-            "CIDADE DAS FLORES": { "lng": -46.7658, "lat": -23.57 },
-            "INTERLAGOS": { "lng": -46.7125, "lat": -23.7226 },
-            "ITAIM E BROOKLIN": { "lng": -46.6763, "lat": -23.6118 },
-            "JABAQUARA E SANTO AMARO": { "lng": -46.6776, "lat": -23.6488 },
-            "MANDAQUI": { "lng": -46.6159, "lat": -23.4822 },
-            "MOOCA": { "lng": -46.5784, "lat": -23.554 },
-            "PANAMBY": { "lng": -46.7344, "lat": -23.6101 },
-            "PERDIZES": { "lng": -46.6592, "lat": -23.5438 },
-            "PINHEIROS": { "lng": -46.7066, "lat": -23.54 },
-            "TATUAPÉ": { "lng": -46.5626, "lat": -23.55 },
-            "VILA GUILHERMINA": { "lng": -46.4856, "lat": -23.5171 },
-            "VILA JAGUARA E JARAGUA": { "lng": -46.722, "lat": -23.4968 }
+            "SÃO PAULO|BROOKLIN - (mini BTU)": { lat: -23.6004, lng: -46.6885 },
+            "SÃO PAULO|PINHEIROS - (mini BTU)": { lat: -23.5665, lng: -46.6888 },
+            "SÃO PAULO|PARAISO - (mini BTU)": { lat: -23.5690, lng: -46.6489 },
+            "SÃO PAULO|JARDINS - (mini BTU)": { lat: -23.5599, lng: -46.6688 },
+            "SÃO PAULO|ITAIM E BROOKLIN E INDIANAPOLIS": { lat: -23.6118, lng: -46.6763 },
+            "APP-MIGRADO|RIO DE JANEIRO (UNIFICADO) - MASTER": { "lng": -43.2833, "lat": -22.9409 },
+            "CAMPO GRANDE|CENTRO": { "lng": -43.5651, "lat": -22.8893 },
+            "CAMPO GRANDE|MONTEIRO": { "lng": -43.5674, "lat": -22.9238 },
+            "CAMPO GRANDE|RIO CAMPO GRANDE UNIFICADO": { "lng": -43.5837, "lat": -22.9122 },
+            "CAMPO GRANDE|SANTA CRUZ": { "lng": -43.6681, "lat": -22.9116 },
+            "FORTALEZA|AEROPORTO": { "lng": -38.5471, "lat": -3.7884 },
+            "FORTALEZA|BARRA_DO_CEARA": { "lng": -38.5393, "lat": -3.7456 },
+            "FORTALEZA|IRACEMA": { "lng": -38.4845, "lat": -3.7407 },
+            "FORTALEZA|LAGOA_REDONDA": { "lng": -38.4856, "lat": -3.795 },
+            "FORTALEZA|PORTUGAL": { "lng": -38.5947, "lat": -3.7559 },
+            "FORTALEZA|UNIFICADA_GERAL": { "lng": -38.5108, "lat": -3.7641 },
+            "MADUREIRA|IRAJA": { "lng": -43.3138, "lat": -22.8359 },
+            "MADUREIRA|PENHA": { "lng": -43.2883, "lat": -22.8727 },
+            "MADUREIRA|REALENGO": { "lng": -43.4355, "lat": -22.8907 },
+            "MADUREIRA|RIO MADUREIRA UNIFICADO": { "lng": -43.3784, "lat": -22.8736 },
+            "MADUREIRA|ROCHA_MIRANDA": { "lng": -43.351, "lat": -22.876 },
+            "NITEROI|GRAGOATÁ": { "lng": -43.127, "lat": -22.8948 },
+            "NITEROI|ICARAÍ": { "lng": -43.0991, "lat": -22.9132 },
+            "NITEROI|LIVRE": { "lng": -43.0786, "lat": -22.9069 },
+            "NITEROI|RIO - NITERÓI UNIFICADO": { "lng": -43.0855, "lat": -22.9059 },
+            "RIO BARRA|CENTRO": { "lng": -43.3765, "lat": -22.9981 },
+            "RIO BARRA|FREGUESIA": { "lng": -43.3487, "lat": -22.9409 },
+            "RIO BARRA|JACAREPAGUA": { "lng": -43.4005, "lat": -22.9711 },
+            "RIO BARRA|LIVRE": { "lng": -43.4295, "lat": -22.9798 },
+            "RIO BARRA|RECREIO": { "lng": -43.4498, "lat": -23.0132 },
+            "RIO BARRA|RIO BARRA UNIFICADO": { "lng": -43.3855, "lat": -22.9815 },
+            "RIO BARRA|TAQUARA": { "lng": -43.371, "lat": -22.9304 },
+            "RIO ZONA SUL|CACHAMBI": { "lng": -43.2827, "lat": -22.8867 },
+            "RIO ZONA SUL|CENTRO": { "lng": -43.1761, "lat": -22.9051 },
+            "RIO ZONA SUL|COPACABANA E BOTAFOGO": { "lng": -43.1839, "lat": -22.9508 },
+            "RIO ZONA SUL|IPANEMA": { "lng": -43.2198, "lat": -22.9873 },
+            "RIO ZONA SUL|LIVRE": { "lng": -43.2125, "lat": -22.9324 },
+            "RIO ZONA SUL|RIO ZONA SUL UNIFICADO": { "lng": -43.2264, "lat": -22.9199 },
+            "RIO ZONA SUL|VILA ISABEL E SAO CRISTOVAO": { "lng": -43.2415, "lat": -22.9241 },
+            "SÃO PAULO|ACLIMAÇÃO": { "lng": -46.626, "lat": -23.5918 },
+            "SÃO PAULO|ARICANDUVA": { "lng": -46.554, "lat": -23.5866 },
+            "SÃO PAULO|CACHOEIRINHA": { "lng": -46.6593, "lat": -23.4644 },
+            "SÃO PAULO|CIDADE DAS FLORES": { "lng": -46.7658, "lat": -23.57 },
+            "SÃO PAULO|INTERLAGOS": { "lng": -46.7125, "lat": -23.7226 },
+            "SÃO PAULO|ITAIM E BROOKLIN": { "lng": -46.6763, "lat": -23.6118 },
+            "SÃO PAULO|JABAQUARA E SANTO AMARO": { "lng": -46.6776, "lat": -23.6488 },
+            "SÃO PAULO|LIVRE": { "lng": -46.6535, "lat": -23.5758 },
+            "SÃO PAULO|MANDAQUI": { "lng": -46.6159, "lat": -23.4822 },
+            "SÃO PAULO|MOOCA": { "lng": -46.5784, "lat": -23.554 },
+            "SÃO PAULO|PANAMBY": { "lng": -46.7344, "lat": -23.6101 },
+            "SÃO PAULO|PERDIZES": { "lng": -46.6592, "lat": -23.5438 },
+            "SÃO PAULO|PINHEIROS": { "lng": -46.7066, "lat": -23.54 },
+            "SÃO PAULO|TATUAPÉ": { "lng": -46.5626, "lat": -23.55 },
+            "SÃO PAULO|VILA GUILHERMINA": { "lng": -46.4856, "lat": -23.5171 },
+            "SÃO PAULO|VILA JAGUARA E JARAGUA": { "lng": -46.722, "lat": -23.4968 }
         };
 
         let weatherCache = {};
 
-        async function getWeatherForSubpraca(subName) {
+        async function getWeatherForSubpraca(pracaName, subName) {
+            if (!pracaName) pracaName = '';
+            if (!subName) subName = '';
             let target = null;
-            let upSub = subName.toUpperCase();
+            let upPraca = pracaName.toUpperCase().trim();
+            let upSub = subName.toUpperCase().trim();
+            
             for(let k in KML_COORDS) {
-                if (k.toUpperCase().includes(upSub) || upSub.includes(k.toUpperCase())) {
+                let parts = k.split('|');
+                let kPraca = parts.length > 1 ? parts[0] : '';
+                let kSub = parts.length > 1 ? parts[1] : k;
+                
+                let pracaMatch = (!kPraca || upPraca === 'TODAS' || upPraca === 'GERAL' || kPraca.includes(upPraca) || upPraca.includes(kPraca));
+                if (!pracaMatch) continue;
+                
+                if (kSub.includes(upSub) || upSub.includes(kSub)) {
                     target = KML_COORDS[k]; break;
                 }
             }
@@ -1044,9 +1059,6 @@
         }
 
         function updateChart(history) {
-            // Inicia icones Lucide
-            lucide.createIcons();
-
             const ctx = document.getElementById('mainChart').getContext('2d');
             
             const labels = history.map(row => row.horario.split(' ')[1]);
@@ -1400,7 +1412,7 @@
                              </tr>`;
                     
                     // Trigger async fetch
-                    getWeatherForSubpraca(sub).then(w => {
+                    getWeatherForSubpraca(praca, sub).then(w => {
                         const el = document.getElementById(subId);
                         if (el) el.innerText = w;
                     });
@@ -1486,7 +1498,7 @@
                 document.getElementById('ui-pct-available').innerText = latest.pct_disponiveis;
 
                 // Fetch global weather for chart
-                getWeatherForSubpraca(praca).then(w => {
+                getWeatherForSubpraca(praca, 'GERAL').then(w => {
                     const wEl = document.getElementById('weather-global');
                     if (wEl) wEl.innerText = w;
                 });
