@@ -158,7 +158,7 @@
             flex: 1;
             padding: 15px 40px;
             display: grid;
-            grid-template-columns: 350px 1fr;
+            grid-template-columns: 350px minmax(0, 1fr);
             gap: 20px;
             opacity: 0;
             transition: opacity 0.5s ease;
@@ -286,6 +286,8 @@
             flex-direction: column;
             position: relative;
             backdrop-filter: blur(10px);
+            min-height: 0;
+            min-width: 0;
         }
 
         .chart-header {
@@ -703,7 +705,7 @@
                 </div>
             </div>
 
-            <div class="charts-row" style="display:flex; gap:15px; flex:1; min-height: 0;">
+            <div class="charts-row" style="display:flex; gap:15px; flex:1; min-height: 0; min-width: 0;">
                 <div class="chart-container" style="flex:2;">
                     <div class="chart-header">
                         <div class="chart-title">Drivers ativos e trabalhando no dia</div>
