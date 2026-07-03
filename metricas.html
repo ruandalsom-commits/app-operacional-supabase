@@ -41,7 +41,8 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -164,7 +165,6 @@
             transition: opacity 0.5s ease;
             z-index: 1;
             min-height: 0;
-            height: calc(100vh - 75px);
             overflow: hidden;
         }
 
