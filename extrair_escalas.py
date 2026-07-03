@@ -238,10 +238,14 @@ def salvar_xlsx(registros, horario_coleta, nome_regiao):
         logados = r["reservedRegularDrivers"]
         pct     = f"{round(logados / slots * 100, 1)}%" if slots > 0 else "0%"
         
-        # Tenta pegar o modal da API, usando "Todos" como padrão caso não venha no JSON
-        modal = r.get("vehicleGroup", r.get("vehicleType", r.get("modal", "Todos")))
-        if isinstance(modal, dict):
-            modal = modal.get("name", "Todos")
+        # Extrai o modal da lista 'modals' vinda do JSON
+        modals_list = r.get("modals", [])
+        if len(modals_list) == 1:
+            modal = modals_list[0].get("name", "Todos")
+        elif len(modals_list) > 1:
+            modal = "Todos"
+        else:
+            modal = "Todos"
         
         chave   = (nome_regiao, r["date"], r["shift"]["name"], praca, subpraca, horario_coleta, modal)
 
