@@ -1335,9 +1335,12 @@
                     const shift = mapTurnoToShift(e.turno);
                     if (shift !== currentShiftKey) return;
                     
-                    let subKey = e.subpraca;
+                    let modal = e.modal || 'Todos';
+                    let rawSubKey = e.subpraca + '|' + modal;
+                    let subKey = rawSubKey;
+                    
                     for (let existingSub of Object.keys(latestBySub)) {
-                        if (existingSub.toUpperCase() === e.subpraca.toUpperCase()) {
+                        if (existingSub.toUpperCase() === rawSubKey.toUpperCase()) {
                             subKey = existingSub;
                             break;
                         }
@@ -1357,15 +1360,18 @@
                 });
                 
                 Object.values(latestBySub).forEach(e => {
-                    let subKey = e.subpraca;
+                    let modal = e.modal || 'Todos';
+                    let rawSubKey = e.subpraca + '|' + modal;
+                    let subKey = rawSubKey;
+                    
                     for (let existingSub of Object.keys(matrix)) {
-                        if (existingSub.toUpperCase() === e.subpraca.toUpperCase()) {
+                        if (existingSub.toUpperCase() === rawSubKey.toUpperCase()) {
                             subKey = existingSub;
                             break;
                         }
                     }
                     
-                    if (!matrix[subKey]) matrix[subKey] = { logados: 0, slots: 0, pct: '0%' };
+                    if (!matrix[subKey]) matrix[subKey] = { subpraca: e.subpraca, modal: modal, logados: 0, slots: 0, pct: '0%' };
                     matrix[subKey].logados = e.logados;
                     matrix[subKey].slots = e.slots;
                     matrix[subKey].pct = e.pct_logados;
@@ -1377,12 +1383,13 @@
             let html = `<table class="modern-table">
                             <thead>
                                 <tr>
-                                    <th colspan="4" style="position: sticky; top: 0; z-index: 3; background-color: rgba(0, 15, 45, 1); padding: 12px; border-bottom: 2px solid var(--primary); color: #fff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">
+                                    <th colspan="5" style="position: sticky; top: 0; z-index: 3; background-color: rgba(0, 15, 45, 1); padding: 12px; border-bottom: 2px solid var(--primary); color: #fff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">
                                         Escalas - ${shiftLabel}
                                     </th>
                                 </tr>
                                 <tr>
                                     <th style="text-align:left;">Sub-Praça</th>
+                                    <th>Modal</th>
                                     <th>Clima</th>
                                     <th>L/S</th>
                                     <th>%</th>
@@ -1391,10 +1398,13 @@
                             <tbody>`;
             
             if (sortedSubs.length === 0) {
-                html += '<tr><td colspan="4" style="color:var(--text-muted); padding:20px;">Nenhum dado...</td></tr>';
+                html += '<tr><td colspan="5" style="color:var(--text-muted); padding:20px;">Nenhum dado...</td></tr>';
             } else {
-                sortedSubs.forEach(sub => {
-                    const esc = matrix[sub];
+                sortedSubs.forEach(subKey => {
+                    const esc = matrix[subKey];
+                    const sub = esc.subpraca;
+                    const modal = esc.modal;
+                    
                     let badgeClass = 'badge-modern';
                     const pctVal = parseFloat(esc.pct.replace('%', ''));
                     if (!isNaN(pctVal)) {
@@ -1403,9 +1413,10 @@
                         else badgeClass += ' badge-red';
                     }
                     
-                    const subId = "wth-" + sub.replace(/\s+/g, '-').toLowerCase();
+                    const subId = "wth-" + subKey.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
                     html += `<tr>
                                 <td style="text-align:left; color:var(--primary); cursor:pointer; text-decoration:underline; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 100px;" onclick="selectSubpraca('${sub}')" title="${sub}">${sub}</td>
+                                <td style="font-size:0.75rem; color:#fff; font-weight:700;">${modal}</td>
                                 <td id="${subId}" style="font-size: 0.75rem; color: #fff;">--</td>
                                 <td>${esc.logados}/${esc.slots}</td>
                                 <td><span class="${badgeClass}">${esc.pct}</span></td>
