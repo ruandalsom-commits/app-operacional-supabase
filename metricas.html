@@ -1335,7 +1335,7 @@
                     const shift = mapTurnoToShift(e.turno);
                     if (shift !== currentShiftKey) return;
                     
-                    let modal = e.modal || 'Todos';
+                    let modal = e.modal || e.modals || 'Todos';
                     let rawSubKey = e.subpraca + '|' + modal;
                     let subKey = rawSubKey;
                     
@@ -1360,7 +1360,7 @@
                 });
                 
                 Object.values(latestBySub).forEach(e => {
-                    let modal = e.modal || 'Todos';
+                    let modal = e.modal || e.modals || 'Todos';
                     let rawSubKey = e.subpraca + '|' + modal;
                     let subKey = rawSubKey;
                     
