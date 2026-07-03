@@ -41,11 +41,10 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            height: 100vh;
-            max-height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
         }
         
@@ -157,15 +156,13 @@
         /* MAIN CONTENT */
         main {
             flex: 1;
-            padding: 15px 40px;
+            padding: 15px 40px 40px 40px; /* padding-bottom extra para respiro */
             display: grid;
-            grid-template-columns: 350px minmax(0, 1fr);
+            grid-template-columns: 420px minmax(0, 1fr);
             gap: 20px;
             opacity: 0;
             transition: opacity 0.5s ease;
             z-index: 1;
-            min-height: 0;
-            overflow: hidden;
         }
 
         main.active {
@@ -177,31 +174,12 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            min-height: 0;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        
-        /* Custom scrollbar para os painéis */
-        .left-panel::-webkit-scrollbar, .right-panel::-webkit-scrollbar, .table-container::-webkit-scrollbar, .chart-wrapper::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .left-panel::-webkit-scrollbar-track, .right-panel::-webkit-scrollbar-track, .table-container::-webkit-scrollbar-track, .chart-wrapper::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .left-panel::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb, .table-container::-webkit-scrollbar-thumb, .chart-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(255, 184, 0, 0.25);
-            border-radius: 10px;
-        }
-        .left-panel::-webkit-scrollbar-thumb:hover, .right-panel::-webkit-scrollbar-thumb:hover, .table-container::-webkit-scrollbar-thumb:hover, .chart-wrapper::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 184, 0, 0.5);
         }
 
         .praca-header {
             background: linear-gradient(135deg, rgba(0,30,80,0.8) 0%, rgba(0,15,45,0.9) 100%);
             border: 1px solid var(--border-color);
-            padding: 25px;
+            padding: 20px;
             border-radius: 16px;
             text-align: center;
             position: relative;
@@ -243,7 +221,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
             backdrop-filter: blur(10px);
         }
@@ -252,10 +230,11 @@
             grid-column: span 2;
             background: linear-gradient(135deg, rgba(29,185,84,0.1) 0%, rgba(0,30,80,0.6) 100%);
             border-color: rgba(29,185,84,0.3);
+            padding: 14px;
         }
 
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -265,7 +244,7 @@
 
         .stat-value {
             font-family: 'Poppins', sans-serif;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             line-height: 1;
         }
@@ -292,9 +271,6 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            min-height: 0;
-            overflow-y: auto;
-            padding-right: 5px;
         }
 
         .chart-container {
