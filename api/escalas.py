@@ -365,17 +365,18 @@ class handler(BaseHTTPRequestHandler):
                 headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
                 
                 # Para evitar duplicatas do mesmo dia e turno/subpraca, deletamos antes as antigas do mesmo dia
-                regioes_nomes = list(set([r["regiao"] for r in todos_registros]))
-                if regioes_nomes:
-                    import urllib.parse
-                    regioes_param = ",".join([urllib.parse.quote(f'"{n}"') for n in regioes_nomes])
-                    del_url = f"{supa_url}/rest/v1/frota_escalas?data=eq.{urllib.parse.quote(data_alvo)}&regiao=in.({regioes_param})"
-                    del_req = urllib.request.Request(del_url, headers=headers, method="DELETE")
-                    try:
-                        with urllib.request.urlopen(del_req) as resp:
-                            pass
-                    except Exception as edel:
-                        erros.append(f"Erro limpar duplicatas: {str(edel)}")
+                # Agora mantemos o historico para poder navegar pela tabela no tempo!
+                # regioes_nomes = list(set([r["regiao"] for r in todos_registros]))
+                # if regioes_nomes:
+                #     import urllib.parse
+                #     regioes_param = ",".join([urllib.parse.quote(f'"{n}"') for n in regioes_nomes])
+                #     del_url = f"{supa_url}/rest/v1/frota_escalas?data=eq.{urllib.parse.quote(data_alvo)}&regiao=in.({regioes_param})"
+                #     del_req = urllib.request.Request(del_url, headers=headers, method="DELETE")
+                #     try:
+                #         with urllib.request.urlopen(del_req) as resp:
+                #             pass
+                #     except Exception as edel:
+                #         erros.append(f"Erro limpar duplicatas: {str(edel)}")
 
                 body = json.dumps(todos_registros).encode("utf-8")
                 req = urllib.request.Request(url, headers=headers, data=body, method="POST")

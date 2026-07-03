@@ -1087,7 +1087,7 @@
                         if (shiftKey === 'j5') shiftLabel = 'J5 (' + cleanTime + 'h)';
                         if (shiftKey === 'madrugada') shiftLabel = 'Madruga (' + cleanTime + 'h)';
                         
-                        updateEscalasTable(praca, escalas, shiftKey, shiftLabel);
+                        updateEscalasTable(praca, escalas, shiftKey, shiftLabel, cleanTime);
                     },
                     plugins: {
                         legend: { position: 'top', align: 'end', labels: { font: { family: 'Poppins' } } },
@@ -1194,7 +1194,7 @@
             container.innerHTML = html;
         }
 
-        function updateEscalasTable(praca, pracaEscalas, forceShiftKey = null, forceShiftLabel = null) {
+        function updateEscalasTable(praca, pracaEscalas, forceShiftKey = null, forceShiftLabel = null, forceTimeStr = null) {
             const container = document.getElementById('leftEscalasContainer');
             
             let currentShiftKey = 'madrugada';
@@ -1214,11 +1214,35 @@
             
             let matrix = {};
             if (pracaEscalas) {
+                let latestBySub = {};
+                
                 pracaEscalas.forEach(e => {
                     if (e.subpraca === 'GERAL') return;
                     const shift = mapTurnoToShift(e.turno);
+                    if (shift !== currentShiftKey) return;
                     
-                    // Procuramos se existe a subpraca na matrix de forma case-insensitive, senao usamos o nome direto
+                    let subKey = e.subpraca;
+                    for (let existingSub of Object.keys(latestBySub)) {
+                        if (existingSub.toUpperCase() === e.subpraca.toUpperCase()) {
+                            subKey = existingSub;
+                            break;
+                        }
+                    }
+                    
+                    let isValidTime = true;
+                    if (forceTimeStr && e.horario_coleta) {
+                        const recTime = e.horario_coleta.includes(' ') ? e.horario_coleta.split(' ')[1].substring(0, 5) : e.horario_coleta.substring(0, 5);
+                        if (recTime > forceTimeStr) {
+                            isValidTime = false;
+                        }
+                    }
+                    
+                    if (isValidTime) {
+                        latestBySub[subKey] = e;
+                    }
+                });
+                
+                Object.values(latestBySub).forEach(e => {
                     let subKey = e.subpraca;
                     for (let existingSub of Object.keys(matrix)) {
                         if (existingSub.toUpperCase() === e.subpraca.toUpperCase()) {
@@ -1227,12 +1251,10 @@
                         }
                     }
                     
-                    if (shift === currentShiftKey) {
-                        if (!matrix[subKey]) matrix[subKey] = { logados: 0, slots: 0, pct: '0%' }; // Garante que a subpraca existe
-                        matrix[subKey].logados = e.logados;
-                        matrix[subKey].slots = e.slots;
-                        matrix[subKey].pct = e.pct_logados;
-                    }
+                    if (!matrix[subKey]) matrix[subKey] = { logados: 0, slots: 0, pct: '0%' };
+                    matrix[subKey].logados = e.logados;
+                    matrix[subKey].slots = e.slots;
+                    matrix[subKey].pct = e.pct_logados;
                 });
             }
 
