@@ -509,7 +509,8 @@
         
         .modern-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
         }
         .modern-table th {
             background-color: rgba(0, 15, 45, 0.95);
@@ -518,7 +519,7 @@
             font-size: 0.7rem;
             text-transform: uppercase;
             position: sticky;
-            top: 42px;
+            top: 41px;
             z-index: 2;
             border-bottom: 2px solid var(--primary);
             text-align: center;
@@ -870,26 +871,30 @@
             return null;
         }
 
-        function calculatePeaks(history) {
-            let peaks = {
-                manha: { val: 0, time: '--:--' },
-                almoco: { val: 0, time: '--:--' },
-                tarde: { val: 0, time: '--:--' },
-                jantar: { val: 0, time: '--:--' },
-                j5: { val: 0, time: '--:--' },
-                madrugada: { val: 0, time: '--:--' }
+        function calculateAverages(history) {
+            let sums = {
+                manha: { sum: 0, count: 0 },
+                almoco: { sum: 0, count: 0 },
+                tarde: { sum: 0, count: 0 },
+                jantar: { sum: 0, count: 0 },
+                j5: { sum: 0, count: 0 },
+                madrugada: { sum: 0, count: 0 }
             };
 
             history.forEach(row => {
-                const time = row.horario.split(' ')[1]; // Extract HH:MM
+                const time = row.horario.split(' ')[1];
                 const shift = getShift(time);
-                if (shift && peaks[shift] && row.total > peaks[shift].val) {
-                    peaks[shift].val = row.total;
-                    peaks[shift].time = time;
+                if (shift && sums[shift]) {
+                    sums[shift].sum += (row.trabalhando || 0);
+                    sums[shift].count++;
                 }
             });
 
-            return peaks;
+            let averages = {};
+            for (let k in sums) {
+                averages[k] = sums[k].count > 0 ? Math.round(sums[k].sum / sums[k].count) : 0;
+            }
+            return averages;
         }
 
         function updateChart(history) {
@@ -1134,11 +1139,20 @@
 
             const sortedSubs = Object.keys(matrix).sort();
             
-            let html = `<div style="background-color: rgba(0, 15, 45, 0.95); text-align: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 3; height: 42px; display: flex; align-items: center; justify-content: center;">
-                            <div style="font-size: 0.85rem; font-weight: 800; color: #fff; text-transform: uppercase;">Escalas - ${shiftLabel}</div>
-                        </div>`;
-            
-            html += '<table class="modern-table"><thead><tr><th style="text-align:left;">Sub-Praça</th><th>L/S</th><th>%</th></tr></thead><tbody>';
+            let html = `<table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="3" style="position: sticky; top: 0; z-index: 3; background-color: rgba(0, 15, 45, 1); padding: 12px; border-bottom: 2px solid var(--primary); color: #fff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">
+                                        Escalas - ${shiftLabel}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th style="text-align:left;">Sub-Praça</th>
+                                    <th>L/S</th>
+                                    <th>%</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
             
             if (sortedSubs.length === 0) {
                 html += '<tr><td colspan="3" style="color:var(--text-muted); padding:20px;">Nenhum dado...</td></tr>';
@@ -1239,26 +1253,44 @@
                 document.getElementById('ui-val-available').innerText = latest.disponiveis;
                 document.getElementById('ui-pct-available').innerText = latest.pct_disponiveis;
 
-                // Calculate Peaks for GERAL
-                const peaks = calculatePeaks(mainHist);
-                
-                document.getElementById('ui-peak-manha').innerText = peaks.manha.val;
-                document.getElementById('ui-time-manha').innerText = peaks.manha.val > 0 ? peaks.manha.time : '--:--';
-                
-                document.getElementById('ui-peak-almoco').innerText = peaks.almoco.val;
-                document.getElementById('ui-time-almoco').innerText = peaks.almoco.val > 0 ? peaks.almoco.time : '--:--';
-                
-                document.getElementById('ui-peak-tarde').innerText = peaks.tarde.val;
-                document.getElementById('ui-time-tarde').innerText = peaks.tarde.val > 0 ? peaks.tarde.time : '--:--';
-                
-                document.getElementById('ui-peak-jantar').innerText = peaks.jantar.val;
-                document.getElementById('ui-time-jantar').innerText = peaks.jantar.val > 0 ? peaks.jantar.time : '--:--';
-                
-                document.getElementById('ui-peak-j5').innerText = peaks.j5.val;
-                document.getElementById('ui-time-j5').innerText = peaks.j5.val > 0 ? peaks.j5.time : '--:--';
-                
-                document.getElementById('ui-peak-madrugada').innerText = peaks.madrugada.val;
-                document.getElementById('ui-time-madrugada').innerText = peaks.madrugada.val > 0 ? peaks.madrugada.time : '--:--';
+                // Calculate Averages for GERAL
+                const averages = calculateAverages(mainHist);
+                if (!window.prevAverages) window.prevAverages = {};
+                const prev = window.prevAverages[praca] || {};
+
+                const updateTicker = (shiftKey, val) => {
+                    const elVal = document.getElementById(`ui-peak-${shiftKey}`);
+                    const elTime = document.getElementById(`ui-time-${shiftKey}`);
+                    if (!elVal || !elTime) return;
+                    
+                    elVal.innerText = val;
+                    if (val === 0) {
+                        elTime.innerText = '--:--';
+                        return;
+                    }
+                    
+                    const pVal = prev[shiftKey] || val;
+                    let icon = '•';
+                    let color = 'var(--text-muted)';
+                    if (val > pVal) {
+                        icon = '↗'; color = 'var(--st-working)';
+                    } else if (val < pVal) {
+                        icon = '↘'; color = 'var(--st-offline)';
+                    } else if (pVal > 0) {
+                        icon = '=';
+                    }
+                    
+                    elTime.innerHTML = `<span style="color:${color}; font-size:1.1em; font-weight:900;">${icon}</span>`;
+                };
+
+                updateTicker('manha', averages.manha);
+                updateTicker('almoco', averages.almoco);
+                updateTicker('tarde', averages.tarde);
+                updateTicker('jantar', averages.jantar);
+                updateTicker('j5', averages.j5);
+                updateTicker('madrugada', averages.madrugada);
+
+                window.prevAverages[praca] = averages;
 
                 // Draw Main Chart
                 updateChart(mainHist);
@@ -1303,9 +1335,24 @@
                     const maxScroll = container.scrollHeight - container.clientHeight;
                     if (maxScroll > 0) {
                         let scrollPercent = currentProgress / SLIDE_DURATION;
-                        // Opcional: acelerar um pouco para terminar de rolar antes do fim
                         if (scrollPercent > 0.9) scrollPercent = 1;
                         container.scrollTop = scrollPercent * maxScroll;
+                    }
+                }
+
+                // Ticker horizontal scroll
+                const tickerWrap = document.getElementById('main-ui-ticker');
+                const tickerInner = tickerWrap ? tickerWrap.querySelector('.ticker') : null;
+                if (tickerWrap && tickerInner) {
+                    const wrapWidth = tickerWrap.clientWidth;
+                    const innerWidth = tickerInner.scrollWidth;
+                    if (innerWidth > wrapWidth) {
+                        const maxScroll = innerWidth - wrapWidth + 40; // 40px extra for padding
+                        let scrollPercent = currentProgress / SLIDE_DURATION;
+                        if (scrollPercent > 0.95) scrollPercent = 1;
+                        tickerInner.style.transform = `translateX(-${scrollPercent * maxScroll}px)`;
+                    } else {
+                        tickerInner.style.transform = 'none';
                     }
                 }
 
