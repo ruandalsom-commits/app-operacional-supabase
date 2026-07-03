@@ -237,13 +237,20 @@ def salvar_xlsx(registros, horario_coleta, nome_regiao):
         slots   = r["maxRegularDrivers"]
         logados = r["reservedRegularDrivers"]
         pct     = f"{round(logados / slots * 100, 1)}%" if slots > 0 else "0%"
-        
         # Extrai o modal da lista 'modals' vinda do JSON
         modals_list = r.get("modals", [])
         if len(modals_list) == 1:
             modal = modals_list[0].get("name", "Todos")
         elif len(modals_list) > 1:
-            modal = "Todos"
+            names = [m.get("name", "").upper() for m in modals_list]
+            # Verifica se todos os itens da lista são relacionados a Moto
+            if all("MOTO" in n for n in names):
+                modal = "MOTORCYCLE"
+            # Verifica se todos os itens da lista são relacionados a Bike
+            elif all("BIKE" in n or "BICYCLE" in n or "PEDAL" in n for n in names):
+                modal = "BICYCLE"
+            else:
+                modal = "Todos"
         else:
             modal = "Todos"
         
