@@ -312,60 +312,84 @@
             height: 100%;
         }
 
-        /* SHIFTS */
-        .shifts-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .shift-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 15px;
+        /* TICKER BAR */
+        .ticker-wrap {
+            background: rgba(0, 15, 45, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 40px;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
         }
-
-        .shift-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 8px;
-            background: rgba(255,184,0,0.1);
-            color: var(--primary);
+        
+        .ticker {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-        }
-
-        .shift-info {
-            flex: 1;
-        }
-
-        .shift-name {
-            color: var(--text-muted);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 2px;
-            font-weight: 700;
-        }
-
-        .shift-peak {
+            justify-content: space-between;
+            width: 100%;
             font-family: 'Poppins', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--text-main);
         }
-
-        .shift-time {
-            font-size: 0.65rem;
+        
+        .ticker-item {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        
+        .ticker-item .t-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .ticker-item .t-val {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+        
+        .ticker-item .t-time {
+            font-size: 0.7rem;
             color: var(--secondary);
             font-weight: 700;
+        }
+        
+        .ticker-divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* LIVE BADGE */
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 50, 50, 0.15);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #FF5050;
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .live-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: #FF5050;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* PROGRESS BAR */
@@ -599,12 +623,31 @@
                 <option value="">Carregando...</option>
             </select>
             <button id="playPauseBtn" onclick="togglePlayPause()">⏸ Pausar</button>
+            <div class="live-badge">
+                <div class="dot"></div> AO VIVO
+            </div>
             <div class="clock-container">
                 <div class="clock" id="clock">00:00:00</div>
                 <div class="date" id="date">Carregando...</div>
             </div>
         </div>
     </header>
+
+    <div class="ticker-wrap" id="main-ui-ticker" style="display:none;">
+        <div class="ticker">
+            <div class="ticker-item"><span class="t-label">Manhã</span> <span class="t-val" id="ui-peak-manha">0</span> <span class="t-time" id="ui-time-manha">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Almoço</span> <span class="t-val" id="ui-peak-almoco">0</span> <span class="t-time" id="ui-time-almoco">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Tarde</span> <span class="t-val" id="ui-peak-tarde">0</span> <span class="t-time" id="ui-time-tarde">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Jantar</span> <span class="t-val" id="ui-peak-jantar">0</span> <span class="t-time" id="ui-time-jantar">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">J5</span> <span class="t-val" id="ui-peak-j5">0</span> <span class="t-time" id="ui-time-j5">--:--</span></div>
+            <div class="ticker-divider"></div>
+            <div class="ticker-item"><span class="t-label">Madruga</span> <span class="t-val" id="ui-peak-madrugada">0</span> <span class="t-time" id="ui-time-madrugada">--:--</span></div>
+        </div>
+    </div>
 
     <div class="progress-bar-container" id="main-ui-progress" style="display:none;">
         <div class="progress-bar" id="progressBar"></div>
@@ -657,57 +700,6 @@
         </div>
 
         <div class="right-panel">
-            <div class="shifts-container">
-                <div class="shift-card">
-                    <div class="shift-icon"><i data-lucide="coffee"></i></div>
-                    <div class="shift-info">
-                        <div class="shift-name">Pico - Manhã (06h-11h)</div>
-                        <div class="shift-peak" id="ui-peak-manha">0</div>
-                        <div class="shift-time" id="ui-time-manha">--:--</div>
-                    </div>
-                </div>
-                <div class="shift-card">
-                    <div class="shift-icon"><i data-lucide="utensils"></i></div>
-                    <div class="shift-info">
-                        <div class="shift-name">Pico - Almoço (11h-15h)</div>
-                        <div class="shift-peak" id="ui-peak-almoco">0</div>
-                        <div class="shift-time" id="ui-time-almoco">--:--</div>
-                    </div>
-                </div>
-                <div class="shift-card">
-                    <div class="shift-icon"><i data-lucide="sun"></i></div>
-                    <div class="shift-info">
-                        <div class="shift-name">Pico - Tarde (15h-18h)</div>
-                        <div class="shift-peak" id="ui-peak-tarde">0</div>
-                        <div class="shift-time" id="ui-time-tarde">--:--</div>
-                    </div>
-                </div>
-                <div class="shift-card">
-                    <div class="shift-icon"><i data-lucide="pizza"></i></div>
-                    <div class="shift-info">
-                        <div class="shift-name">Pico - Jantar (18h-22h)</div>
-                        <div class="shift-peak" id="ui-peak-jantar">0</div>
-                        <div class="shift-time" id="ui-time-jantar">--:--</div>
-                    </div>
-                </div>
-                <div class="shift-card">
-                    <div class="shift-icon"><i data-lucide="moon"></i></div>
-                    <div class="shift-info">
-                        <div class="shift-name">Pico - J5 (22h-00h)</div>
-                        <div class="shift-peak" id="ui-peak-j5">0</div>
-                        <div class="shift-time" id="ui-time-j5">--:--</div>
-                    </div>
-                </div>
-                <div class="shift-card">
-                    <div class="shift-icon"><i data-lucide="stars"></i></div>
-                    <div class="shift-info">
-                        <div class="shift-name">Pico - Madruga (00h-02h)</div>
-                        <div class="shift-peak" id="ui-peak-madrugada">0</div>
-                        <div class="shift-time" id="ui-time-madrugada">--:--</div>
-                    </div>
-                </div>
-            </div>
-
             <div class="charts-row" style="display:flex; gap:15px; flex:1; min-height: 0; min-width: 0;">
                 <div class="chart-container" style="flex:2;">
                     <div class="chart-header">
@@ -1383,6 +1375,7 @@
             if (session) {
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('main-ui-header').style.display = 'flex';
+                document.getElementById('main-ui-ticker').style.display = 'flex';
                 document.getElementById('main-ui-progress').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'grid';
                 initDashboard();
@@ -1411,6 +1404,7 @@
             } else {
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('main-ui-header').style.display = 'flex';
+                document.getElementById('main-ui-ticker').style.display = 'flex';
                 document.getElementById('main-ui-progress').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'grid';
                 initDashboard();
