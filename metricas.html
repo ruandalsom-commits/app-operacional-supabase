@@ -1066,14 +1066,17 @@
                         
                         const timeStr = chart.data.labels[idx]; // Extracts HH:MM:SS
                         
-                        const praca = pracaNames[currentPracaIndex];
+                        const praca = pracaNames[currentIndex];
                         const pracaKey = (praca || "").toUpperCase();
                         let escalas = escalasDataByPraca[pracaKey] || [];
+                        
                         if (currentSubpraca) {
                             escalas = escalas.filter(esc => esc.subpraca === currentSubpraca);
                         }
                         
                         const shiftKey = getShift(timeStr);
+                        if (!shiftKey) return;
+                        
                         // format to HH:MM to remove seconds if present
                         const cleanTime = timeStr.substring(0, 5); 
                         let shiftLabel = cleanTime + 'h';
