@@ -927,33 +927,35 @@
                 document.getElementById('loaderText').innerHTML = "Sincronizando banco de dados...";
 
                 // Paginacao para buscar mais de 1000 linhas (limite da API do Supabase)
-                let allData = [];
-                let hasMore = true;
-                let rangeStart = 0;
+                // Busca em paralelo para carregar mais rápido
                 const step = 999;
                 
-                while(hasMore) {
-                    const { data: chunk, error } = await supabaseClient
-                        .from('frota_metricas')
-                        .select('*')
-                        .like('horario', `${selectedDateStr}%`)
-                        .order('horario', { ascending: true })
-                        .range(rangeStart, rangeStart + step);
-                        
-                    if (error) throw error;
-                    if (chunk && chunk.length > 0) {
-                        allData = allData.concat(chunk);
-                        rangeStart += step + 1;
-                        if (chunk.length <= step) hasMore = false;
-                    } else {
-                        hasMore = false;
+                const metricasPromise = (async () => {
+                    let allData = [];
+                    let hasMore = true;
+                    let rangeStart = 0;
+                    while(hasMore) {
+                        const { data: chunk, error } = await supabaseClient
+                            .from('frota_metricas')
+                            .select('*')
+                            .like('horario', `${selectedDateStr}%`)
+                            .order('horario', { ascending: true })
+                            .range(rangeStart, rangeStart + step);
+                            
+                        if (error) throw error;
+                        if (chunk && chunk.length > 0) {
+                            allData = allData.concat(chunk);
+                            rangeStart += step + 1;
+                            if (chunk.length <= step) hasMore = false;
+                        } else {
+                            hasMore = false;
+                        }
                     }
-                }
-                
-                const data = allData;
+                    return allData;
+                })();
 
-                let allDataEscalas = [];
-                try {
+                const escalasPromise = (async () => {
+                    let allDataEscalas = [];
                     let hasMoreEscalas = true;
                     let rangeStartEscalas = 0;
                     while(hasMoreEscalas) {
@@ -972,7 +974,13 @@
                             hasMoreEscalas = false;
                         }
                     }
-                } catch(e) { console.warn("Erro ao buscar escalas:", e); }
+                    return allDataEscalas;
+                })();
+
+                const [data, allDataEscalas] = await Promise.all([
+                    metricasPromise,
+                    escalasPromise.catch(e => { console.warn("Erro ao buscar escalas:", e); return []; })
+                ]);
 
                 if (!data || data.length === 0) {
                     const brDate = selectedDateStr.split('-').reverse().join('/');
