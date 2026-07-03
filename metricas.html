@@ -1158,7 +1158,18 @@
                             padding: 12,
                             cornerRadius: 8,
                             borderColor: 'rgba(255, 184, 0, 0.3)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            callbacks: {
+                                title: function(context) {
+                                    let title = context[0].label;
+                                    let wEl = document.getElementById('weather-global');
+                                    let wth = wEl ? wEl.innerText : '';
+                                    if (wth && wth.includes('°C')) {
+                                        return [title, wth];
+                                    }
+                                    return title;
+                                }
+                            }
                         }
                     },
                     scales: {
