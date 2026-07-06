@@ -930,57 +930,57 @@
                 // Busca em paralelo para carregar mais rápido
                 const step = 999;
                 
-                const metricasPromise = (async () => {
-                    let allData = [];
-                    let hasMore = true;
-                    let rangeStart = 0;
-                    while(hasMore) {
-                        const { data: chunk, error } = await supabaseClient
+                // Pega o total de linhas do dia para paralelizar
+                const { count: totalMetricas } = await supabaseClient
+                    .from('frota_metricas')
+                    .select('*', { count: 'exact', head: true })
+                    .gte('horario', `${selectedDateStr} 00:00`)
+                    .lte('horario', `${selectedDateStr} 23:59`);
+                    
+                const metricasPromises = [];
+                for (let i = 0; i < (totalMetricas || 0); i += (step + 1)) {
+                    metricasPromises.push(
+                        supabaseClient
                             .from('frota_metricas')
                             .select('*')
-                            .like('horario', `${selectedDateStr}%`)
+                            .gte('horario', `${selectedDateStr} 00:00`)
+                            .lte('horario', `${selectedDateStr} 23:59`)
                             .order('horario', { ascending: true })
-                            .range(rangeStart, rangeStart + step);
-                            
-                        if (error) throw error;
-                        if (chunk && chunk.length > 0) {
-                            allData = allData.concat(chunk);
-                            rangeStart += step + 1;
-                            if (chunk.length <= step) hasMore = false;
-                        } else {
-                            hasMore = false;
-                        }
-                    }
-                    return allData;
-                })();
-
-                const escalasPromise = (async () => {
-                    let allDataEscalas = [];
-                    let hasMoreEscalas = true;
-                    let rangeStartEscalas = 0;
-                    while(hasMoreEscalas) {
-                        const { data: chunkEsc, error: errEsc } = await supabaseClient
+                            .range(i, i + step)
+                    );
+                }
+                
+                const { count: totalEscalas } = await supabaseClient
+                    .from('frota_escalas')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('data', selectedDateStr);
+                    
+                const escalasPromises = [];
+                for (let i = 0; i < (totalEscalas || 0); i += (step + 1)) {
+                    escalasPromises.push(
+                        supabaseClient
                             .from('frota_escalas')
                             .select('*')
                             .eq('data', selectedDateStr)
-                            .range(rangeStartEscalas, rangeStartEscalas + step);
-                            
-                        if (errEsc) throw errEsc;
-                        if (chunkEsc && chunkEsc.length > 0) {
-                            allDataEscalas = allDataEscalas.concat(chunkEsc);
-                            rangeStartEscalas += step + 1;
-                            if (chunkEsc.length <= step) hasMoreEscalas = false;
-                        } else {
-                            hasMoreEscalas = false;
-                        }
-                    }
-                    return allDataEscalas;
-                })();
+                            .range(i, i + step)
+                    );
+                }
 
-                const [data, allDataEscalas] = await Promise.all([
-                    metricasPromise,
-                    escalasPromise.catch(e => { console.warn("Erro ao buscar escalas:", e); return []; })
+                const [metricasResults, escalasResults] = await Promise.all([
+                    Promise.all(metricasPromises),
+                    Promise.all(escalasPromises).catch(e => { console.warn("Erro ao buscar escalas:", e); return []; })
                 ]);
+                
+                let data = [];
+                if (metricasResults) {
+                    metricasResults.forEach(res => { if (res.data) data = data.concat(res.data); });
+                }
+                data.sort((a, b) => a.horario.localeCompare(b.horario));
+                
+                let allDataEscalas = [];
+                if (escalasResults) {
+                    escalasResults.forEach(res => { if (res.data) allDataEscalas = allDataEscalas.concat(res.data); });
+                }
 
                 if (!data || data.length === 0) {
                     const brDate = selectedDateStr.split('-').reverse().join('/');
