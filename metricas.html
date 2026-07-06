@@ -10,6 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
     
     <style>
         :root {
@@ -755,22 +758,36 @@
 
         <div class="right-panel">
             <div class="charts-row" style="display:flex; gap:15px; flex:1; min-height: 0; min-width: 0;">
-                <div class="chart-container" style="flex:2;">
-                    <div class="chart-header">
-                        <div class="chart-title">Drivers ativos e trabalhando no dia</div>
+                
+                <div class="charts-col" style="display:flex; flex-direction:column; gap:15px; flex:2; min-height: 0; min-width: 0;">
+                    <div class="chart-container" style="flex:1;">
+                        <div class="chart-header">
+                            <div class="chart-title">Drivers ativos e trabalhando no dia</div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="mainChart"></canvas>
+                        </div>
                     </div>
-                    <div class="chart-wrapper">
-                        <canvas id="mainChart"></canvas>
+                    
+                    <div class="chart-container" style="flex:0.8;">
+                        <div class="chart-header">
+                            <div class="chart-title">Tabela de Média (Trabalhando x Turno)</div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="heatmap-container" id="heatmapContainer"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="chart-container" style="flex:1.2;">
+                
+                <div class="chart-container" style="flex:1.5;">
                     <div class="chart-header">
-                        <div class="chart-title">Heatmap (Média Trabalhando x Turno)</div>
+                        <div class="chart-title">Mapa de Calor (Pedidos 30min)</div>
                     </div>
-                    <div class="chart-wrapper">
-                        <div class="heatmap-container" id="heatmapContainer"></div>
+                    <div class="chart-wrapper" style="overflow: hidden; border-radius: 8px;">
+                        <div id="realMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
                     </div>
                 </div>
+                
             </div>
         </div>
     </main>
@@ -918,11 +935,13 @@
             }
         }
 
-        // Variables
         let chartInstance = null;
         let dataByPraca = {};
         let pracaNames = [];
         let escalasDataByPraca = {};
+        let heatmapPoints = []; // Global para o Leaflet Heatmap
+        let realMap = null;
+        let heatLayer = null;
         let currentIndex = 0;
         let slideTimeout;
         let progressInterval;
@@ -930,6 +949,52 @@
         let currentProgress = 0; // ms passed
         const SLIDE_DURATION = 15000; // 15s per praca
         
+        function getCoordsForPraca(pracaName) {
+            let upPraca = (pracaName || '').toUpperCase().trim();
+            const normalize = s => s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
+            const normPraca = normalize(upPraca);
+            for(let k in KML_COORDS) {
+                let parts = k.split('|');
+                let kPraca = parts.length > 1 ? parts[0] : '';
+                let normKPraca = normalize(kPraca);
+                if (normKPraca && (normKPraca.includes(normPraca) || normPraca.includes(normKPraca))) {
+                    return KML_COORDS[k];
+                }
+            }
+            return { lat: -23.5505, lng: -46.6333 }; // Default SP
+        }
+        
+        function initRealMap() {
+            if (realMap) return;
+            // Dark map tiles (CartoDB Dark Matter)
+            realMap = L.map('realMapContainer', { zoomControl: false }).setView([-23.5505, -46.6333], 12);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB',
+                maxZoom: 19
+            }).addTo(realMap);
+        }
+        
+        function updateRealMap(pracaName) {
+            if (!realMap) initRealMap();
+            const coords = getCoordsForPraca(pracaName);
+            realMap.setView([coords.lat, coords.lng], 12);
+            
+            if (heatLayer) realMap.removeLayer(heatLayer);
+            
+            // Generate array of [lat, lng, intensity] for leaflet.heat
+            const heatData = heatmapPoints.map(p => [p.origin_lat, p.origin_lng, 1]);
+            
+            heatLayer = L.heatLayer(heatData, {
+                radius: 20,
+                blur: 15,
+                maxZoom: 15,
+                gradient: { 0.4: 'blue', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
+            }).addTo(realMap);
+            
+            // Força um redimensionamento pra garantir que o mapa preencha o div flex
+            setTimeout(() => { realMap.invalidateSize(); }, 300);
+        }
+
         // Chart.js Default Config for Dark Theme
         Chart.defaults.color = 'rgba(245, 245, 240, 0.6)';
         Chart.defaults.font.family = 'Plus Jakarta Sans';
@@ -982,10 +1047,24 @@
                             .range(rangeStart, rangeStart + step)
                     );
                 }
+                
+                // Pedidos heatmap promises (até ~15000 pedidos, os ultimos de hj)
+                const pedidosPromises = [];
+                for (let i = 0; i < 15; i++) {
+                    const rangeStart = i * (step + 1);
+                    pedidosPromises.push(
+                        supabaseClient
+                            .from('frota_pedidos_heatmap')
+                            .select('origin_lat, origin_lng')
+                            .like('created_at', `${selectedDateStr}%`)
+                            .range(rangeStart, rangeStart + step)
+                    );
+                }
 
-                const [metricasResults, escalasResults] = await Promise.all([
+                const [metricasResults, escalasResults, pedidosResults] = await Promise.all([
                     Promise.all(metricasPromises),
-                    Promise.all(escalasPromises).catch(e => { console.warn("Erro ao buscar escalas:", e); return []; })
+                    Promise.all(escalasPromises).catch(e => { console.warn("Erro ao buscar escalas:", e); return []; }),
+                    Promise.all(pedidosPromises).catch(e => { console.warn("Erro ao buscar heatmap pedidos:", e); return []; })
                 ]);
                 
                 let data = [];
@@ -997,6 +1076,17 @@
                 let allDataEscalas = [];
                 if (escalasResults) {
                     escalasResults.forEach(res => { if (res.data) allDataEscalas = allDataEscalas.concat(res.data); });
+                }
+                
+                heatmapPoints = [];
+                if (pedidosResults) {
+                    pedidosResults.forEach(res => { 
+                        if (res.data) {
+                            res.data.forEach(p => {
+                                if (p.origin_lat && p.origin_lng) heatmapPoints.push(p);
+                            });
+                        }
+                    });
                 }
 
                 if (!data || data.length === 0) {
@@ -1584,6 +1674,9 @@
 
                 // Build Escalas Table Data (Left Panel)
                 updateEscalasTable(praca, escalas);
+                
+                // Atualiza o mapa de calor do leaflet com base na praça
+                updateRealMap(praca);
 
                 // Fade In
                 dashboard.classList.add('active');
