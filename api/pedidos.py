@@ -280,7 +280,7 @@ class handler(BaseHTTPRequestHandler):
         from urllib.parse import urlparse, parse_qs
         parsed_path = urlparse(self.path)
         query = parse_qs(parsed_path.query)
-        minutos = int(query.get('minutos', [30])[0])
+        minutos = int(query.get('minutos', [15])[0])
 
         now_utc = datetime.now(timezone.utc)
         inicio_utc = (now_utc - timedelta(minutes=minutos)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
@@ -296,34 +296,32 @@ class handler(BaseHTTPRequestHandler):
         def processar_sessao(sessao):
             registros_sessao = []
             sessao_erros = []
-            try:
+            
+            def processar_pedido(r):
+                order_id = r.get("orderId")
+                if not order_id: return None
+                try:
+                    detalhe = sessao.buscar_detalhe(order_id)
+                    return extrair_campos_heatmap(detalhe)
+                except Exception as e:
+                    sessao_erros.append(f"Erro detalhe {order_id}: {str(e)}")
+                    return None
+
+            def buscar_e_processar():
                 pedidos = sessao.extrair_todos_pedidos(inicio_utc, fim_utc)
-                for r in pedidos:
-                    order_id = r.get("orderId")
-                    if not order_id: continue
-                    try:
-                        detalhe = sessao.buscar_detalhe(order_id)
-                        campos = extrair_campos_heatmap(detalhe)
-                        registros_sessao.append(campos)
-                    except Exception as e:
-                        sessao_erros.append(f"Erro detalhe {order_id}: {str(e)}")
-                    time.sleep(PAUSA_ENTRE_DETALHES)
+                with ThreadPoolExecutor(max_workers=8) as ex:
+                    futs = [ex.submit(processar_pedido, r) for r in pedidos]
+                    for f in as_completed(futs):
+                        res = f.result()
+                        if res: registros_sessao.append(res)
+                        
+            try:
+                buscar_e_processar()
             except Exception as e:
                 sessao_erros.append(f"Erro listar pedidos {sessao.email}: {str(e)}")
                 try:
-                    # Tenta renovar e tentar de novo uma vez
                     if sessao.renovar_jwt():
-                        pedidos = sessao.extrair_todos_pedidos(inicio_utc, fim_utc)
-                        for r in pedidos:
-                            order_id = r.get("orderId")
-                            if not order_id: continue
-                            try:
-                                detalhe = sessao.buscar_detalhe(order_id)
-                                campos = extrair_campos_heatmap(detalhe)
-                                registros_sessao.append(campos)
-                            except Exception as e2:
-                                sessao_erros.append(f"Erro detalhe {order_id}: {str(e2)}")
-                            time.sleep(PAUSA_ENTRE_DETALHES)
+                        buscar_e_processar()
                 except Exception as e_retry:
                     sessao_erros.append(f"Erro retry {sessao.email}: {str(e_retry)}")
                     
