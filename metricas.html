@@ -927,42 +927,32 @@
                 document.getElementById('loaderText').innerHTML = "Sincronizando banco de dados...";
 
                 // Paginacao para buscar mais de 1000 linhas (limite da API do Supabase)
-                // Busca em paralelo para carregar mais rápido
+                // Paginacao para buscar mais de 1000 linhas (limite da API do Supabase)
+                // Dispara requisições em paralelo fixas (cobrindo até 5000 linhas) para máxima velocidade
                 const step = 999;
                 
-                // Pega o total de linhas do dia para paralelizar
-                const { count: totalMetricas } = await supabaseClient
-                    .from('frota_metricas')
-                    .select('*', { count: 'exact', head: true })
-                    .gte('horario', `${selectedDateStr} 00:00`)
-                    .lte('horario', `${selectedDateStr} 23:59`);
-                    
                 const metricasPromises = [];
-                for (let i = 0; i < (totalMetricas || 0); i += (step + 1)) {
+                for (let i = 0; i < 5; i++) {
+                    const rangeStart = i * (step + 1);
                     metricasPromises.push(
                         supabaseClient
                             .from('frota_metricas')
                             .select('*')
-                            .gte('horario', `${selectedDateStr} 00:00`)
-                            .lte('horario', `${selectedDateStr} 23:59`)
+                            .like('horario', `${selectedDateStr}%`)
                             .order('horario', { ascending: true })
-                            .range(i, i + step)
+                            .range(rangeStart, rangeStart + step)
                     );
                 }
                 
-                const { count: totalEscalas } = await supabaseClient
-                    .from('frota_escalas')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('data', selectedDateStr);
-                    
                 const escalasPromises = [];
-                for (let i = 0; i < (totalEscalas || 0); i += (step + 1)) {
+                for (let i = 0; i < 3; i++) {
+                    const rangeStart = i * (step + 1);
                     escalasPromises.push(
                         supabaseClient
                             .from('frota_escalas')
                             .select('*')
                             .eq('data', selectedDateStr)
-                            .range(i, i + step)
+                            .range(rangeStart, rangeStart + step)
                     );
                 }
 
