@@ -851,18 +851,45 @@
             let upPraca = pracaName.toUpperCase().trim();
             let upSub = subName.toUpperCase().trim();
             
+            const normalize = s => {
+                if (!s) return '';
+                return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+            };
+            
+            const normPraca = normalize(upPraca);
+            const normSub = normalize(upSub);
+            
             for(let k in KML_COORDS) {
                 let parts = k.split('|');
                 let kPraca = parts.length > 1 ? parts[0] : '';
                 let kSub = parts.length > 1 ? parts[1] : k;
                 
-                let pracaMatch = (!kPraca || upPraca === 'TODAS' || upPraca === 'GERAL' || kPraca.includes(upPraca) || upPraca.includes(kPraca));
+                let normKPraca = normalize(kPraca);
+                let normKSub = normalize(kSub);
+                
+                let pracaMatch = (!normKPraca || normPraca === 'TODAS' || normPraca === 'GERAL' || normKPraca.includes(normPraca) || normPraca.includes(normKPraca));
                 if (!pracaMatch) continue;
                 
-                if (kSub.includes(upSub) || upSub.includes(kSub)) {
+                if (normSub === 'GERAL' || normSub === 'TODAS' || normSub === 'UNIFICADO') {
+                    if (normKSub.includes('UNIFICADO') || normKSub.includes('MASTER') || normKSub.includes('GERAL')) {
+                        target = KML_COORDS[k]; break;
+                    }
+                } else if (normKSub.includes(normSub) || normSub.includes(normKSub)) {
                     target = KML_COORDS[k]; break;
                 }
             }
+            
+            if (!target) {
+                for(let k in KML_COORDS) {
+                    let parts = k.split('|');
+                    let kPraca = parts.length > 1 ? parts[0] : '';
+                    let normKPraca = normalize(kPraca);
+                    if (normKPraca && (normKPraca.includes(normPraca) || normPraca.includes(normKPraca))) {
+                        target = KML_COORDS[k]; break;
+                    }
+                }
+            }
+            
             if (!target) target = { lat: -23.5505, lng: -46.6333 }; // Default SP
             
             let key = target.lat.toFixed(2) + "," + target.lng.toFixed(2);
