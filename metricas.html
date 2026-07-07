@@ -1018,14 +1018,16 @@
             console.log(`Plotting ${heatmapPoints.length} heatmap points.`);
             
             // Generate array of [lat, lng, intensity]
-            const heatData = heatmapPoints.map(p => [p.origin_lat, p.origin_lng, 1]);
+            const heatData = heatmapPoints
+                .filter(p => p.origin_lat && p.origin_lng)
+                .map(p => [parseFloat(p.origin_lat), parseFloat(p.origin_lng), 1]);
             
             heatLayer = L.heatLayer(heatData, {
-                radius: 35,
-                blur: 25,
+                radius: 40,
+                blur: 20,
                 maxZoom: 15,
-                max: 1.0, // Ajusta teto para as cores mais quentes aparecerem
-                gradient: { 0.4: 'blue', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
+                max: 0.4, // Diminui o max para que poucos pedidos ja formem a cor vermelha
+                gradient: { 0.2: 'blue', 0.4: 'cyan', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
             }).addTo(realMap);
             
             drawPolygons(pracaName);
