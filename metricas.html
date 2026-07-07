@@ -1032,34 +1032,36 @@
         
         function updateRealMap(pracaName) {
             if (!realMap) initRealMap();
-            const coords = getCoordsForPraca(pracaName);
-            realMap.setView([coords.lat, coords.lng], 11); // Um zoom mais afastado para ver toda a região
             
             if (heatLayer) {
                 layerControl.removeLayer(heatLayer);
                 realMap.removeLayer(heatLayer);
             }
             
-            // Filter points for the current Praça
-            const normalize = s => s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
-            const normPraca = normalize(pracaName);
-
+            // Atualiza polígonos PRIMEIRO para pegar as margens (bounds)
+            layerControl.removeLayer(polygonGroup);
+            polygonGroup.clearLayers();
+            drawPolygonsGroup(pracaName);
+            layerControl.addOverlay(polygonGroup, "Limites das Sub-Praças");
+            
+            // Determina os limites geográficos para filtrar os pontos
+            let bounds = null;
+            if (polygonGroup.getLayers().length > 0) {
+                bounds = polygonGroup.getBounds().pad(0.1); // Adiciona 10% de margem
+            }
+            
+            // Filtra os pontos do heatmap
             const filteredPoints = heatmapPoints.filter(p => {
                 if (!p.origin_lat || !p.origin_lng) return false;
-                if (!normPraca || normPraca === 'GERAL') return true;
+                if (!bounds) return true; // Se não tem polígono, mostra tudo
                 
-                const normRegion = normalize(p.region_name);
-                const normCluster = normalize(p.cluster_name);
-                
-                if (normRegion && (normRegion.includes(normPraca) || normPraca.includes(normRegion))) return true;
-                if (normCluster && (normCluster.includes(normPraca) || normPraca.includes(normCluster))) return true;
-                
-                return false;
+                const latLng = L.latLng(parseFloat(p.origin_lat), parseFloat(p.origin_lng));
+                return bounds.contains(latLng);
             });
             
             console.log(`Plotting ${filteredPoints.length} heatmap points for ${pracaName}.`);
             
-            // Generate array of [lat, lng, intensity]
+            // Gera array de [lat, lng, intensity]
             const heatData = filteredPoints.map(p => [parseFloat(p.origin_lat), parseFloat(p.origin_lng), 1]);
             
             heatLayer = L.heatLayer(heatData, {
@@ -1071,14 +1073,17 @@
             
             layerControl.addOverlay(heatLayer, "Manchas de Calor (Pedidos)");
             
-            // Atualiza polígonos
-            layerControl.removeLayer(polygonGroup);
-            polygonGroup.clearLayers();
-            drawPolygonsGroup(pracaName);
-            layerControl.addOverlay(polygonGroup, "Limites das Sub-Praças");
+            if (bounds) {
+                realMap.fitBounds(bounds, { padding: [20, 20] });
+            } else {
+                const coords = getCoordsForPraca(pracaName);
+                realMap.setView([coords.lat, coords.lng], 11);
+            }
             
             // Força um redimensionamento pra garantir que o mapa preencha o div flex
-            setTimeout(() => { realMap.invalidateSize(); }, 300);
+            setTimeout(() => {
+                realMap.invalidateSize();
+            }, 300);
         }
 
         // Chart.js Default Config for Dark Theme
