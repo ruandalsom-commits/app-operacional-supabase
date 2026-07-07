@@ -1048,11 +1048,10 @@
                 .map(p => [parseFloat(p.origin_lat), parseFloat(p.origin_lng), 1]);
             
             heatLayer = L.heatLayer(heatData, {
-                radius: 40,
-                blur: 20,
-                maxZoom: 15,
-                max: 0.4, // Diminui o max para que poucos pedidos ja formem a cor vermelha
-                gradient: { 0.2: 'blue', 0.4: 'cyan', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
+                radius: 25,
+                blur: 15,
+                maxZoom: 18,
+                minOpacity: 0.5
             }).addTo(realMap);
             
             layerControl.addOverlay(heatLayer, "Manchas de Calor (Pedidos)");
