@@ -967,10 +967,7 @@
             return { lat: -23.5505, lng: -46.6333 }; // Default SP
         }
         
-        function drawPolygons(pracaName) {
-            polygonLayers.forEach(l => realMap.removeLayer(l));
-            polygonLayers = [];
-            
+        function drawPolygonsGroup(pracaName) {
             let upPraca = (pracaName || '').toUpperCase().trim();
             const normalize = s => s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
             const normPraca = normalize(upPraca);
@@ -984,28 +981,53 @@
                         let polys = KML_POLYGONS[k];
                         polys.forEach(poly => {
                             if (poly.length > 2) {
-                                let p = L.polygon(poly, {
+                                L.polygon(poly, {
                                     color: '#1DB954',
                                     weight: 2,
                                     fillOpacity: 0.05,
                                     fillColor: '#1DB954'
-                                }).addTo(realMap);
-                                polygonLayers.push(p);
+                                }).addTo(polygonGroup);
                             }
                         });
                     }
                 }
             }
         }
-        
+        let baseMaps = {};
+        let layerControl = null;
+        let mapOverlays = {};
+        let polygonGroup = L.layerGroup(); // Group for polygons
+
         function initRealMap() {
             if (realMap) return;
-            // Dark map tiles (CartoDB Dark Matter)
-            realMap = L.map('realMapContainer', { zoomControl: false }).setView([-23.5505, -46.6333], 12);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; CartoDB',
-                maxZoom: 19
-            }).addTo(realMap);
+            // Enable zoom control
+            realMap = L.map('realMapContainer', { zoomControl: true }).setView([-23.5505, -46.6333], 12);
+            
+            const darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB', maxZoom: 19
+            });
+            const positronTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB', maxZoom: 19
+            });
+            const voyagerTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB', maxZoom: 19
+            });
+            const osmTile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap', maxZoom: 19
+            });
+
+            baseMaps = {
+                "Carto Escuro (Dark)": darkTile,
+                "Carto Claro (Positron)": positronTile,
+                "Carto Colorido (Voyager)": voyagerTile,
+                "OpenStreetMap": osmTile
+            };
+            
+            // Set default tile
+            voyagerTile.addTo(realMap);
+            polygonGroup.addTo(realMap);
+            
+            layerControl = L.control.layers(baseMaps, mapOverlays, { collapsed: true }).addTo(realMap);
         }
         
         function updateRealMap(pracaName) {
@@ -1013,7 +1035,10 @@
             const coords = getCoordsForPraca(pracaName);
             realMap.setView([coords.lat, coords.lng], 11); // Um zoom mais afastado para ver toda a região
             
-            if (heatLayer) realMap.removeLayer(heatLayer);
+            if (heatLayer) {
+                layerControl.removeLayer(heatLayer);
+                realMap.removeLayer(heatLayer);
+            }
             
             console.log(`Plotting ${heatmapPoints.length} heatmap points.`);
             
@@ -1030,7 +1055,13 @@
                 gradient: { 0.2: 'blue', 0.4: 'cyan', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
             }).addTo(realMap);
             
-            drawPolygons(pracaName);
+            layerControl.addOverlay(heatLayer, "Manchas de Calor (Pedidos)");
+            
+            // Atualiza polígonos
+            layerControl.removeLayer(polygonGroup);
+            polygonGroup.clearLayers();
+            drawPolygonsGroup(pracaName);
+            layerControl.addOverlay(polygonGroup, "Limites das Sub-Praças");
             
             // Força um redimensionamento pra garantir que o mapa preencha o div flex
             setTimeout(() => { realMap.invalidateSize(); }, 300);
