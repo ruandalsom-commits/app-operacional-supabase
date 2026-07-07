@@ -75,6 +75,10 @@
     "lng": -43.0786,
     "lat": -22.9069
   },
+  "NITEROI|NITERÓI - LIVRE": {
+    "lng": -43.0786,
+    "lat": -22.9069
+  },
   "NITEROI|RIO - NITERÓI UNIFICADO": {
     "lng": -43.0855,
     "lat": -22.9059
@@ -98,6 +102,10 @@
   "RIO BARRA|RECREIO": {
     "lng": -43.4498,
     "lat": -23.0132
+  },
+  "RIO BARRA|RIO - BARRA - LIVRE": {
+    "lng": -43.4295,
+    "lat": -22.9798
   },
   "RIO BARRA|RIO BARRA UNIFICADO": {
     "lng": -43.3855,
@@ -124,6 +132,10 @@
     "lat": -22.9873
   },
   "RIO ZONA SUL|LIVRE": {
+    "lng": -43.2125,
+    "lat": -22.9324
+  },
+  "RIO ZONA SUL|RIO - ZONA SUL - LIVRE": {
     "lng": -43.2125,
     "lat": -22.9324
   },
@@ -170,6 +182,10 @@
   "SÃO PAULO|MANDAQUI": {
     "lng": -46.6159,
     "lat": -23.4822
+  },
+  "SÃO PAULO|MAPA - SÃO PAULO LIVRE": {
+    "lng": -46.6304,
+    "lat": -23.6535
   },
   "SÃO PAULO|MOOCA": {
     "lng": -46.5784,
