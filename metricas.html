@@ -996,7 +996,7 @@
         let baseMaps = {};
         let layerControl = null;
         let mapOverlays = {};
-        let polygonGroup = L.layerGroup(); // Group for polygons
+        let polygonGroup = L.featureGroup(); // Group for polygons
 
         function initRealMap() {
             if (realMap) return;
