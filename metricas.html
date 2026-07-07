@@ -10,9 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="polygons_kml.js"></script>
     
     <style>
         :root {
@@ -942,6 +944,7 @@
         let heatmapPoints = []; // Global para o Leaflet Heatmap
         let realMap = null;
         let heatLayer = null;
+        let polygonLayers = [];
         let currentIndex = 0;
         let slideTimeout;
         let progressInterval;
@@ -964,6 +967,35 @@
             return { lat: -23.5505, lng: -46.6333 }; // Default SP
         }
         
+        function drawPolygons(pracaName) {
+            polygonLayers.forEach(l => realMap.removeLayer(l));
+            polygonLayers = [];
+            
+            let upPraca = (pracaName || '').toUpperCase().trim();
+            const normalize = s => s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
+            const normPraca = normalize(upPraca);
+            
+            if (typeof KML_POLYGONS !== 'undefined') {
+                for(let k in KML_POLYGONS) {
+                    let parts = k.split('|');
+                    let kPraca = parts.length > 1 ? parts[0] : '';
+                    let normKPraca = normalize(kPraca);
+                    if (normKPraca && (normKPraca.includes(normPraca) || normPraca.includes(normKPraca))) {
+                        let polys = KML_POLYGONS[k];
+                        polys.forEach(poly => {
+                            let p = L.polygon(poly, {
+                                color: '#1DB954',
+                                weight: 1.5,
+                                fillOpacity: 0.05,
+                                fillColor: '#1DB954'
+                            }).addTo(realMap);
+                            polygonLayers.push(p);
+                        });
+                    }
+                }
+            }
+        }
+        
         function initRealMap() {
             if (realMap) return;
             // Dark map tiles (CartoDB Dark Matter)
@@ -977,19 +1009,21 @@
         function updateRealMap(pracaName) {
             if (!realMap) initRealMap();
             const coords = getCoordsForPraca(pracaName);
-            realMap.setView([coords.lat, coords.lng], 12);
+            realMap.setView([coords.lat, coords.lng], 11); // Um zoom mais afastado para ver toda a região
             
             if (heatLayer) realMap.removeLayer(heatLayer);
             
-            // Generate array of [lat, lng, intensity] for leaflet.heat
-            const heatData = heatmapPoints.map(p => [p.origin_lat, p.origin_lng, 1]);
+            const heatData = heatmapPoints.map(p => [p.origin_lat, p.origin_lng]);
             
             heatLayer = L.heatLayer(heatData, {
                 radius: 20,
-                blur: 15,
-                maxZoom: 15,
-                gradient: { 0.4: 'blue', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
+                blur: 18,
+                maxZoom: 13,
+                max: 0.6, // Valor menor de "max" aumenta o brilho pra poucos pontos
+                gradient: { 0.2: 'blue', 0.4: 'cyan', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
             }).addTo(realMap);
+            
+            drawPolygons(pracaName);
             
             // Força um redimensionamento pra garantir que o mapa preencha o div flex
             setTimeout(() => { realMap.invalidateSize(); }, 300);
