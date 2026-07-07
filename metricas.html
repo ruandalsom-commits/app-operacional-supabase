@@ -1114,10 +1114,19 @@
                 realMap.removeLayer(heatLayer);
             }
             
+            let upPraca = (pracaName || '').toUpperCase().trim();
+            let normalizePraca = upPraca.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            
+            // Se a praça selecionada for SP DEDICADO, devemos renderizar os polígonos de SÃO PAULO
+            let polyPracaName = pracaName;
+            if (normalizePraca === 'SP DEDICADO' || normalizePraca === 'SP DEDICADOS') {
+                polyPracaName = 'SÃO PAULO';
+            }
+            
             // Atualiza polígonos PRIMEIRO para pegar as margens (bounds)
             layerControl.removeLayer(polygonGroup);
             polygonGroup.clearLayers();
-            drawPolygonsGroup(pracaName);
+            drawPolygonsGroup(polyPracaName);
             layerControl.addOverlay(polygonGroup, "Limites das Sub-Praças");
             
             // Determina os limites geográficos para filtrar os pontos
@@ -1130,11 +1139,8 @@
             const filteredPoints = heatmapPoints.filter(p => {
                 if (!p.origin_lat || !p.origin_lng) return false;
                 
-                let upPraca = (pracaName || '').toUpperCase().trim();
-                let normalizePraca = upPraca.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                
-                // Filtro exclusivo para São Paulo (Dedicado)
-                if (normalizePraca === 'SAO PAULO') {
+                // Filtro exclusivo para SP DEDICADO
+                if (normalizePraca === 'SP DEDICADO' || normalizePraca === 'SP DEDICADOS') {
                     if (!p.origin_name) return false;
                     let normStore = p.origin_name.toUpperCase().trim().replace(/\s+/g, ' ');
                     let isDedicado = SP_DEDICADO_STORES.some(s => normStore.includes(s) || s.includes(normStore));
