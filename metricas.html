@@ -1058,6 +1058,54 @@
             layerControl = L.control.layers(baseMaps, mapOverlays, { collapsed: true }).addTo(realMap);
         }
         
+        const SP_DEDICADO_STORES = [
+            "BRAZ ELETTRICA - PINHEIROS",
+            "GREENJOY - WRAPS & SALADAS - JARDINS",
+            "GREENJOY - WRAPS & SALADAS- PINHEIROS",
+            "GREENJOY - WRAPS & SALADAS- VILA OLIMPIA",
+            "GREENTABLE - BANDEIRANTES",
+            "GREENTABLE - REBOUCAS",
+            "JOHN'S BURGUER",
+            "MAKOTO/KOTO BY CHEF MAKOTO",
+            "NINO DELIVERY - ITAIM",
+            "PADARIA REAL - PINHEIROS",
+            "PAO COM CARNE HAMBURGUERIA - MOOCA",
+            "PATTIES BURGER - BANDEIRANTES",
+            "PATTIES REBOUCAS",
+            "PATTIES SANTANA",
+            "PATTIES TATUAPE",
+            "PERDOMO DOCES - PINHEIROS",
+            "PERDOMO DOCES - TATUAPE",
+            "POKE GARDEN  - JARDINS",
+            "POKE GARDEN - BROOKLIN",
+            "POKE GARDEN - TATUAPE",
+            "SAO CARLOS LANCHES - TATUAPE",
+            "SUSHI FAST - SANTANA",
+            "SUSHI GARDEN ONE - BROOKLIN",
+            "SUSHI GARDEN ONE - JARDINS",
+            "SUSHI GARDEN ONE - TATUAPE",
+            "VIP SUSHI - INTERLAGOS",
+            "VIP SUSHI - SANTANA",
+            "VIP SUSHI - VILA MATILDE",
+            "VIP SUSHI - VILA PRUDENTE",
+            "VIP SUSHI - MORUMBI",
+            "Z DELI - CENTRO",
+            "Z DELI - PINHEIROS",
+            "FE- PAPILA PINHEIROS | HUB VIRTUAL",
+            "FE- SUSHI POR 0,99 BUTANTÃ | HUB VIRTUAL",
+            "FE - Papila Perdizes | HUB Virtual",
+            "FE - Papila Itaim | HUB Virtual",
+            "FE- Vip Sushi Pirituba | HUB Virtual",
+            "FE - Johns Mooca | HUB Virtual",
+            "FE - Papila Brooklin | HUB Virtual",
+            "FE - Vip Sushi Osasco | HUB Virtual",
+            "FE - Vip Sushi Pompeia | HUB Virtual",
+            "FE - Vip Sushi Consolação | HUB Virtual",
+            "FE - Papila Centro | HUB Virtual",
+            "FE - Sushi por 0,99 Pompeia | HUB Virtual",
+            "FE - Vip Sushi Itaquera | HUB Virtual"
+        ].map(s => s.toUpperCase().trim().replace(/\s+/g, ' '));
+
         function updateRealMap(pracaName) {
             if (!realMap) initRealMap();
             
@@ -1081,6 +1129,18 @@
             // Filtra os pontos do heatmap
             const filteredPoints = heatmapPoints.filter(p => {
                 if (!p.origin_lat || !p.origin_lng) return false;
+                
+                let upPraca = (pracaName || '').toUpperCase().trim();
+                let normalizePraca = upPraca.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                
+                // Filtro exclusivo para São Paulo (Dedicado)
+                if (normalizePraca === 'SAO PAULO') {
+                    if (!p.origin_name) return false;
+                    let normStore = p.origin_name.toUpperCase().trim().replace(/\s+/g, ' ');
+                    let isDedicado = SP_DEDICADO_STORES.some(s => normStore.includes(s) || s.includes(normStore));
+                    if (!isDedicado) return false;
+                }
+                
                 if (!bounds) return true; // Se não tem polígono, mostra tudo
                 
                 const latLng = L.latLng(parseFloat(p.origin_lat), parseFloat(p.origin_lng));
