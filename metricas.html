@@ -950,7 +950,7 @@
         let progressInterval;
         let isPlaying = true;
         let currentProgress = 0; // ms passed
-        const SLIDE_DURATION = 15000; // 15s per praca
+        const SLIDE_DURATION = 20000; // 20s per praca
         
         function getCoordsForPraca(pracaName) {
             let upPraca = (pracaName || '').toUpperCase().trim();
@@ -1782,9 +1782,21 @@
                 if (container) {
                     const maxScroll = container.scrollHeight - container.clientHeight;
                     if (maxScroll > 0) {
-                        let scrollPercent = currentProgress / SLIDE_DURATION;
-                        if (scrollPercent > 0.9) scrollPercent = 1;
-                        container.scrollTop = scrollPercent * maxScroll;
+                        // Fica parado 3 segundos no topo, 3 segundos no final. Scrolla lentamente no meio.
+                        const startScrollTime = 3000;
+                        const endScrollTime = SLIDE_DURATION - 3000;
+                        let scrollPercent = 0;
+                        
+                        if (currentProgress > startScrollTime && currentProgress < endScrollTime) {
+                            scrollPercent = (currentProgress - startScrollTime) / (endScrollTime - startScrollTime);
+                        } else if (currentProgress >= endScrollTime) {
+                            scrollPercent = 1;
+                        }
+                        
+                        container.scrollTo({
+                            top: scrollPercent * maxScroll,
+                            behavior: 'auto'
+                        });
                     }
                 }
 
