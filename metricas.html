@@ -1024,7 +1024,7 @@
             };
             
             // Set default tile
-            voyagerTile.addTo(realMap);
+            darkTile.addTo(realMap);
             polygonGroup.addTo(realMap);
             
             layerControl = L.control.layers(baseMaps, mapOverlays, { collapsed: true }).addTo(realMap);
@@ -1040,12 +1040,27 @@
                 realMap.removeLayer(heatLayer);
             }
             
-            console.log(`Plotting ${heatmapPoints.length} heatmap points.`);
+            // Filter points for the current Praça
+            const normalize = s => s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
+            const normPraca = normalize(pracaName);
+
+            const filteredPoints = heatmapPoints.filter(p => {
+                if (!p.origin_lat || !p.origin_lng) return false;
+                if (!normPraca || normPraca === 'GERAL') return true;
+                
+                const normRegion = normalize(p.region_name);
+                const normCluster = normalize(p.cluster_name);
+                
+                if (normRegion && (normRegion.includes(normPraca) || normPraca.includes(normRegion))) return true;
+                if (normCluster && (normCluster.includes(normPraca) || normPraca.includes(normCluster))) return true;
+                
+                return false;
+            });
+            
+            console.log(`Plotting ${filteredPoints.length} heatmap points for ${pracaName}.`);
             
             // Generate array of [lat, lng, intensity]
-            const heatData = heatmapPoints
-                .filter(p => p.origin_lat && p.origin_lng)
-                .map(p => [parseFloat(p.origin_lat), parseFloat(p.origin_lng), 1]);
+            const heatData = filteredPoints.map(p => [parseFloat(p.origin_lat), parseFloat(p.origin_lng), 1]);
             
             heatLayer = L.heatLayer(heatData, {
                 radius: 25,
