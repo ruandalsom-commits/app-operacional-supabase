@@ -983,13 +983,15 @@
                     if (normKPraca && (normKPraca.includes(normPraca) || normPraca.includes(normKPraca))) {
                         let polys = KML_POLYGONS[k];
                         polys.forEach(poly => {
-                            let p = L.polygon(poly, {
-                                color: '#1DB954',
-                                weight: 1.5,
-                                fillOpacity: 0.05,
-                                fillColor: '#1DB954'
-                            }).addTo(realMap);
-                            polygonLayers.push(p);
+                            if (poly.length > 2) {
+                                let p = L.polygon(poly, {
+                                    color: '#1DB954',
+                                    weight: 2,
+                                    fillOpacity: 0.05,
+                                    fillColor: '#1DB954'
+                                }).addTo(realMap);
+                                polygonLayers.push(p);
+                            }
                         });
                     }
                 }
@@ -1013,14 +1015,17 @@
             
             if (heatLayer) realMap.removeLayer(heatLayer);
             
-            const heatData = heatmapPoints.map(p => [p.origin_lat, p.origin_lng]);
+            console.log(`Plotting ${heatmapPoints.length} heatmap points.`);
+            
+            // Generate array of [lat, lng, intensity]
+            const heatData = heatmapPoints.map(p => [p.origin_lat, p.origin_lng, 1]);
             
             heatLayer = L.heatLayer(heatData, {
-                radius: 20,
-                blur: 18,
-                maxZoom: 13,
-                max: 0.6, // Valor menor de "max" aumenta o brilho pra poucos pontos
-                gradient: { 0.2: 'blue', 0.4: 'cyan', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
+                radius: 35,
+                blur: 25,
+                maxZoom: 15,
+                max: 1.0, // Ajusta teto para as cores mais quentes aparecerem
+                gradient: { 0.4: 'blue', 0.6: 'lime', 0.8: 'yellow', 1.0: 'red' }
             }).addTo(realMap);
             
             drawPolygons(pracaName);
