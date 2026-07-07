@@ -280,7 +280,7 @@ class handler(BaseHTTPRequestHandler):
         from urllib.parse import urlparse, parse_qs
         parsed_path = urlparse(self.path)
         query = parse_qs(parsed_path.query)
-        minutos = int(query.get('minutos', [15])[0])
+        minutos = int(query.get('minutos', [60])[0])
 
         now_utc = datetime.now(timezone.utc)
         inicio_utc = (now_utc - timedelta(minutes=minutos)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
