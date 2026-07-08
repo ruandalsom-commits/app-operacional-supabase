@@ -624,6 +624,25 @@
             flex-direction: column;
             gap: 12px;
             pointer-events: auto;
+            transition: all 0.3s ease;
+        }
+        .map-floating-sidebar.collapsed {
+            width: auto;
+            overflow: hidden;
+            gap: 0;
+            cursor: pointer;
+        }
+        .map-floating-sidebar.collapsed .card-modern {
+            display: none;
+        }
+        .map-floating-sidebar.collapsed .sub {
+            display: none;
+        }
+        #mapSidebarToggleIcon {
+            transition: transform 0.3s ease;
+        }
+        .map-floating-sidebar.collapsed #mapSidebarToggleIcon {
+            transform: rotate(-90deg);
         }
         .map-floating-sidebar h1 {
             font-size: 14px;
@@ -936,10 +955,13 @@
                             <div id="realMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
                             
                             <!-- Floating UI -->
-                            <div class="map-floating-sidebar">
-                                <div>
-                                    <h1>🔥 Heatmap Analytics</h1>
-                                    <p class="sub">Densidade de entregas na praça</p>
+                            <div class="map-floating-sidebar" id="mapSidebar">
+                                <div style="display:flex; justify-content:space-between; align-items:center;" onclick="document.getElementById('mapSidebar').classList.toggle('collapsed')" style="cursor:pointer;">
+                                    <div>
+                                        <h1>🔥 Heatmap Analytics</h1>
+                                        <p class="sub">Densidade de entregas na praça</p>
+                                    </div>
+                                    <span style="font-size: 16px; color: var(--primary); cursor: pointer;" id="mapSidebarToggleIcon">▼</span>
                                 </div>
                                 <div class="card-modern">
                                     <h2>Visão Geral</h2>
