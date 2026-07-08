@@ -23,10 +23,6 @@
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(44,234,188,0.28); border-radius: var(--radius-full); }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(44,234,188,0.55); }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -82,7 +78,7 @@
             display: flex; flex-direction: column; justify-content: center;
             align-items: center; gap: 0; transition: opacity 0.6s ease;
         }
-        .loader-logo { width:auto; height:96px; max-width:140px; object-fit:contain; margin-bottom: 28px; opacity:0; transform:translateY(12px); animation: loaderLogoIn 0.5s 0.1s ease forwards; }
+        .loader-logo { width: 72px; height: 72px; margin-bottom: 28px; opacity:0; transform:translateY(12px); animation: loaderLogoIn 0.5s 0.1s ease forwards; }
         @keyframes loaderLogoIn { to { opacity:1; transform:translateY(0); } }
         .loader-label { font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(180,228,255,0.5); text-transform:uppercase; margin-bottom:20px; opacity:0; animation: loaderLogoIn 0.5s 0.3s ease forwards; }
         .loader-bar-wrap { width:180px; height:2px; background:rgba(44,234,188,0.1); border-radius:99px; overflow:hidden; opacity:0; animation: loaderLogoIn 0.4s 0.4s ease forwards; }
@@ -101,7 +97,7 @@
             max-width: 420px; display: flex; flex-direction: column; gap: 16px;
             animation: fadeInUp 0.45s ease;
         }
-        .login-box img { max-width: 190px; height: auto; object-fit: contain; margin: 0 auto 12px; display: block; }
+        .login-box img { width: 64px; height: auto; margin: 0 auto 4px; display: block; }
         .login-box h2 { font-size: 22px; font-weight: 800; text-align: center; }
         .login-subtitle { font-size: 13px; color: var(--azul-gelo); opacity: 0.7; text-align: center; margin-top: -8px; }
         .login-field { position: relative; }
