@@ -1491,6 +1491,15 @@
                     escalasResults.forEach(res => { if (res.data) allDataEscalas = allDataEscalas.concat(res.data); });
                 }
                 
+                // Sort allDataEscalas properly by time so that latest entry overwrites older ones
+                if (allDataEscalas.length > 0) {
+                    allDataEscalas.sort((a, b) => {
+                        const tA = a.horario_coleta || "";
+                        const tB = b.horario_coleta || "";
+                        return tA.localeCompare(tB);
+                    });
+                }
+                
                 heatmapPoints = [];
                 if (pedidosResults) {
                     pedidosResults.forEach(res => { 
@@ -1809,8 +1818,8 @@
             
             // Header
             html += '<div class="hm-header" style="justify-content: flex-start; padding-left:5px;">Subpraça</div>';
-            turnosLabels.forEach(t => {
-                html += `<div class="hm-header">${t}</div>`;
+            turnosLabels.forEach((t, idx) => {
+                html += `<div class="hm-header" style="cursor:pointer; color:var(--primary); text-decoration:underline;" onclick="selectShiftFromHeatmap('${turnos[idx]}', '${t}')" title="Clique para ver a escala deste turno">${t}</div>`;
             });
 
             // Rows
@@ -1831,6 +1840,25 @@
 
             html += '</div>';
             container.innerHTML = html;
+        }
+
+        function selectShiftFromHeatmap(shiftKey, shiftLabel) {
+            const pracaName = document.getElementById('ui-praca-name').innerText;
+            const pracaKey = pracaName.toUpperCase();
+            const currentPracaEscalas = escalasDataByPraca[pracaKey] || [];
+            
+            let fullLabel = shiftLabel;
+            if (shiftKey === 'manha') fullLabel = 'Manhã (06h-11h)';
+            else if (shiftKey === 'almoco') fullLabel = 'Almoço (11h-15h)';
+            else if (shiftKey === 'tarde') fullLabel = 'Tarde (15h-18h)';
+            else if (shiftKey === 'jantar') fullLabel = 'Jantar (18h-22h)';
+            else if (shiftKey === 'j5') fullLabel = 'J5 (22h-00h)';
+            else if (shiftKey === 'madrugada') fullLabel = 'Madruga (00h-06h)';
+
+            updateEscalasTable(pracaName, currentPracaEscalas, shiftKey, fullLabel, null);
+            
+            // Scroll to escalas table
+            document.getElementById('leftEscalasContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function updateEscalasTable(praca, pracaEscalas, forceShiftKey = null, forceShiftLabel = null, forceTimeStr = null) {
