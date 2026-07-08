@@ -124,7 +124,7 @@ class Sessao:
             url = f"{supa_url}/rest/v1/frota_tokens?select=jwt&email=eq.{urllib.parse.quote(self.email)}"
             headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 if data and len(data) > 0:
                     self.jwt_local = data[-1].get("jwt")
@@ -139,13 +139,18 @@ class Sessao:
         supa_url = SUPABASE_URL.rstrip('/') if SUPABASE_URL else ""
         if not supa_url or not SUPABASE_KEY: return
         try:
-            url = f"{supa_url}/rest/v1/frota_tokens?email=eq.{urllib.parse.quote(self.email)}"
-            headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}", "Content-Type": "application/json"}
-            body = json.dumps({"jwt": jwt}).encode("utf-8")
-            req = urllib.request.Request(url, headers=headers, data=body, method="PATCH")
-            with urllib.request.urlopen(req) as resp:
+            url = f"{supa_url}/rest/v1/frota_tokens"
+            headers = {
+                "apikey": SUPABASE_KEY, 
+                "Authorization": f"Bearer {SUPABASE_KEY}", 
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates"
+            }
+            body = json.dumps({"email": self.email, "jwt": jwt}).encode("utf-8")
+            req = urllib.request.Request(url, headers=headers, data=body, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 pass
-            self.log("JWT salvo no banco (PATCH)")
+            self.log("JWT salvo no banco (UPSERT)")
         except Exception as e:
             self.log(f"Erro salvar JWT: {str(e)}")
 
@@ -186,7 +191,7 @@ class Sessao:
         body = json.dumps({"email": self.email, "password": self.senha}).encode("utf-8")
         h = {**HEADERS_BASE, "content-type": "application/json; charset=UTF-8", "cookie": ""}
         req = urllib.request.Request(URL_VALIDATE, headers=h, data=body)
-        with self.opener.open(req) as resp:
+        with self.opener.open(req, timeout=15) as resp:
             resp.read()
         self.log("Solicitado novo codigo de auth")
 
@@ -195,7 +200,7 @@ class Sessao:
         body = json.dumps({"email": self.email, "code": codigo}).encode("utf-8")
         h = {**HEADERS_BASE, "content-type": "application/json; charset=UTF-8", "cookie": f"entregolog_jwt={jwt_antigo}" if jwt_antigo else ""}
         req = urllib.request.Request(URL_TOKEN, headers=h, data=body)
-        with self.opener.open(req) as resp:
+        with self.opener.open(req, timeout=15) as resp:
             resp.read()
         jwt_novo = self.get_cookie("entregolog_jwt")
         if jwt_novo:
@@ -271,6 +276,13 @@ def extrair_campos_heatmap(detalhe):
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        cron_secret = os.environ.get('CRON_SECRET')
+        if cron_secret and self.headers.get("Authorization") != f"Bearer {cron_secret}":
+            self.send_response(401)
+            self.end_headers()
+            self.wfile.write(b"Unauthorized")
+            return
+
         if not SUPABASE_URL or not SUPABASE_KEY:
             self.send_response(500)
             self.end_headers()
@@ -301,6 +313,7 @@ class handler(BaseHTTPRequestHandler):
                 order_id = r.get("orderId")
                 if not order_id: return None
                 try:
+                    time.sleep(PAUSA_ENTRE_DETALHES)
                     detalhe = sessao.buscar_detalhe(order_id)
                     return extrair_campos_heatmap(detalhe)
                 except Exception as e:
@@ -309,7 +322,7 @@ class handler(BaseHTTPRequestHandler):
 
             def buscar_e_processar():
                 pedidos = sessao.extrair_todos_pedidos(inicio_utc, fim_utc)
-                with ThreadPoolExecutor(max_workers=8) as ex:
+                with ThreadPoolExecutor(max_workers=3) as ex:
                     futs = [ex.submit(processar_pedido, r) for r in pedidos]
                     for f in as_completed(futs):
                         res = f.result()
