@@ -292,7 +292,7 @@ class handler(BaseHTTPRequestHandler):
         from urllib.parse import urlparse, parse_qs
         parsed_path = urlparse(self.path)
         query = parse_qs(parsed_path.query)
-        minutos = int(query.get('minutos', [60])[0])
+        minutos = int(query.get('minutos', [15])[0])
 
         now_utc = datetime.now(timezone.utc)
         inicio_utc = (now_utc - timedelta(minutes=minutos)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
@@ -313,7 +313,7 @@ class handler(BaseHTTPRequestHandler):
                 order_id = r.get("orderId")
                 if not order_id: return None
                 try:
-                    time.sleep(PAUSA_ENTRE_DETALHES)
+                    # Removemos o sleep abusivo para caber no limite serverless (15s a 30s)
                     detalhe = sessao.buscar_detalhe(order_id)
                     return extrair_campos_heatmap(detalhe)
                 except Exception as e:
@@ -322,7 +322,8 @@ class handler(BaseHTTPRequestHandler):
 
             def buscar_e_processar():
                 pedidos = sessao.extrair_todos_pedidos(inicio_utc, fim_utc)
-                with ThreadPoolExecutor(max_workers=3) as ex:
+                # Aumenta os workers para despachar o mais rapido possivel no Serverless
+                with ThreadPoolExecutor(max_workers=8) as ex:
                     futs = [ex.submit(processar_pedido, r) for r in pedidos]
                     for f in as_completed(futs):
                         res = f.result()
@@ -361,7 +362,7 @@ class handler(BaseHTTPRequestHandler):
                     "apikey": SUPABASE_KEY, 
                     "Authorization": f"Bearer {SUPABASE_KEY}", 
                     "Content-Type": "application/json",
-                    "Prefer": "resolution=merge-duplicates" # Para fazer Upsert usando PK
+                    "Prefer": "resolution=merge-duplicates"
                 }
                 
                 body = json.dumps(todos_registros).encode("utf-8")
@@ -374,6 +375,13 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        res = {"status": "ok", "inserted_upserted": len(todos_registros), "erros": erros, "logs": logs_finais}
+        
+        # Limita o tamanho do array de erros e omite logs na saida p/ não estourar payload do Cron
+        res = {
+            "status": "ok", 
+            "inserted_upserted": len(todos_registros), 
+            "erros": erros[:5], # no maximo 5 erros reportados no body
+            "logs_omitted": True
+        }
         self.wfile.write(json.dumps(res).encode('utf-8'))
         return
