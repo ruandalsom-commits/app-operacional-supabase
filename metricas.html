@@ -18,22 +18,22 @@
     
     <style>
         :root {
-            /* Cores padrão EntreGô / Copa CR (Baseado no index.html) */
-            --bg-dark: #031709;
-            --bg-card: rgba(0, 30, 80, 0.62);
-            --primary: #FFB800; /* Menta Viva / Yellow */
-            --primary-glow: rgba(255, 184, 0, 0.3);
-            --secondary: #1DB954; /* Green */
+            /* Cores padrão EntreGô */
+            --bg-dark: #080e2e;
+            --bg-card: rgba(13, 20, 65, 0.62);
+            --primary: #2CEABC; /* Menta Viva */
+            --primary-glow: rgba(44, 234, 188, 0.3);
+            --secondary: #2C67EA; /* Azul principal */
             --text-main: #ffffff;
-            --text-muted: rgba(245, 245, 240, 0.85); /* Azul gelo */
-            --border-color: rgba(255, 184, 0, 0.13);
+            --text-muted: rgba(180, 228, 255, 0.85); /* Azul gelo */
+            --border-color: rgba(44, 234, 188, 0.13);
 
             /* Status */
-            --st-working: #1DB954; /* Green */
-            --st-offline: #FF5050; /* Red */
-            --st-paused: #FFB800; /* Yellow */
-            --st-blocked: #A855F7; /* Purple */
-            --st-available: #2C67EA; /* Blue */
+            --st-working: #2CEABC;
+            --st-offline: #B4E4FF;
+            --st-paused: #B4FFED;
+            --st-blocked: #009B7F;
+            --st-available: #2C67EA;
         }
 
         * {
@@ -56,8 +56,8 @@
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: -1;
-            background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(255,184,0,0.15) 0%, transparent 60%),
-                        radial-gradient(ellipse 60% 50% at 80% 110%, rgba(0,48,135,0.2) 0%, transparent 55%);
+            background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(44,103,234,0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse 60% 50% at 80% 110%, rgba(27,63,172,0.2) 0%, transparent 55%);
             pointer-events: none;
         }
 

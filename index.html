@@ -12,19 +12,19 @@
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"></noscript>
     <style>
         :root {
-            --azul-escuro: #0A2E0A; --azul-principal: #1DB954; --azul-intermediario: #003087;
-            --menta-viva: #FFB800; --menta-suave: #FFD24D; --azul-gelo: #F5F5F0; --branco: #ffffff;
+            --azul-escuro: #0F1849; --azul-principal: #2C67EA; --azul-intermediario: #1B3FAC;
+            --menta-viva: #2CEABC; --menta-suave: #B4FFED; --azul-gelo: #B4E4FF; --branco: #ffffff;
             --space-xs:8px;--space-sm:16px;--space-md:24px;--space-lg:40px;--space-xl:64px;--space-2xl:96px;
             --radius-sm:10px;--radius-md:16px;--radius-lg:24px;--radius-full:9999px;
             --transition-fast:0.18s ease;--transition-base:0.3s ease;--transition-slow:0.5s ease;
-            --shadow-glow:0 0 20px rgba(255,184,0,0.18);--shadow-card:0 8px 32px rgba(0,0,0,0.28);
-            --shadow-card-hover:0 16px 48px rgba(255,184,0,0.14),0 0 0 1px rgba(255,184,0,0.12);
+            --shadow-glow:0 0 20px rgba(44,234,188,0.18);--shadow-card:0 8px 32px rgba(0,0,0,0.28);
+            --shadow-card-hover:0 16px 48px rgba(44,234,188,0.14),0 0 0 1px rgba(44,234,188,0.12);
         }
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
-        body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:#031709;color:var(--branco);min-height:100vh;overflow-x:hidden;line-height:1.6;position:relative;}
-        body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(255,184,0,0.45) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 110%,rgba(0,48,135,0.4) 0%,transparent 55%),#031709;pointer-events:none;}
-        body::after{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(circle 500px at 15% 25%,rgba(255,184,0,0.055) 0%,transparent 70%),radial-gradient(circle 700px at 80% 70%,rgba(29,185,84,0.07) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity 1s ease;}
+        body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:#080e2e;color:var(--branco);min-height:100vh;overflow-x:hidden;line-height:1.6;position:relative;}
+        body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(44,103,234,0.45) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 110%,rgba(27,63,172,0.4) 0%,transparent 55%),#080e2e;pointer-events:none;}
+        body::after{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(circle 500px at 15% 25%,rgba(44,234,188,0.055) 0%,transparent 70%),radial-gradient(circle 700px at 80% 70%,rgba(44,103,234,0.07) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity 1s ease;}
         body.site-loaded::after{opacity:1;animation:blobDrift 18s ease-in-out infinite alternate;}
         @keyframes blobDrift{0%{background-position:0% 0%;}50%{filter:hue-rotate(5deg);}100%{background-position:100% 100%;}}
         .dot-grid{position:fixed;inset:0;z-index:0;background-image:radial-gradient(circle,rgba(255,184,0,0.18) 1.5px,transparent 1.5px);background-size:32px 32px;pointer-events:none;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 40%,transparent 100%);opacity:0;transition:opacity 0.8s ease;}
@@ -346,7 +346,6 @@
     <!-- <div class="bg-bandeira" style="position:fixed;inset:0;z-index:0;background:url('https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg') center/cover no-repeat;opacity:0.04;pointer-events:none;"></div> -->
     
     <!-- NOVO FUNDO: História da Copa do Mundo -->
-    <div class="bg-copa" style="position:fixed;inset:0;z-index:0;background:url('https://fia.com.br/wp-content/uploads/2026/04/historia-da-copa-do-mundo.jpg') center/cover no-repeat;opacity:0.12;pointer-events:none;filter:grayscale(30%);"></div>
     <div class="dot-grid" aria-hidden="true"></div>
     <nav class="mobile-nav" id="mobileNav"></nav>
 
@@ -623,10 +622,7 @@
 
             if (dados.Home_Config) {
                 var hero = dados.Home_Config.find(function(i){ return i.Tipo==='Hero'; });
-                if(hero) {
-                    var bolaoHTML = '<div class="bolao-card"><img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Copa CR" style="position: absolute; top: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: auto; z-index: 20; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.8));"><div><h3 style="color:var(--menta-viva); font-size:22px; font-weight:900; margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px; text-shadow:0 2px 8px rgba(0,0,0,1); margin-top: 50px;">⚽ Copa CR</h3><p style="color:var(--branco); font-size:14px; line-height:1.5; margin-bottom:16px; text-shadow:0 2px 6px rgba(0,0,0,1);">A CR está patrocinando o bolão! Cadastrem-se e participem. Caso não tenham acesso ao e-mail, comunique ao time de análise.</p></div><div style="display:flex; flex-direction:column; gap:10px; width:100%;"><a href="https://forms.gle/JWfrpoXuxBGSwiRW8" target="_blank" rel="noopener" style="display:block; text-align:center; background:transparent; border: 2px solid var(--menta-viva); color:var(--menta-viva); font-weight:800; padding:12px; border-radius:8px; text-decoration:none; text-transform:uppercase; font-size:14px; transition:all 0.2s; align-self:center; width:100%;" onmouseover="this.style.transform=\'scale(1.05)\'; this.style.background=\'rgba(255,184,0,0.1)\';" onmouseout="this.style.transform=\'scale(1)\'; this.style.background=\'transparent\';">Formulário</a><a href="https://bolao.crmasterdelivery.online/" target="_blank" rel="noopener" style="display:block; text-align:center; background:var(--menta-viva); color:var(--azul-escuro); font-weight:800; padding:14px; border-radius:8px; text-decoration:none; text-transform:uppercase; font-size:14px; box-shadow:0 4px 15px rgba(255,184,0,0.4); transition:transform 0.2s; align-self:center; width:100%;" onmouseover="this.style.transform=\'scale(1.05)\'" onmouseout="this.style.transform=\'scale(1)\'">Participar Agora</a></div></div>';
-                    finalHTML += '<section id="home" class="hero">'+bolaoHTML+'<div class="hero-content"><h1>'+hero.Titulo+' <span class="text-neon">GÔ</span></h1><p class="hero-subtitle">'+hero.Subtitulo+'</p><div style="color:var(--menta-viva);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:28px;text-shadow:0 0 16px rgba(255,184,0,0.6);">Edição Copa do Mundo 2026 🏆</div><div class="hero-badge">Manual da Operação</div></div></section>';
-                }
+                if(hero) finalHTML += '<section id="home" class="hero"><div class="hero-content"><h1>'+hero.Titulo+' <span class="text-neon">GÔ</span></h1><p class="hero-subtitle">'+hero.Subtitulo+'</p><div class="hero-badge">Manual da Operação</div></div></section>';
                 var cardsH = dados.Home_Config.filter(function(i){ return i.Tipo!=='Hero'; }).map(function(item){
                     return '<div class="glass-panel card-standard" style="align-items:center;text-align:center;"><div class="icon-glow">'+((item.Titulo||'').includes('Promo')?'🔥':'💬')+'</div><h3>'+item.Titulo+'</h3><p>'+item.Texto+'</p></div>';
                 }).join('');

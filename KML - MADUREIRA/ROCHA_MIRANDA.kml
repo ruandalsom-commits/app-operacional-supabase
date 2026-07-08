@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>MADUREIRA - ROCHA MIRANDA</name>
+    <description/>
+    <Style id="poly-0288D1-1200-77-normal">
+      <LineStyle>
+        <color>ffd18802</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4dd18802</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-0288D1-1200-77-highlight">
+      <LineStyle>
+        <color>ffd18802</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4dd18802</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-0288D1-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-0288D1-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-0288D1-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>MADUREIRA - ROCHA MIRANDA</name>
+      <Placemark>
+        <name>MADUREIRA - ROCHA MIRANDA</name>
+        <description><![CDATA[descrição: <br>REGION_NAME: Rio - Madureira<br>REGION_UUID: 2800ed66-03d2-4877-880a-8de7ad2051cd<br>ORIGINS_CAN_BE_RECLASSIFIED: true<br>description: Rio Madureira - Rocha Miranda (OL DEDICADO)<br>typologyId: 06cd2c1d-a527-419d-8e1e-78382960ce14<br>typologyName: SUB_REGION<br>active: true]]></description>
+        <styleUrl>#poly-0288D1-1200-77</styleUrl>
+        <ExtendedData>
+          <Data name="descrição">
+            <value/>
+          </Data>
+          <Data name="REGION_NAME">
+            <value>Rio - Madureira</value>
+          </Data>
+          <Data name="REGION_UUID">
+            <value>2800ed66-03d2-4877-880a-8de7ad2051cd</value>
+          </Data>
+          <Data name="ORIGINS_CAN_BE_RECLASSIFIED">
+            <value>true</value>
+          </Data>
+          <Data name="description">
+            <value>Rio Madureira - Rocha Miranda (OL DEDICADO)</value>
+          </Data>
+          <Data name="typologyId">
+            <value>06cd2c1d-a527-419d-8e1e-78382960ce14</value>
+          </Data>
+          <Data name="typologyName">
+            <value>SUB_REGION</value>
+          </Data>
+          <Data name="active">
+            <value>true</value>
+          </Data>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                -43.337381,-22.859304,0
+                -43.339415,-22.858904,0
+                -43.341148,-22.85749,0
+                -43.342077,-22.856143,0
+                -43.372395,-22.848085,0
+                -43.371489,-22.849372,0
+                -43.371378,-22.850738,0
+                -43.373912,-22.851938,0
+                -43.374152,-22.852913,0
+                -43.375748,-22.853361,0
+                -43.377416,-22.856391,0
+                -43.379812,-22.864041,0
+                -43.379505,-22.864667,0
+                -43.384359,-22.866408,0
+                -43.383404,-22.867715,0
+                -43.37839,-22.866945,0
+                -43.378379,-22.866967,0
+                -43.376069,-22.870083,0
+                -43.375723,-22.871355,0
+                -43.373394,-22.876134,0
+                -43.37795,-22.877114,0
+                -43.379932,-22.878608,0
+                -43.379605,-22.879895,0
+                -43.377458,-22.886173,0
+                -43.375974,-22.886093,0
+                -43.376483,-22.8893,0
+                -43.375871,-22.889108,0
+                -43.375765,-22.888635,0
+                -43.373649,-22.890583,0
+                -43.370204,-22.89349,0
+                -43.36505,-22.895588,0
+                -43.362577,-22.895582,0
+                -43.361243,-22.896984,0
+                -43.35843,-22.901589,0
+                -43.356128,-22.903268,0
+                -43.35454,-22.904397,0
+                -43.352905,-22.90559,0
+                -43.342463,-22.89389,0
+                -43.343248,-22.892833,0
+                -43.344054,-22.89248,0
+                -43.345941,-22.891563,0
+                -43.344566,-22.889199,0
+                -43.343928,-22.888337,0
+                -43.343023,-22.88798,0
+                -43.341213,-22.886368,0
+                -43.340902,-22.884968,0
+                -43.341637,-22.88423,0
+                -43.341401,-22.883643,0
+                -43.34053,-22.883797,0
+                -43.340136,-22.884033,0
+                -43.340226,-22.883566,0
+                -43.339649,-22.8826,0
+                -43.339439,-22.882552,0
+                -43.339177,-22.882552,0
+                -43.337446,-22.882262,0
+                -43.333408,-22.882117,0
+                -43.331835,-22.882068,0
+                -43.331647,-22.882189,0
+                -43.330812,-22.882189,0
+                -43.330571,-22.882186,0
+                -43.330284,-22.88169,0
+                -43.330469,-22.880952,0
+                -43.331948,-22.879815,0
+                -43.331918,-22.87919,0
+                -43.329112,-22.878963,0
+                -43.329319,-22.874835,0
+                -43.332834,-22.874863,0
+                -43.33498,-22.874448,0
+                -43.335645,-22.873509,0
+                -43.334049,-22.870383,0
+                -43.329846,-22.868304,0
+                -43.329528,-22.863434,0
+                -43.330498,-22.862741,0
+                -43.331221,-22.862107,0
+                -43.330222,-22.860911,0
+                -43.329328,-22.857559,0
+                -43.334076,-22.856962,0
+                -43.334631,-22.857502,0
+                -43.335463,-22.8579,0
+                -43.336018,-22.858439,0
+                -43.337004,-22.858468,0
+                -43.337381,-22.859304,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

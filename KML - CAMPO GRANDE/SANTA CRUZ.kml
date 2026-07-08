@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>CAMPO GRANDE - SANTA CRUZ</name>
+    <description/>
+    <Style id="poly-0288D1-1200-77-normal">
+      <LineStyle>
+        <color>ffd18802</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4dd18802</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-0288D1-1200-77-highlight">
+      <LineStyle>
+        <color>ffd18802</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4dd18802</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-0288D1-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-0288D1-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-0288D1-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>CAMPO GRANDE - SANTA CRUZ</name>
+      <Placemark>
+        <name>CAMPO GRANDE - SANTA CRUZ</name>
+        <description><![CDATA[descrição: <br>PRIORITY: 1<br>REGION_NAME: Rio - Campo Grande<br>REGION_UUID: 82c43d58-08d5-4e15-9656-d4cf41b67855<br>TEST_REFERENCE: <br>IFOOD_TEST_FLAG: <br>ADDITIONAL_DESCRIPTION: Sub praça Blindados<br>ORIGINS_CAN_BE_RECLASSIFIED: true<br>description: Rio - Campo Grande - Santa Cruz (OL Dedicado)<br>typologyId: 06cd2c1d-a527-419d-8e1e-78382960ce14<br>typologyName: SUB_REGION<br>active: true]]></description>
+        <styleUrl>#poly-0288D1-1200-77</styleUrl>
+        <ExtendedData>
+          <Data name="descrição">
+            <value/>
+          </Data>
+          <Data name="PRIORITY">
+            <value>1</value>
+          </Data>
+          <Data name="REGION_NAME">
+            <value>Rio - Campo Grande</value>
+          </Data>
+          <Data name="REGION_UUID">
+            <value>82c43d58-08d5-4e15-9656-d4cf41b67855</value>
+          </Data>
+          <Data name="TEST_REFERENCE">
+            <value/>
+          </Data>
+          <Data name="IFOOD_TEST_FLAG">
+            <value/>
+          </Data>
+          <Data name="ADDITIONAL_DESCRIPTION">
+            <value>Sub praça Blindados</value>
+          </Data>
+          <Data name="ORIGINS_CAN_BE_RECLASSIFIED">
+            <value>true</value>
+          </Data>
+          <Data name="description">
+            <value>Rio - Campo Grande - Santa Cruz (OL Dedicado)</value>
+          </Data>
+          <Data name="typologyId">
+            <value>06cd2c1d-a527-419d-8e1e-78382960ce14</value>
+          </Data>
+          <Data name="typologyName">
+            <value>SUB_REGION</value>
+          </Data>
+          <Data name="active">
+            <value>true</value>
+          </Data>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                -43.637633,-22.917368,0
+                -43.638233,-22.91721,0
+                -43.648343,-22.91871,0
+                -43.650399,-22.918394,0
+                -43.651599,-22.917763,0
+                -43.651599,-22.916421,0
+                -43.65237,-22.915159,0
+                -43.65494,-22.913107,0
+                -43.65991,-22.910344,0
+                -43.661195,-22.909161,0
+                -43.658282,-22.90703,0
+                -43.655369,-22.90261,0
+                -43.654083,-22.896217,0
+                -43.653398,-22.889665,0
+                -43.655369,-22.887376,0
+                -43.656568,-22.887218,0
+                -43.670363,-22.891797,0
+                -43.672331,-22.892586,0
+                -43.672719,-22.892467,0
+                -43.673447,-22.892546,0
+                -43.674154,-22.892665,0
+                -43.674283,-22.892448,0
+                -43.674197,-22.892073,0
+                -43.67394,-22.891658,0
+                -43.674218,-22.89152,0
+                -43.676789,-22.889902,0
+                -43.677003,-22.889843,0
+                -43.678995,-22.892586,0
+                -43.678759,-22.892685,0
+                -43.678224,-22.893079,0
+                -43.677967,-22.893651,0
+                -43.677838,-22.894145,0
+                -43.67711,-22.894421,0
+                -43.676874,-22.894421,0
+                -43.676446,-22.894697,0
+                -43.676346,-22.89483,0
+                -43.687585,-22.90995,0
+                -43.687842,-22.912081,0
+                -43.687328,-22.914922,0
+                -43.693497,-22.918157,0
+                -43.693411,-22.920604,0
+                -43.69264,-22.920998,0
+                -43.692211,-22.922261,0
+                -43.691355,-22.922813,0
+                -43.689898,-22.921788,0
+                -43.689384,-22.921235,0
+                -43.687842,-22.920209,0
+                -43.6857,-22.919578,0
+                -43.6845,-22.919578,0
+                -43.682272,-22.920051,0
+                -43.680559,-22.921077,0
+                -43.679873,-22.92455,0
+                -43.678331,-22.927312,0
+                -43.674218,-22.930941,0
+                -43.668563,-22.935281,0
+                -43.666679,-22.935834,0
+                -43.665479,-22.934887,0
+                -43.664622,-22.934177,0
+                -43.661281,-22.93323,0
+                -43.656483,-22.931494,0
+                -43.655711,-22.930468,0
+                -43.655454,-22.929363,0
+                -43.653826,-22.928653,0
+                -43.653055,-22.927785,0
+                -43.652113,-22.926917,0
+                -43.650571,-22.926128,0
+                -43.649885,-22.924944,0
+                -43.648429,-22.92305,0
+                -43.646972,-22.921788,0
+                -43.642088,-22.919657,0
+                -43.637633,-22.917368,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

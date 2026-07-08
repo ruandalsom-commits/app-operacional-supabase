@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>BARRA - RECREIO</name>
+    <description>Sub Praça</description>
+    <Style id="poly-0288D1-1200-77-normal">
+      <LineStyle>
+        <color>ffd18802</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4dd18802</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-0288D1-1200-77-highlight">
+      <LineStyle>
+        <color>ffd18802</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4dd18802</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-0288D1-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-0288D1-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-0288D1-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>RECREIO</name>
+      <Placemark>
+        <name>RECREIO</name>
+        <description><![CDATA[descrição: <br>PRIORITY: <br>REGION_NAME: Rio - Barra<br>REGION_UUID: 30a4c365-0ff0-4db7-8691-82e8470b3820<br>TEST_REFERENCE: <br>IFOOD_TEST_FLAG: <br>ADDITIONAL_DESCRIPTION: Subpraça Frota Canarinho<br>ORIGINS_CAN_BE_RECLASSIFIED: true<br>description: RECREIO<br>typologyId: 06cd2c1d-a527-419d-8e1e-78382960ce14<br>typologyName: SUB_REGION<br>active: true]]></description>
+        <styleUrl>#poly-0288D1-1200-77</styleUrl>
+        <ExtendedData>
+          <Data name="descrição">
+            <value/>
+          </Data>
+          <Data name="PRIORITY">
+            <value/>
+          </Data>
+          <Data name="REGION_NAME">
+            <value>Rio - Barra</value>
+          </Data>
+          <Data name="REGION_UUID">
+            <value>30a4c365-0ff0-4db7-8691-82e8470b3820</value>
+          </Data>
+          <Data name="TEST_REFERENCE">
+            <value/>
+          </Data>
+          <Data name="IFOOD_TEST_FLAG">
+            <value/>
+          </Data>
+          <Data name="ADDITIONAL_DESCRIPTION">
+            <value>Subpraça Frota Canarinho</value>
+          </Data>
+          <Data name="ORIGINS_CAN_BE_RECLASSIFIED">
+            <value>true</value>
+          </Data>
+          <Data name="description">
+            <value>RECREIO</value>
+          </Data>
+          <Data name="typologyId">
+            <value>06cd2c1d-a527-419d-8e1e-78382960ce14</value>
+          </Data>
+          <Data name="typologyName">
+            <value>SUB_REGION</value>
+          </Data>
+          <Data name="active">
+            <value>true</value>
+          </Data>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                -43.493402,-23.012065,0
+                -43.493125,-23.018005,0
+                -43.492803,-23.027957,0
+                -43.492387,-23.035231,0
+                -43.491156,-23.03497,0
+                -43.489036,-23.03446,0
+                -43.487302,-23.034052,0
+                -43.485754,-23.033687,0
+                -43.485462,-23.033618,0
+                -43.484261,-23.033351,0
+                -43.484218,-23.033014,0
+                -43.480811,-23.032555,0
+                -43.480582,-23.03239,0
+                -43.480051,-23.032008,0
+                -43.477618,-23.031599,0
+                -43.47627,-23.031461,0
+                -43.47552,-23.0315,0
+                -43.475339,-23.03151,0
+                -43.474923,-23.031619,0
+                -43.473,-23.032,0
+                -43.470932,-23.033119,0
+                -43.470364,-23.032645,0
+                -43.468964,-23.030887,0
+                -43.464807,-23.028619,0
+                -43.461,-23.027,0
+                -43.457682,-23.026141,0
+                -43.453144,-23.024835,0
+                -43.449665,-23.023951,0
+                -43.447052,-23.023288,0
+                -43.442416,-23.022089,0
+                -43.440882,-23.021672,0
+                -43.439329,-23.021549,0
+                -43.433289,-23.020373,0
+                -43.428304,-23.019409,0
+                -43.426913,-23.019104,0
+                -43.426831,-23.015787,0
+                -43.427681,-23.014145,0
+                -43.428555,-23.011848,0
+                -43.429004,-23.010313,0
+                -43.429545,-23.008576,0
+                -43.430051,-23.006776,0
+                -43.430535,-23.005511,0
+                -43.430712,-23.005277,0
+                -43.43078,-23.005118,0
+                -43.43073,-23.004892,0
+                -43.430765,-23.004664,0
+                -43.431368,-23.004924,0
+                -43.435283,-23.00587,0
+                -43.435389,-23.00574,0
+                -43.435247,-23.005381,0
+                -43.432326,-23.002442,0
+                -43.432359,-23.00241,0
+                -43.432118,-23.002201,0
+                -43.432093,-23.002208,0
+                -43.432019,-23.002133,0
+                -43.432022,-23.00212,0
+                -43.431983,-23.002086,0
+                -43.431696,-23.001841,0
+                -43.431619,-23.001774,0
+                -43.429829,-23.000247,0
+                -43.428065,-22.998741,0
+                -43.426941,-22.997814,0
+                -43.42694,-22.997813,0
+                -43.42688,-22.99778,0
+                -43.426367,-22.997531,0
+                -43.426125,-22.997434,0
+                -43.425979,-22.99738,0
+                -43.425868,-22.997339,0
+                -43.42547,-22.997148,0
+                -43.425559,-22.997068,0
+                -43.425938,-22.996934,0
+                -43.427957,-22.997399,0
+                -43.429061,-22.997659,0
+                -43.430867,-22.998098,0
+                -43.434911,-22.998993,0
+                -43.437919,-22.999671,0
+                -43.441261,-23.000439,0
+                -43.444338,-23.001122,0
+                -43.447594,-23.001889,0
+                -43.450136,-23.002435,0
+                -43.453495,-23.003229,0
+                -43.455922,-23.003726,0
+                -43.463423,-23.005537,0
+                -43.46784,-23.006522,0
+                -43.478377,-23.008957,0
+                -43.480379,-23.009402,0
+                -43.493402,-23.012065,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

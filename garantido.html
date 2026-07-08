@@ -7,12 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --azul-escuro: #0A2E0A;
-            --azul-principal: #1DB954;
-            --azul-intermediario: #003087;
-            --menta-viva: #FFB800;
-            --menta-suave: #FFD24D;
-            --azul-gelo: #F5F5F0;
+            --azul-escuro: #0F1849;
+            --azul-principal: #2C67EA;
+            --azul-intermediario: #1B3FAC;
+            --menta-viva: #2CEABC;
+            --menta-suave: #B4FFED;
+            --azul-gelo: #B4E4FF;
             --branco: #ffffff;
             --space-xs: 8px; --space-sm: 16px; --space-md: 24px;
             --space-lg: 40px; --space-xl: 64px;
@@ -26,7 +26,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #031709;
+            background: #080e2e;
             color: var(--branco);
             min-height: 100vh;
             overflow-x: hidden;
@@ -38,9 +38,10 @@
             content: '';
             position: fixed; inset: 0; z-index: 0;
             background:
-                radial-gradient(ellipse 80% 60% at 20% -10%, rgba(255,184,0,0.45) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 80% 110%, rgba(0,48,135,0.4) 0%, transparent 55%),
-                #031709;
+                radial-gradient(ellipse 80% 60% at 20% -10%, rgba(44,103,234,0.45) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 110%, rgba(27,63,172,0.4) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 50% 50%, rgba(15,24,73,0.9) 0%, transparent 80%),
+                #080e2e;
             pointer-events: none;
         }
 
@@ -48,8 +49,8 @@
             content: '';
             position: fixed; inset: 0; z-index: 0;
             background:
-                radial-gradient(circle 500px at 15% 25%, rgba(255,184,0,0.055) 0%, transparent 70%),
-                radial-gradient(circle 700px at 80% 70%, rgba(29,185,84,0.07) 0%, transparent 70%);
+                radial-gradient(circle 500px at 15% 25%, rgba(44,234,188,0.055) 0%, transparent 70%),
+                radial-gradient(circle 700px at 80% 70%, rgba(44,103,234,0.07) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -365,15 +366,12 @@
     <script src="supabaseClient.js"></script>
 </head>
 <body>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/Xg1QTKX/Logocop.png">
-    <link rel="shortcut icon" type="image/png" href="https://i.ibb.co/Xg1QTKX/Logocop.png">
-    <div class="bg-copa" style="position:fixed;inset:0;z-index:0;background:url('https://fia.com.br/wp-content/uploads/2026/04/historia-da-copa-do-mundo.jpg') center/cover no-repeat;opacity:0.12;pointer-events:none;filter:grayscale(30%);"></div>
     <div class="dot-grid" aria-hidden="true"></div>
     <div id="toast-container"></div>
 
     <div id="login-container">
         <div class="login-box">
-            <img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo EntreGô">
+            <img src="https://i.imgur.com/ZEox7rf.png" alt="Logo EntreGô">
             <h2>Bem-vindo de volta</h2>
             <p class="login-subtitle">Acesso restrito à equipe operacional</p>
             <div class="login-field">
@@ -396,14 +394,14 @@
     </div>
 
     <div id="loader" style="display:none;">
-        <img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo" class="loader-logo">
+        <img src="https://i.imgur.com/ZEox7rf.png" alt="Logo" class="loader-logo">
         <p class="loader-label">Sincronizando</p>
         <div class="loader-bar-wrap"><div class="loader-bar-fill"></div></div>
     </div>
 
     <header id="main-header" style="display:none;">
         <a class="logo-box" href="index.html">
-            <img class="logo-img" src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo">
+            <img class="logo-img" src="https://i.imgur.com/ZEox7rf.png" alt="Logo">
             <span class="logo-texto">Garantido — Operação</span>
         </a>
         <a class="header-back" href="index.html">← Voltar ao Manual</a>
