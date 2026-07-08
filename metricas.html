@@ -602,6 +602,146 @@
         .login-btn:hover:not(:disabled) { transform: translateY(-2px); }
         .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
+        /* MAP FLOATING SIDEBAR UI */
+        .map-floating-sidebar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 250px;
+            background: rgba(22, 26, 32, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: auto;
+        }
+        .map-floating-sidebar h1 {
+            font-size: 14px;
+            margin: 0 0 2px 0;
+            font-weight: 700;
+            color: #fff;
+        }
+        .map-floating-sidebar .sub {
+            font-size: 10px;
+            color: #9aa2ad;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .card-modern {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+        }
+        .card-modern h2 {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #9aa2ad;
+            margin: 0 0 6px 0;
+            font-weight: 600;
+        }
+        .stat-big {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffb020;
+            line-height: 1;
+        }
+        .stat-label-mod {
+            font-size: 10px;
+            color: #9aa2ad;
+            margin-top: 2px;
+        }
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 11px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .switch {
+            position: relative;
+            width: 28px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #3a3f47;
+            border-radius: 16px;
+            transition: .2s;
+        }
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 12px;
+            width: 12px;
+            left: 2px;
+            bottom: 2px;
+            background: white;
+            border-radius: 50%;
+            transition: .2s;
+        }
+        input:checked + .slider { background: #ffb020; }
+        input:checked + .slider:before { transform: translateX(12px); }
+        
+        #rankingList {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 10px;
+        }
+        #rankingList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 6px;
+        }
+        #rankingList li:last-child { border-bottom: none; }
+        #rankingList .name {
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80px;
+        }
+        #rankingList .bar-wrap {
+            flex: 1;
+            height: 4px;
+            background: #282e37;
+            border-radius: 2px;
+            margin: 0 4px;
+            overflow: hidden;
+        }
+        #rankingList .bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffb020, #ff5a36);
+        }
+        #rankingList .count {
+            font-weight: 700;
+            color: #ffb020;
+            min-width: 20px;
+            text-align: right;
+        }
+        
+        /* Map relative container */
+        .map-relative-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
 
     </style>
 </head>
@@ -786,7 +926,39 @@
                         <div class="chart-title">Mapa de Calor (Pedidos 30min)</div>
                     </div>
                     <div class="chart-wrapper" style="overflow: hidden; border-radius: 8px;">
-                        <div id="realMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
+                        <div class="map-relative-wrapper">
+                            <div id="realMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
+                            
+                            <!-- Floating UI -->
+                            <div class="map-floating-sidebar">
+                                <div>
+                                    <h1>🔥 Heatmap Analytics</h1>
+                                    <p class="sub">Densidade de entregas na praça</p>
+                                </div>
+                                <div class="card-modern">
+                                    <h2>Visão Geral</h2>
+                                    <div class="stat-big" id="ui-total-pedidos">0</div>
+                                    <div class="stat-label-mod">pedidos geolocalizados</div>
+                                </div>
+                                <div class="card-modern">
+                                    <h2>Camadas</h2>
+                                    <div class="toggle-row">
+                                        <span>Mapa de Calor</span>
+                                        <label class="switch"><input type="checkbox" id="toggleHeat" checked onchange="toggleMapLayer('heat')"><span class="slider"></span></label>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <span>Zonas (KML)</span>
+                                        <label class="switch"><input type="checkbox" id="toggleZones" checked onchange="toggleMapLayer('zones')"><span class="slider"></span></label>
+                                    </div>
+                                </div>
+                                <div class="card-modern">
+                                    <h2>Top Origens (Volume)</h2>
+                                    <ul id="rankingList">
+                                        <!-- Preenchido via JS -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1166,6 +1338,34 @@
             }).addTo(realMap);
             
             layerControl.addOverlay(heatLayer, "Manchas de Calor (Pedidos)");
+            
+            // --- UPDATE FLOATING UI ---
+            let totalEl = document.getElementById('ui-total-pedidos');
+            if (totalEl) totalEl.innerText = filteredPoints.length;
+            
+            // Calculate Top 5 Stores/Origins
+            let storeCounts = {};
+            filteredPoints.forEach(p => {
+                let name = p.origin_name ? p.origin_name.trim() : "Desconhecido";
+                if (!storeCounts[name]) storeCounts[name] = 0;
+                storeCounts[name]++;
+            });
+            let sortedStores = Object.entries(storeCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            let maxStore = sortedStores.length > 0 ? sortedStores[0][1] : 1;
+            
+            let rankingHTML = "";
+            sortedStores.forEach(([sName, sCount]) => {
+                let pct = (sCount / maxStore) * 100;
+                rankingHTML += `
+                <li>
+                    <div class="name" title="${sName}">${sName}</div>
+                    <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
+                    <div class="count">${sCount}</div>
+                </li>`;
+            });
+            let rankingEl = document.getElementById('rankingList');
+            if (rankingEl) rankingEl.innerHTML = rankingHTML;
+            // --------------------------
             
             if (bounds) {
                 realMap.fitBounds(bounds, { padding: [20, 20] });
@@ -1973,6 +2173,29 @@
             clearInterval(progressInterval);
             clearTimeout(slideTimeout);
             initDashboard(dateStr);
+        }
+
+        // ================= MAP FLOATING CONTROLS =================
+        function toggleMapLayer(layerType) {
+            if(!realMap) return;
+            
+            if(layerType === 'heat') {
+                const isChecked = document.getElementById('toggleHeat').checked;
+                if(isChecked && heatLayer) {
+                    if(!realMap.hasLayer(heatLayer)) realMap.addLayer(heatLayer);
+                } else if (!isChecked && heatLayer) {
+                    if(realMap.hasLayer(heatLayer)) realMap.removeLayer(heatLayer);
+                }
+            }
+            
+            if(layerType === 'zones') {
+                const isChecked = document.getElementById('toggleZones').checked;
+                if(isChecked && polygonGroup) {
+                    if(!realMap.hasLayer(polygonGroup)) realMap.addLayer(polygonGroup);
+                } else if (!isChecked && polygonGroup) {
+                    if(realMap.hasLayer(polygonGroup)) realMap.removeLayer(polygonGroup);
+                }
+            }
         }
 
         // ================= AUTHENTICATION =================
