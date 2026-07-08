@@ -29,11 +29,11 @@
             --border-color: rgba(44, 234, 188, 0.13);
 
             /* Status */
-            --st-working: #2CEABC;
-            --st-offline: #B4E4FF;
-            --st-paused: #B4FFED;
-            --st-blocked: #009B7F;
-            --st-available: #2C67EA;
+            --st-working: #1DB954; /* Green */
+            --st-offline: #FF5050; /* Red */
+            --st-paused: #FFB800; /* Yellow */
+            --st-blocked: #A855F7; /* Purple */
+            --st-available: #2C67EA; /* Blue */
         }
 
         * {
@@ -42,6 +42,10 @@
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(44,234,188,0.28); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(44,234,188,0.55); }
 
         body {
             background-color: var(--bg-dark);
@@ -547,7 +551,7 @@
             color: #eee;
         }
         .modern-table tr:nth-child(even) td { background-color: rgba(255,255,255,0.02); }
-        .modern-table tr:hover td { background-color: rgba(255, 184, 0, 0.05); }
+        .modern-table tr:hover td { background-color: rgba(44, 234, 188, 0.05); }
         
         .badge-modern {
             display: inline-block;
@@ -592,9 +596,9 @@
             color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 15px; font-weight: 500; outline: none;
         }
-        .login-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(255,184,0,0.08); }
+        .login-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(44,234,188,0.08); }
         .login-btn {
-            width: 100%; padding: 15px; background: linear-gradient(135deg,var(--primary),#FFD24D);
+            width: 100%; padding: 15px; background: linear-gradient(135deg,var(--primary),#00c49a);
             color: #0A2E0A; border: none; border-radius: 10px;
             font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800;
             cursor: pointer; transition: all 0.3s ease; margin-top: 4px;
@@ -607,7 +611,9 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 250px;
+            width: 220px;
+            max-height: 80vh;
+            overflow-y: auto;
             background: rgba(22, 26, 32, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
@@ -648,7 +654,7 @@
         .stat-big {
             font-size: 22px;
             font-weight: 800;
-            color: #ffb020;
+            color: var(--primary);
             line-height: 1;
         }
         .stat-label-mod {
@@ -692,7 +698,7 @@
             border-radius: 50%;
             transition: .2s;
         }
-        input:checked + .slider { background: #ffb020; }
+        input:checked + .slider { background: var(--primary); }
         input:checked + .slider:before { transform: translateX(12px); }
         
         #rankingList {
@@ -727,11 +733,11 @@
         }
         #rankingList .bar {
             height: 100%;
-            background: linear-gradient(90deg, #ffb020, #ff5a36);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         #rankingList .count {
             font-weight: 700;
-            color: #ffb020;
+            color: var(--primary);
             min-width: 20px;
             text-align: right;
         }
@@ -749,7 +755,7 @@
 
     <div id="login-container" style="display:none;">
         <div class="login-box">
-            <img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo EntreGô">
+            <img src="https://i.imgur.com/ZEox7rf.png" alt="Logo EntreGô" style="width:160px; margin-bottom: 20px;">
             <h2>Bem-vindo de volta</h2>
             <p class="login-subtitle">Acesso restrito ao painel de métricas</p>
             <div class="login-field">

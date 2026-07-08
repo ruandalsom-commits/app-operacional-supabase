@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manual da Operação - GO</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/Xg1QTKX/Logocop.png">
-    <link rel="shortcut icon" type="image/png" href="https://i.ibb.co/Xg1QTKX/Logocop.png">
+    <link rel="icon" type="image/png" href="https://entreego.com.br/wp-content/uploads/2023/12/logo-vertical-1.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="https://entreego.com.br/wp-content/uploads/2023/12/logo-vertical-1.png?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap&font-display=swap" media="print" onload="this.media='all'">
@@ -22,6 +22,10 @@
         }
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(44,234,188,0.28); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(44,234,188,0.55); }
         body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:#080e2e;color:var(--branco);min-height:100vh;overflow-x:hidden;line-height:1.6;position:relative;}
         body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(44,103,234,0.45) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 110%,rgba(27,63,172,0.4) 0%,transparent 55%),#080e2e;pointer-events:none;}
         body::after{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(circle 500px at 15% 25%,rgba(44,234,188,0.055) 0%,transparent 70%),radial-gradient(circle 700px at 80% 70%,rgba(44,103,234,0.07) 0%,transparent 70%);pointer-events:none;opacity:0;transition:opacity 1s ease;}
@@ -352,7 +356,7 @@
     <div id="login-container">
         <div class="login-box" id="loginBox">
             <div id="login-success-icon">✅</div>
-            <img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo Copa CR" id="loginLogo" loading="eager" fetchpriority="high">
+            <img src="https://i.imgur.com/ZEox7rf.png" alt="Logo EntreGô" id="loginLogo" loading="eager" fetchpriority="high" style="width:160px; margin: 0 auto 10px; display: block;">
             <h2>Bem-vindo de volta</h2>
             <p class="login-subtitle">Acesso restrito à equipe operacional</p>
             <div class="login-field">
@@ -375,14 +379,14 @@
     </div>
 
     <div id="loader" style="display:none;">
-        <img src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo" class="loader-logo" loading="eager">
+        <img src="https://i.imgur.com/ZEox7rf.png" alt="Logo" class="loader-logo" loading="eager">
         <p class="loader-label">Sincronizando</p>
         <div class="loader-bar-wrap"><div class="loader-bar-fill"></div></div>
     </div>
 
     <header id="main-header" style="display:none;">
         <div class="logo-box">
-            <img class="logo-img" src="https://i.ibb.co/Xg1QTKX/Logocop.png" alt="Logo" loading="eager">
+            <img class="logo-img" src="https://i.imgur.com/ZEox7rf.png" alt="Logo" loading="eager">
             <span class="logo-texto">Manual Operacional</span>
         </div>
         <div class="search-box">

@@ -23,6 +23,10 @@
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(44,234,188,0.28); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(44,234,188,0.55); }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
