@@ -1433,11 +1433,11 @@
 
                 // Paginacao para buscar mais de 1000 linhas (limite da API do Supabase)
                 // Paginacao para buscar mais de 1000 linhas (limite da API do Supabase)
-                // Dispara requisições em paralelo fixas (cobrindo até 5000 linhas) para máxima velocidade
+                // Dispara requisições em paralelo fixas (cobrindo até 20000 linhas) para máxima velocidade
                 const step = 999;
                 
                 const metricasPromises = [];
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 20; i++) {
                     const rangeStart = i * (step + 1);
                     metricasPromises.push(
                         supabaseClient
@@ -1450,7 +1450,7 @@
                 }
                 
                 const escalasPromises = [];
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 8; i++) {
                     const rangeStart = i * (step + 1);
                     escalasPromises.push(
                         supabaseClient
