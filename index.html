@@ -1088,13 +1088,13 @@
         var pracas = [];
         dados.forEach(function(c){ if(c.Praca && pracas.indexOf(c.Praca)===-1) pracas.push(c.Praca); });
         
-        return pracas.map(function(praca){
+        var htmlPracas = pracas.map(function(praca){
             var itens = dados.filter(function(c){ return c.Praca===praca; });
             var linhas = itens.map(function(item){
                 var s = (item.Status||'').toString().trim().toUpperCase();
                 var isOpen = (s==='ABERTO'||s==='ABERTA');
-                var bgColor = isOpen ? 'rgba(255,184,0,0.14)' : 'rgba(234,44,85,0.14)';
-                var borderColor = isOpen ? 'rgba(255,184,0,0.38)' : 'rgba(234,44,85,0.38)';
+                var bgColor = isOpen ? 'rgba(44,234,188,0.14)' : 'rgba(234,44,85,0.14)';
+                var borderColor = isOpen ? 'rgba(44,234,188,0.38)' : 'rgba(234,44,85,0.38)';
                 var textColor = isOpen ? 'var(--menta-viva)' : '#FFA7A7';
                 var statusText = isOpen ? 'ABERTO' : 'FECHADO';
                 var subName = item.Subpraca||'-';
@@ -1118,12 +1118,33 @@
             
             return `
                 <div class="glass-panel card-standard" style="padding:22px;">
-                    <h3 style="margin-top:0; color:var(--menta-viva); border-bottom:1px solid rgba(255,184,0,0.18); padding-bottom:10px; margin-bottom:14px;">${praca}</h3>
+                    <h3 style="margin-top:0; color:var(--menta-viva); border-bottom:1px solid rgba(44,234,188,0.18); padding-bottom:10px; margin-bottom:14px;">${praca}</h3>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         ${linhas}
                     </div>
                 </div>`;
         }).join('');
+        
+        let latestDate = 0;
+        dados.forEach(function(d){
+            if (d.updated_at) {
+                let dt = new Date(d.updated_at).getTime();
+                if (dt > latestDate) latestDate = dt;
+            }
+        });
+        
+        let updateHtml = '';
+        if (latestDate > 0) {
+            let d = new Date(latestDate);
+            let formatada = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + ' às ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            updateHtml = `<div style="text-align:center; margin-bottom: 24px; grid-column: 1/-1;">
+                            <span style="font-size:12px; color:var(--menta-viva); padding: 6px 14px; border:1px solid rgba(44,234,188,0.25); border-radius: 20px; background: rgba(44,234,188,0.06); display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 10px rgba(44,234,188,0.1);">
+                                <span style="font-size:14px;">⏱️</span> Última atualização: <strong>${formatada}</strong>
+                            </span>
+                          </div>`;
+        }
+        
+        return updateHtml + htmlPracas;
     }
 
     function _buildMapasMenuHTML() {
@@ -1161,7 +1182,21 @@
         if(marcas.length===0){ html = '<p style="text-align:center;color:var(--azul-gelo);font-size:15px;padding:40px 0;">Nenhuma frota disponível para este modal.</p>';
         } else {
             marcas.forEach(function(marca){
-                html += '<div class="dedicado-accordion" onclick="toggleDedicado(this)"><div class="dedicado-header"><div class="dedicado-title">'+marca+'</div><div class="dedicado-arrow">▼</div></div><div class="dedicado-body"><div class="grid-container">';
+                var unidades = cardsD.filter(function(i){ return i.Restaurante===marca; });
+                let latestDate = 0;
+                unidades.forEach(function(u){
+                    if (u.updated_at) {
+                        let dt = new Date(u.updated_at).getTime();
+                        if (dt > latestDate) latestDate = dt;
+                    }
+                });
+                let dataStr = '';
+                if (latestDate > 0) {
+                    let d = new Date(latestDate);
+                    dataStr = '<span style="font-size:11px; font-weight:500; color:var(--azul-gelo); opacity:0.6; margin-right:12px; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:10px;">Atualizado: ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + '</span>';
+                }
+
+                html += '<div class="dedicado-accordion" onclick="toggleDedicado(this)"><div class="dedicado-header"><div class="dedicado-title">'+marca+'</div><div style="display:flex; align-items:center;">'+dataStr+'<div class="dedicado-arrow">▼</div></div></div><div class="dedicado-body"><div class="grid-container">';
                 cardsD.filter(function(c){ return c.Restaurante===marca; }).forEach(function(u){
                     var dt=String(u.Destaque||'').trim().toLowerCase();
                     var dc=dt==='bombando'?' destaque-bombando':dt==='top'?' destaque-top':(dt==='promocao'||dt==='promoção')?' destaque-promocao':'';
