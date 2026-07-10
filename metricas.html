@@ -1450,7 +1450,7 @@
                 }
                 
                 const escalasPromises = [];
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 25; i++) {
                     const rangeStart = i * (step + 1);
                     escalasPromises.push(
                         supabaseClient
@@ -1725,6 +1725,31 @@
                         if (shiftKey === 'madrugada') shiftLabel = 'Madruga (' + cleanTime + 'h)';
                         
                         updateEscalasTable(praca, escalas, shiftKey, shiftLabel, cleanTime);
+
+                        // Update Status Cards
+                        const workingVal = chart.data.datasets[0].data[idx] || 0;
+                        const availableVal = chart.data.datasets[1].data[idx] || 0;
+                        const pausedVal = chart.data.datasets[2].data[idx] || 0;
+                        const offlineVal = chart.data.datasets[3].data[idx] || 0;
+                        const blockedVal = chart.data.datasets[4].data[idx] || 0;
+                        const totalVal = chart.data.datasets[5].data[idx] || 0;
+
+                        const calcPct = (val) => totalVal > 0 ? (val / totalVal * 100).toFixed(2) + '%' : '0.00%';
+
+                        const elWorking = document.getElementById('ui-val-working'); if(elWorking) elWorking.innerText = workingVal;
+                        const elPctWorking = document.getElementById('ui-pct-working'); if(elPctWorking) elPctWorking.innerText = calcPct(workingVal);
+                        
+                        const elOffline = document.getElementById('ui-val-offline'); if(elOffline) elOffline.innerText = offlineVal;
+                        const elPctOffline = document.getElementById('ui-pct-offline'); if(elPctOffline) elPctOffline.innerText = calcPct(offlineVal);
+                        
+                        const elPaused = document.getElementById('ui-val-paused'); if(elPaused) elPaused.innerText = pausedVal;
+                        const elPctPaused = document.getElementById('ui-pct-paused'); if(elPctPaused) elPctPaused.innerText = calcPct(pausedVal);
+                        
+                        const elBlocked = document.getElementById('ui-val-blocked'); if(elBlocked) elBlocked.innerText = blockedVal;
+                        const elPctBlocked = document.getElementById('ui-pct-blocked'); if(elPctBlocked) elPctBlocked.innerText = calcPct(blockedVal);
+                        
+                        const elAvailable = document.getElementById('ui-val-available'); if(elAvailable) elAvailable.innerText = availableVal;
+                        const elPctAvailable = document.getElementById('ui-pct-available'); if(elPctAvailable) elPctAvailable.innerText = calcPct(availableVal);
                     },
                     plugins: {
                         legend: { position: 'top', align: 'end', labels: { font: { family: 'Poppins' } } },
