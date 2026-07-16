@@ -73,7 +73,7 @@ HEADERS_BASE = {
     "x-timezone":             "America/Sao_Paulo",
 }
 
-LIMITE = 50
+LIMITE = 1000
 
 class Sessao:
     def __init__(self, conta):
@@ -241,11 +241,11 @@ class Sessao:
         return self.fazer_request(f"{URL_ESCALAS}?{params}")
 
     def extrair_todas_escalas(self, data_inicio, data_fim):
-        dados = self.buscar_pagina_escalas(0, data_inicio, data_fim)
+        dados = self.buscar_pagina_escalas(1, data_inicio, data_fim)
         total = dados.get("total", 0)
         registros = dados.get("values", [])
         paginas = (total + LIMITE - 1) // LIMITE
-        for p in range(1, paginas):
+        for p in range(2, paginas + 1):
             resp = self.buscar_pagina_escalas(p, data_inicio, data_fim)
             registros.extend(resp.get("values", []))
         return registros
