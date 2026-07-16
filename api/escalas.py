@@ -268,17 +268,108 @@ def calcular_praca_subpraca(r, nome_regiao):
         return f"{prefixo} DEDICADO", origem
     return regiao.upper(), sub if sub else "LIVRE"
 
+import re
+
+def is_shift_active(shift_name, current_time_str):
+    shift_upper = shift_name.upper()
+    # Pega formatos HH:MM ou HHhMM ou HHHMM (com H maiúsculo já que aplicamos upper())
+    times = re.findall(r'(\d{2})[:Hh](\d{2})', shift_upper)
+    
+    if len(times) >= 2:
+        try:
+            start_hour, start_min = int(times[0][0]), int(times[0][1])
+            end_hour, end_min = int(times[1][0]), int(times[1][1])
+            
+            current_time = datetime.strptime(current_time_str, "%Y-%m-%d %H:%M")
+            start_dt = current_time.replace(hour=start_hour, minute=start_min, second=0, microsecond=0)
+            end_dt = current_time.replace(hour=end_hour, minute=end_min, second=0, microsecond=0)
+            
+            # Margem de tolerância
+            start_dt = start_dt - timedelta(hours=1)
+            end_dt = end_dt + timedelta(hours=1)
+            
+            if end_dt < start_dt:
+                if current_time >= start_dt or current_time <= end_dt:
+                    return True
+                return False
+                
+            if start_dt <= current_time <= end_dt:
+                return True
+            return False
+        except Exception:
+            pass
+            
+    # Fallback por palavra chave caso o turno nao tenha o horario explicito 
+    # ou caso o Regex falhe (ex: "JANTAR CPS 2230")
+    try:
+        current_time = datetime.strptime(current_time_str, "%Y-%m-%d %H:%M")
+        
+        start_hour, start_min = None, None
+        end_hour, end_min = None, None
+        
+        if "ALMOCO CPS" in shift_upper or "ALMOÇO CPS" in shift_upper:
+            start_hour, start_min = 11, 0
+            end_hour, end_min = 13, 59
+        elif "ALMOCO" in shift_upper or "ALMOÇO" in shift_upper:
+            start_hour, start_min = 11, 0
+            end_hour, end_min = 14, 59
+        elif "TARDE CPS" in shift_upper:
+            start_hour, start_min = 14, 0
+            end_hour, end_min = 17, 59
+        elif "TARDE" in shift_upper:
+            start_hour, start_min = 15, 0
+            end_hour, end_min = 17, 59
+        elif "JANTAR CPS" in shift_upper:
+            start_hour, start_min = 18, 0
+            end_hour, end_min = 21, 59
+        elif "MANHA" in shift_upper or "MANHÃ" in shift_upper:
+            start_hour, start_min = 7, 0
+            end_hour, end_min = 10, 59
+        elif "MADRUGADA" in shift_upper:
+            start_hour, start_min = 0, 0
+            end_hour, end_min = 2, 0
+        elif "JANTAR" in shift_upper or "J5" in shift_upper or "J6" in shift_upper:
+            start_hour, start_min = 18, 0
+            end_hour, end_min = 23, 59
+            
+        if start_hour is not None:
+            start_dt = current_time.replace(hour=start_hour, minute=start_min, second=0, microsecond=0)
+            end_dt = current_time.replace(hour=end_hour, minute=end_min, second=0, microsecond=0)
+            
+            # Margem de tolerância
+            start_dt = start_dt - timedelta(hours=1)
+            end_dt = end_dt + timedelta(hours=1)
+            
+            if end_dt < start_dt:
+                if current_time >= start_dt or current_time <= end_dt:
+                    return True
+                return False
+                
+            if start_dt <= current_time <= end_dt:
+                return True
+            return False
+            
+    except Exception:
+        pass
+        
+    # Se não conseguir identificar nada, ignoramos para não sujar o banco com todos os turnos
+    return False
+
 def processar_escalas(sessao, data_alvo, horario_coleta, nome_regiao):
     registros_prontos = []
     try:
         registros = sessao.extrair_todas_escalas(data_alvo, data_alvo)
         for r in registros:
+            shift_name = r.get("shift", {}).get("name", "")
+            
+            if not is_shift_active(shift_name, horario_coleta):
+                continue
+                
             praca, subpraca = calcular_praca_subpraca(r, nome_regiao)
             slots = r.get("maxRegularDrivers", 0)
             logados = r.get("reservedRegularDrivers", 0)
             pct = f"{round(logados / slots * 100, 1)}%" if slots > 0 else "0%"
             
-            shift_name = r.get("shift", {}).get("name", "")
             data_reg = r.get("date", data_alvo)
             
             # Extrai o modal da lista 'modals' vinda do JSON
