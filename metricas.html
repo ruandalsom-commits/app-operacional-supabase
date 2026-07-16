@@ -1964,20 +1964,28 @@
                         }
                     }
                     
-                    let isValidTime = true;
                     if (forceTimeStr && e.horario_coleta) {
                         const recTime = e.horario_coleta.includes(' ') ? e.horario_coleta.split(' ')[1].substring(0, 5) : e.horario_coleta.substring(0, 5);
-                        if (recTime > forceTimeStr) {
-                            isValidTime = false;
+                        
+                        const [fH, fM] = forceTimeStr.split(':').map(Number);
+                        const [rH, rM] = recTime.split(':').map(Number);
+                        
+                        const fTotal = fH * 60 + fM;
+                        const rTotal = rH * 60 + rM;
+                        
+                        // Handle midnight wrap-around
+                        const diff = Math.min(Math.abs(fTotal - rTotal), 1440 - Math.abs(fTotal - rTotal));
+                        
+                        if (!latestBySub[subKey] || diff < latestBySub[subKey].diff) {
+                            latestBySub[subKey] = { record: e, diff: diff };
                         }
-                    }
-                    
-                    if (isValidTime) {
-                        latestBySub[subKey] = e;
+                    } else {
+                        latestBySub[subKey] = { record: e, diff: 0 };
                     }
                 });
                 
-                Object.values(latestBySub).forEach(e => {
+                Object.values(latestBySub).forEach(item => {
+                    const e = item.record;
                     let modal = e.modal || e.modals || 'Todos';
                     let rawSubKey = e.subpraca + '|' + modal;
                     let subKey = rawSubKey;
