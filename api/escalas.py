@@ -73,7 +73,7 @@ HEADERS_BASE = {
     "x-timezone":             "America/Sao_Paulo",
 }
 
-LIMITE = 1000
+LIMITE = 100
 
 class Sessao:
     def __init__(self, conta):
@@ -178,7 +178,7 @@ class Sessao:
             h = {**HEADERS_BASE, "cookie": cookie, **(headers_extra or {})}
             req = urllib.request.Request(url, headers=h, data=body)
             try:
-                with self.opener.open(req, timeout=10) as resp:
+                with self.opener.open(req, timeout=30) as resp:
                     raw = resp.read()
                     try:
                         return json.loads(raw.decode("utf-8"))
